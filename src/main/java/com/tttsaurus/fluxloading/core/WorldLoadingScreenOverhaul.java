@@ -10,11 +10,14 @@ import com.tttsaurus.fluxloading.render.shader.ShaderLoader;
 import com.tttsaurus.fluxloading.render.shader.ShaderProgram;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
+import java.io.File;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 public final class WorldLoadingScreenOverhaul
@@ -39,18 +42,6 @@ public final class WorldLoadingScreenOverhaul
     public static boolean isTextureNull() { return texture == null; }
     public static boolean isTextureBufferNull() { return textureBuffer == null; }
 
-    public static int getTextureWidth()
-    {
-        if (texture == null) return 0;
-        return texture.getWidth();
-    }
-    public static int getTextureHeight()
-    {
-        if (texture == null) return 0;
-        return texture.getHeight();
-    }
-    public static ByteBuffer getTextureBuffer() { return textureBuffer; }
-
     public static void updateTexture(Texture2D tex)
     {
         if (texture != null) texture.dispose();
@@ -58,8 +49,49 @@ public final class WorldLoadingScreenOverhaul
     }
 
     public static void setFogColor(int color) { fogColor = color; }
-    public static int getFogColor() { return fogColor; }
     //</editor-fold>
+
+    public static void trySaveToLocal()
+    {
+        IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
+        if (server != null && !WorldLoadingScreenOverhaul.isTextureNull() && !WorldLoadingScreenOverhaul.isTextureBufferNull())
+        {
+            File worldSaveDir = new File("saves/" + server.getFolderName());
+            RenderUtils.createPng(
+                    worldSaveDir,
+                    "last_screenshot",
+                    textureBuffer,
+                    texture.getWidth(),
+                    texture.getHeight());
+
+            try
+            {
+                RandomAccessFile fogColorFile = new RandomAccessFile("saves/" + server.getFolderName() + "/last_fog_color", "rw");
+                fogColorFile.setLength(0);
+                fogColorFile.seek(0);
+                fogColorFile.writeInt(fogColor);
+                fogColorFile.close();
+            }
+            catch (Exception ignored) { }
+        }
+    }
+    public static void tryReadFromLocal(String folderName)
+    {
+        File screenshot = new File("saves/" + folderName + "/last_screenshot.png");
+        if (screenshot.exists())
+        {
+            Texture2D texture = RenderUtils.readPng(screenshot);
+            if (texture != null) WorldLoadingScreenOverhaul.updateTexture(texture);
+        }
+
+        try
+        {
+            RandomAccessFile fogColorFile = new RandomAccessFile("saves/" + folderName + "/last_fog_color", "rw");
+            fogColor = fogColorFile.readInt();
+            fogColorFile.close();
+        }
+        catch (Exception ignored) { }
+    }
 
     public static void drawOverlay()
     {
