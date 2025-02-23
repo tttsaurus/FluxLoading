@@ -17,15 +17,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
 
 public final class RenderUtils
 {
     public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
     public static float zLevel = 0;
-
-    private static final IntBuffer intBuffer = ByteBuffer.allocateDirect(16 << 2).order(ByteOrder.nativeOrder()).asIntBuffer();
 
     private static void addArcVertices(BufferBuilder bufferbuilder, float cx, float cy, float radius, float startAngle, float endAngle, int segments)
     {
@@ -240,8 +236,8 @@ public final class RenderUtils
     //<editor-fold desc="texture">
     public static void renderTexture2D(float x, float y, float width, float height, int textureWidth, int textureHeight, int textureId)
     {
-        GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D, intBuffer);
-        int textureID = intBuffer.get(0);
+        GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D, CommonBuffers.intBuffer);
+        int textureID = CommonBuffers.intBuffer.get(0);
 
         GlStateManager.enableTexture2D();
         GlStateManager.disableLighting();
@@ -263,8 +259,8 @@ public final class RenderUtils
     }
     public static void renderTexture2DFullScreen(int textureId)
     {
-        GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D, intBuffer);
-        int textureID = intBuffer.get(0);
+        GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D, CommonBuffers.intBuffer);
+        int textureID = CommonBuffers.intBuffer.get(0);
 
         ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
         double width = resolution.getScaledWidth_double();

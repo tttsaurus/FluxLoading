@@ -21,10 +21,7 @@ public class LoadingScreenRendererMixin
     {
         original.call(instance);
 
-        if (WorldLoadingScreenOverhaul.getDrawOverlay() && WorldLoadingScreenOverhaul.isFboReady())
+        if (WorldLoadingScreenOverhaul.getDrawOverlay() && !WorldLoadingScreenOverhaul.isTextureNull())
             WorldLoadingScreenOverhaul.drawOverlay();
-
-//        if (WorldLoadingScreenOverhaul.getDrawOverlay() && !WorldLoadingScreenOverhaul.isTextureNull())
-//            WorldLoadingScreenOverhaul.drawOverlay();
     }
 }

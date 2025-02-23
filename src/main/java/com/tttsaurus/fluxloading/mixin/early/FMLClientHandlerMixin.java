@@ -39,9 +39,9 @@ public class FMLClientHandlerMixin
 
         try
         {
-            RandomAccessFile skyColorFile = new RandomAccessFile("saves/" + folderName + "/last_sky_color", "rw");
-            WorldLoadingScreenOverhaul.setSkyColor(skyColorFile.readInt());
-            skyColorFile.close();
+            RandomAccessFile fogColorFile = new RandomAccessFile("saves/" + folderName + "/last_fog_color", "rw");
+            WorldLoadingScreenOverhaul.setFogColor(fogColorFile.readInt());
+            fogColorFile.close();
         }
         catch (Exception ignored) { }
 

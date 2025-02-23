@@ -52,11 +52,11 @@ public class MinecraftMixin
 
                 try
                 {
-                    RandomAccessFile skyColorFile = new RandomAccessFile("saves/" + server.getFolderName() + "/last_sky_color", "rw");
-                    skyColorFile.setLength(0);
-                    skyColorFile.seek(0);
-                    skyColorFile.writeInt(WorldLoadingScreenOverhaul.getSkyColor());
-                    skyColorFile.close();
+                    RandomAccessFile fogColorFile = new RandomAccessFile("saves/" + server.getFolderName() + "/last_fog_color", "rw");
+                    fogColorFile.setLength(0);
+                    fogColorFile.seek(0);
+                    fogColorFile.writeInt(WorldLoadingScreenOverhaul.getFogColor());
+                    fogColorFile.close();
                 }
                 catch (Exception ignored) { }
             }
@@ -75,13 +75,13 @@ public class MinecraftMixin
         WorldLoadingScreenOverhaul.prepareScreenShot();
 
         Minecraft minecraft = Minecraft.getMinecraft();
-        Vec3d vec3d = minecraft.world.getSkyColor(minecraft.player, minecraft.getRenderPartialTicks());
+        Vec3d vec3d = minecraft.world.getFogColor(minecraft.getRenderPartialTicks());
         int red = (int)(vec3d.x * 255);
         int green = (int)(vec3d.y * 255);
         int blue = (int)(vec3d.z * 255);
         int rgba = (255 << 24) | (red << 16) | (green << 8) | blue;
 
-        WorldLoadingScreenOverhaul.setSkyColor(rgba);
+        WorldLoadingScreenOverhaul.setFogColor(rgba);
 
         original.call(instance, i);
     }
