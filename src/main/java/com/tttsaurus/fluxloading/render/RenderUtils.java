@@ -97,6 +97,8 @@ public final class RenderUtils
         buffer.pos(width, 0, zLevel).color(r, g, b, a).endVertex();
         buffer.pos(0, 0, zLevel).color(r, g, b, a).endVertex();
         tessellator.draw();
+
+        GlStateManager.enableTexture2D();
     }
     // this method is modified from Minecraft's Gui.drawGradientRect
     public static void renderGradientRect(float x, float y, float width, float height, int startColor, int endColor)
