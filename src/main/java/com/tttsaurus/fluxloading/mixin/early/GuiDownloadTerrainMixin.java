@@ -20,7 +20,10 @@ public class GuiDownloadTerrainMixin
     {
         original.call(instance, j, i, mouseX);
 
-        if (WorldLoadingScreenOverhaul.getDrawOverlay() && !WorldLoadingScreenOverhaul.isTextureNull())
+        if (WorldLoadingScreenOverhaul.getDrawOverlay() && WorldLoadingScreenOverhaul.isFboReady())
             WorldLoadingScreenOverhaul.drawOverlay();
+
+//        if (WorldLoadingScreenOverhaul.getDrawOverlay() && !WorldLoadingScreenOverhaul.isTextureNull())
+//            WorldLoadingScreenOverhaul.drawOverlay();
     }
 }
