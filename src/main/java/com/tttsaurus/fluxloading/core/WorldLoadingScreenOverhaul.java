@@ -57,12 +57,13 @@ public final class WorldLoadingScreenOverhaul
         if (server != null && !WorldLoadingScreenOverhaul.isTextureNull() && !WorldLoadingScreenOverhaul.isTextureBufferNull())
         {
             File worldSaveDir = new File("saves/" + server.getFolderName());
-            RenderUtils.createPng(
-                    worldSaveDir,
-                    "last_screenshot",
-                    textureBuffer,
-                    texture.getWidth(),
-                    texture.getHeight());
+            if (texture != null && textureBuffer != null)
+                RenderUtils.createPng(
+                        worldSaveDir,
+                        "last_screenshot",
+                        textureBuffer,
+                        texture.getWidth(),
+                        texture.getHeight());
 
             try
             {
@@ -132,6 +133,7 @@ public final class WorldLoadingScreenOverhaul
 
             textureBuffer = RenderUtils.getInGameScreenShotByteBufferFullScreen();
             updateTexture(new Texture2D(minecraft.displayWidth, minecraft.displayHeight, textureBuffer));
+            texture.dispose();
         }
     }
 
