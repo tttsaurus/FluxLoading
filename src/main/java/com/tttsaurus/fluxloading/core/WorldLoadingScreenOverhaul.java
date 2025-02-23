@@ -22,6 +22,7 @@ public final class WorldLoadingScreenOverhaul
     private static final Minecraft minecraft = Minecraft.getMinecraft();
 
     private static ShaderProgram shaderProgram = null;
+    private static Mesh mesh = null;
 
     private static boolean screenShotToggle = false;
     private static boolean drawOverlay = false;
@@ -78,27 +79,7 @@ public final class WorldLoadingScreenOverhaul
         GlStateManager.setActiveTexture(texUnit);
 
         shaderProgram.use();
-
-        float[] vertices = new float[]
-        {
-                // positions          // texcoords   // normals
-                -1.0f, -1.0f, 0.0f,   0.0f, 1.0f,     0.0f, 0.0f, 1.0f,  // bottom-left
-                1.0f, -1.0f, 0.0f,   1.0f, 1.0f,     0.0f, 0.0f, 1.0f,  // bottom-right
-                1.0f,  1.0f, 0.0f,   1.0f, 0.0f,     0.0f, 0.0f, 1.0f,  // top-right
-                -1.0f,  1.0f, 0.0f,   0.0f, 0.0f,     0.0f, 0.0f, 1.0f   // top-left
-        };
-
-        int[] indices = new int[]
-        {
-                // two triangles to make up the quad
-                0, 1, 2,   // first triangle: bottom-left, bottom-right, top-right
-                0, 2, 3    // second triangle: bottom-left, top-right, top-left
-        };
-
-        Mesh mesh = new Mesh(vertices, indices);
-        mesh.setup();
         mesh.render();
-
         shaderProgram.unuse();
 
         GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE, CommonBuffers.intBuffer);
@@ -138,6 +119,9 @@ public final class WorldLoadingScreenOverhaul
             int screenTextureLoc = shaderProgram.getUniformLocation("screenTexture");
             GL20.glUniform1i(screenTextureLoc, 1);
             shaderProgram.unuse();
+
+            mesh = new Mesh(new float[24], new int[]{0, 1, 2});
+            mesh.setup();
         }
     }
 }

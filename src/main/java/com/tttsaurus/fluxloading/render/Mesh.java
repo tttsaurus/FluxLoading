@@ -9,7 +9,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-public class Mesh
+public final class Mesh implements IGlDisposable
 {
     private float[] vertices;
     private int[] indices;
@@ -74,6 +74,8 @@ public class Mesh
 
         //vertices = null;
         //indices = null;
+
+        GlResourceManager.addDisposable(this);
     }
 
     public void render()
