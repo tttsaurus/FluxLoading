@@ -1,0 +1,17 @@
+{
+  "package": "com.tttsaurus.fluxloading.mixin.early",
+  "refmap": "mixins.fluxloading.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "FMLClientHandlerMixin"
+  ],
+  "client": [
+    "GuiDownloadTerrainMixin",
+    "GuiScreenWorkingMixin",
+    "LoadingScreenRendererMixin",
+    "MinecraftMixin"
+  ],
+  "server": []
+}
