@@ -31,6 +31,8 @@ public final class WorldLoadingScreenOverhaul
     private static boolean drawOverlay = false;
     private static Texture2D texture = null;
     private static ByteBuffer textureBuffer = null;
+    private static int textureBufferWidth;
+    private static int textureBufferHeight;
     private static int fogColor;
 
     //<editor-fold desc="getters & setters">
@@ -40,7 +42,6 @@ public final class WorldLoadingScreenOverhaul
     public static void setDrawOverlay(boolean flag) { drawOverlay = flag; }
 
     public static boolean isTextureNull() { return texture == null; }
-    public static boolean isTextureBufferNull() { return textureBuffer == null; }
 
     public static void updateTexture(Texture2D tex)
     {
@@ -54,16 +55,16 @@ public final class WorldLoadingScreenOverhaul
     public static void trySaveToLocal()
     {
         IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
-        if (server != null && !WorldLoadingScreenOverhaul.isTextureNull() && !WorldLoadingScreenOverhaul.isTextureBufferNull())
+        if (server != null)
         {
             File worldSaveDir = new File("saves/" + server.getFolderName());
-            if (texture != null && textureBuffer != null)
+            if (textureBuffer != null)
                 RenderUtils.createPng(
                         worldSaveDir,
                         "last_screenshot",
                         textureBuffer,
-                        texture.getWidth(),
-                        texture.getHeight());
+                        textureBufferWidth,
+                        textureBufferHeight);
 
             try
             {
@@ -132,8 +133,8 @@ public final class WorldLoadingScreenOverhaul
             screenShotToggle = false;
 
             textureBuffer = RenderUtils.getInGameScreenShotByteBufferFullScreen();
-            updateTexture(new Texture2D(minecraft.displayWidth, minecraft.displayHeight, textureBuffer));
-            texture.dispose();
+            textureBufferWidth = minecraft.displayWidth;
+            textureBufferHeight = minecraft.displayHeight;
         }
     }
 
