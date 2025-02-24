@@ -1,6 +1,7 @@
 package com.tttsaurus.fluxloading.core;
 
 import com.tttsaurus.fluxloading.FluxLoading;
+import com.tttsaurus.fluxloading.animation.SmoothDamp;
 import com.tttsaurus.fluxloading.render.CommonBuffers;
 import com.tttsaurus.fluxloading.render.Mesh;
 import com.tttsaurus.fluxloading.render.RenderUtils;
@@ -42,8 +43,10 @@ public final class WorldLoadingScreenOverhaul
     private static boolean finishedLoadingChunks = false;
     private static int targetChunkNum = 0;
 
-    private static double fadeOutDuration = 1.0d;
+    private static double fadeOutDuration = 0.8d;
     private static StopWatch fadingOutStopWatch = null;
+    private static SmoothDamp smoothDamp = null;
+    private static double prevFadeOutTime = 0d;
 
     //<editor-fold desc="getters & setters">
     public static void prepareScreenShot() { screenShotToggle = true; }
@@ -86,6 +89,8 @@ public final class WorldLoadingScreenOverhaul
     {
         fadingOutStopWatch = new StopWatch();
         fadingOutStopWatch.start();
+        smoothDamp = new SmoothDamp(0, 1, (float)(fadeOutDuration * 0.283d));
+        prevFadeOutTime = 0d;
     }
     public static void resetFadeOutTimer()
     {
@@ -166,7 +171,10 @@ public final class WorldLoadingScreenOverhaul
 
         if (time >= 0.5d)
         {
-            float percentage = (float)((time - 0.5d) / (fadeOutDuration - 0.5d));
+            double nowFadeOutTime = (time - 0.5d);
+            double delta = (nowFadeOutTime - prevFadeOutTime);
+            float percentage = smoothDamp.evaluate((float)delta);
+            prevFadeOutTime = nowFadeOutTime;
 
             shaderProgram.setUniform("percentage", percentage);
         }
@@ -194,7 +202,7 @@ public final class WorldLoadingScreenOverhaul
         if (fadingOutStopWatch != null)
         {
             double time = fadingOutStopWatch.getNanoTime() / 1E9d;
-            if (time >= fadeOutDuration)
+            if (time >= fadeOutDuration + 0.5d)
             {
                 resetFadeOutTimer();
                 texture.dispose();
