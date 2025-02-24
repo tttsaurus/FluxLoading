@@ -17,10 +17,12 @@ public class ChunkRenderWorkerMixin
         if (WorldLoadingScreenOverhaul.getCountingChunkLoaded())
         {
             WorldLoadingScreenOverhaul.incrChunkLoadedNum();
-            if (WorldLoadingScreenOverhaul.getChunkLoadedNum() >= 50)
+
+            if (WorldLoadingScreenOverhaul.getChunkLoadedNum() >= WorldLoadingScreenOverhaul.getTargetChunkNum())
             {
                 WorldLoadingScreenOverhaul.setCountingChunkLoaded(false);
                 WorldLoadingScreenOverhaul.resetChunkLoadedNum();
+                WorldLoadingScreenOverhaul.resetTargetChunkNum();
                 WorldLoadingScreenOverhaul.setFinishedLoadingChunks(true);
                 WorldLoadingScreenOverhaul.startFadeOutTimer();
             }

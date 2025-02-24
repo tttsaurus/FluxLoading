@@ -40,6 +40,7 @@ public final class WorldLoadingScreenOverhaul
     private static boolean countingChunkLoaded = false;
     private static int chunkLoadedNum = 0;
     private static boolean finishedLoadingChunks = false;
+    private static int targetChunkNum = 0;
 
     private static double fadeOutDuration = 1.0d;
     private static StopWatch fadingOutStopWatch = null;
@@ -68,6 +69,18 @@ public final class WorldLoadingScreenOverhaul
     public static void resetChunkLoadedNum() { chunkLoadedNum = 0; }
 
     public static void setFinishedLoadingChunks(boolean flag) { finishedLoadingChunks = flag; }
+
+    public static int getTargetChunkNum()
+    {
+        if (targetChunkNum == 0)
+        {
+            int n = Minecraft.getMinecraft().gameSettings.renderDistanceChunks;
+            int area = (2 * n + 1) * (2 * n + 1);
+            targetChunkNum = (int)((Minecraft.getMinecraft().gameSettings.fovSetting / 360f) * area);
+        }
+        return targetChunkNum;
+    }
+    public static void resetTargetChunkNum() { targetChunkNum = 0; }
 
     public static void startFadeOutTimer()
     {
