@@ -131,7 +131,7 @@ public final class WorldLoadingScreenOverhaul
     {
         drawOverlay(0);
     }
-    public static void drawOverlay(double time)
+    private static void drawOverlay(double time)
     {
         initShader();
 
@@ -173,6 +173,7 @@ public final class WorldLoadingScreenOverhaul
     @SubscribeEvent
     public static void onRenderGameOverlay(RenderGameOverlayEvent event)
     {
+        if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) return;
         if (!finishedLoadingChunks)
         {
             drawOverlay();
