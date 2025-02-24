@@ -183,7 +183,10 @@ public final class WorldLoadingScreenOverhaul
             if (time >= fadeOutDuration)
             {
                 resetFadeOutTimer();
-                //texture.dispose();
+                texture.dispose();
+                shaderProgram.use();
+                shaderProgram.setUniform("percentage", 0f);
+                shaderProgram.unuse();
                 return;
             }
             drawOverlay(time);
