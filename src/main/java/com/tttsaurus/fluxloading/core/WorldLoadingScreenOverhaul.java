@@ -11,8 +11,10 @@ import com.tttsaurus.fluxloading.render.shader.ShaderProgram;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
@@ -35,6 +37,13 @@ public final class WorldLoadingScreenOverhaul
     private static int textureBufferHeight;
     private static int fogColor;
 
+    private static boolean countingChunkLoaded = false;
+    private static int chunkLoadedNum = 0;
+    private static boolean finishedLoadingChunks = false;
+
+    private static double fadeOutDuration = 1.0d;
+    private static StopWatch fadingOutStopWatch = null;
+
     //<editor-fold desc="getters & setters">
     public static void prepareScreenShot() { screenShotToggle = true; }
 
@@ -50,6 +59,29 @@ public final class WorldLoadingScreenOverhaul
     }
 
     public static void setFogColor(int color) { fogColor = color; }
+
+    public static boolean getCountingChunkLoaded() { return countingChunkLoaded; }
+    public static void setCountingChunkLoaded(boolean flag) { countingChunkLoaded = flag; }
+
+    public static int getChunkLoadedNum() { return chunkLoadedNum; }
+    public static void incrChunkLoadedNum() { chunkLoadedNum++; }
+    public static void resetChunkLoadedNum() { chunkLoadedNum = 0; }
+
+    public static void setFinishedLoadingChunks(boolean flag) { finishedLoadingChunks = flag; }
+
+    public static void startFadeOutTimer()
+    {
+        fadingOutStopWatch = new StopWatch();
+        fadingOutStopWatch.start();
+    }
+    public static void resetFadeOutTimer()
+    {
+        if (fadingOutStopWatch != null)
+        {
+            fadingOutStopWatch.stop();
+            fadingOutStopWatch = null;
+        }
+    }
     //</editor-fold>
 
     public static void trySaveToLocal()
@@ -97,9 +129,14 @@ public final class WorldLoadingScreenOverhaul
 
     public static void drawOverlay()
     {
+        drawOverlay(0);
+    }
+    public static void drawOverlay(double time)
+    {
         initShader();
 
-        RenderUtils.renderRectFullScreen(fogColor);
+        if (time < 0.5d)
+            RenderUtils.renderRectFullScreen(fogColor);
 
         GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE, CommonBuffers.intBuffer);
         int texUnit = CommonBuffers.intBuffer.get(0);
@@ -113,6 +150,14 @@ public final class WorldLoadingScreenOverhaul
         GlStateManager.setActiveTexture(texUnit);
 
         shaderProgram.use();
+
+        if (time >= 0.5d)
+        {
+            float percentage = (float)((time - 0.5d) / (fadeOutDuration - 0.5d));
+
+            shaderProgram.setUniform("percentage", percentage);
+        }
+
         mesh.render();
         shaderProgram.unuse();
 
@@ -123,6 +168,26 @@ public final class WorldLoadingScreenOverhaul
         GlStateManager.bindTexture(texUnit1TextureID);
 
         GlStateManager.setActiveTexture(texUnit);
+    }
+
+    @SubscribeEvent
+    public static void onRenderGameOverlay(RenderGameOverlayEvent event)
+    {
+        if (!finishedLoadingChunks)
+        {
+            drawOverlay();
+        }
+        if (fadingOutStopWatch != null)
+        {
+            double time = fadingOutStopWatch.getNanoTime() / 1E9d;
+            if (time >= fadeOutDuration)
+            {
+                resetFadeOutTimer();
+                //texture.dispose();
+                return;
+            }
+            drawOverlay(time);
+        }
     }
 
     @SubscribeEvent
@@ -153,6 +218,7 @@ public final class WorldLoadingScreenOverhaul
             shaderProgram.use();
             int screenTextureLoc = shaderProgram.getUniformLocation("screenTexture");
             GL20.glUniform1i(screenTextureLoc, 1);
+            shaderProgram.setUniform("percentage", 0f);
             shaderProgram.unuse();
 
             mesh = new Mesh(new float[24], new int[]{0, 1, 2});

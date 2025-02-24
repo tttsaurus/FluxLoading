@@ -28,6 +28,11 @@ public class FMLClientHandlerMixin
         // try load screenshot
         WorldLoadingScreenOverhaul.tryReadFromLocal(folderName);
 
+        WorldLoadingScreenOverhaul.resetChunkLoadedNum();
+        WorldLoadingScreenOverhaul.setFinishedLoadingChunks(false);
+        WorldLoadingScreenOverhaul.resetFadeOutTimer();
+        WorldLoadingScreenOverhaul.setCountingChunkLoaded(true);
+
         return folderName;
     }
 }
