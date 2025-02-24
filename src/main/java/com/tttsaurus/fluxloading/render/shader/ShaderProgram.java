@@ -1,6 +1,8 @@
 package com.tttsaurus.fluxloading.render.shader;
 
 import com.tttsaurus.fluxloading.render.CommonBuffers;
+import com.tttsaurus.fluxloading.render.GlResourceManager;
+import com.tttsaurus.fluxloading.render.IGlDisposable;
 import com.tttsaurus.fluxloading.render.shader.uniform.UniformField;
 import com.tttsaurus.fluxloading.render.shader.uniform.UniformType;
 import com.tttsaurus.fluxloading.render.shader.uniform.UniformTypeKind;
@@ -14,7 +16,7 @@ import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ShaderProgram implements Comparable<ShaderProgram>
+public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable
 {
     private double cpuTimeMs;
     private double gpuTimeMs;
@@ -138,6 +140,8 @@ public class ShaderProgram implements Comparable<ShaderProgram>
         GL15.glEndQuery(GL33.GL_TIME_ELAPSED);
         GL15.glGetQueryObject(gpuTimeQueryID, GL15.GL_QUERY_RESULT, CommonBuffers.intBuffer);
         gpuTimeMs = CommonBuffers.intBuffer.get(0) / 1.0E6d;
+
+        GlResourceManager.addDisposable(this);
     }
 
     public int getUniformLocation(UniformField field)
