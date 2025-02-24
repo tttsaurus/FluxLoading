@@ -13,7 +13,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.opengl.GL11;
@@ -153,6 +155,12 @@ public final class WorldLoadingScreenOverhaul
     {
         initShader();
 
+        boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
+        boolean depthTest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+
+        GlStateManager.enableBlend();
+        GlStateManager.disableDepth();
+
         if (time < 0.5d)
             RenderUtils.renderRectFullScreen(fogColor);
 
@@ -189,10 +197,19 @@ public final class WorldLoadingScreenOverhaul
         GlStateManager.bindTexture(texUnit1TextureID);
 
         GlStateManager.setActiveTexture(texUnit);
+
+        if (depthTest)
+            GlStateManager.enableDepth();
+        else
+            GlStateManager.disableDepth();
+        if (blend)
+            GlStateManager.enableBlend();
+        else
+            GlStateManager.disableBlend();
     }
 
-    @SubscribeEvent
-    public static void onRenderGameOverlay(RenderGameOverlayEvent event)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onRenderGameOverlay(RenderGameOverlayEvent.Post event)
     {
         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) return;
         if (!finishedLoadingChunks)
