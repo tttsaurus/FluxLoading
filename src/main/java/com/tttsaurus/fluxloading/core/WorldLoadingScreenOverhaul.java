@@ -45,7 +45,7 @@ public final class WorldLoadingScreenOverhaul
     private static int targetChunkNum = 0;
 
     private static double fadeOutDuration = 0.8d;
-    private static StopWatch fadingOutStopWatch = null;
+    private static StopWatch fadeOutStopWatch = null;
     private static SmoothDamp smoothDamp = null;
     private static double prevFadeOutTime = 0d;
 
@@ -55,7 +55,7 @@ public final class WorldLoadingScreenOverhaul
     public static boolean getDrawOverlay() { return drawOverlay; }
     public static void setDrawOverlay(boolean flag) { drawOverlay = flag; }
 
-    public static boolean isTextureNull() { return texture == null; }
+    public static boolean isTextureAvailable() { return texture != null; }
 
     public static void updateTexture(Texture2D tex)
     {
@@ -88,17 +88,17 @@ public final class WorldLoadingScreenOverhaul
 
     public static void startFadeOutTimer()
     {
-        fadingOutStopWatch = new StopWatch();
-        fadingOutStopWatch.start();
+        fadeOutStopWatch = new StopWatch();
+        fadeOutStopWatch.start();
         smoothDamp = new SmoothDamp(0, 1, (float)(fadeOutDuration * 0.283d));
         prevFadeOutTime = 0d;
     }
     public static void resetFadeOutTimer()
     {
-        if (fadingOutStopWatch != null)
+        if (fadeOutStopWatch != null)
         {
-            fadingOutStopWatch.stop();
-            fadingOutStopWatch = null;
+            fadeOutStopWatch.stop();
+            fadeOutStopWatch = null;
         }
     }
     //</editor-fold>
@@ -211,13 +211,13 @@ public final class WorldLoadingScreenOverhaul
     public static void onRenderGameOverlay(RenderGameOverlayEvent.Post event)
     {
         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) return;
-        if (!finishedLoadingChunks)
+        if (isTextureAvailable() && !finishedLoadingChunks)
         {
             drawOverlay();
         }
-        if (fadingOutStopWatch != null)
+        if (isTextureAvailable() && fadeOutStopWatch != null)
         {
-            double time = fadingOutStopWatch.getNanoTime() / 1E9d;
+            double time = fadeOutStopWatch.getNanoTime() / 1E9d;
             if (time >= fadeOutDuration + 0.5d)
             {
                 resetFadeOutTimer();

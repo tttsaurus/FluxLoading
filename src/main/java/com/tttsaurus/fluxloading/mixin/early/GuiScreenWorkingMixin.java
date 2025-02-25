@@ -20,7 +20,7 @@ public class GuiScreenWorkingMixin
     {
         original.call(instance);
 
-        if (WorldLoadingScreenOverhaul.getDrawOverlay() && !WorldLoadingScreenOverhaul.isTextureNull())
+        if (WorldLoadingScreenOverhaul.getDrawOverlay() && WorldLoadingScreenOverhaul.isTextureAvailable())
             WorldLoadingScreenOverhaul.drawOverlay();
     }
 }
