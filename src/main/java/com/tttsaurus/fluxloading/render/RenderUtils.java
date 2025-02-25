@@ -400,6 +400,19 @@ public final class RenderUtils
         }
         catch (IOException ignored) { }
     }
+    public static void createPng(File directory, String fileName, BufferedImage image)
+    {
+        if (!directory.exists())
+            directory.mkdirs();
+
+        File pngFile = new File(directory, fileName + ".png");
+
+        try
+        {
+            ImageIO.write(image, "PNG", pngFile);
+        }
+        catch (IOException ignored) { }
+    }
     @Nullable
     public static Texture2D readPng(File png)
     {

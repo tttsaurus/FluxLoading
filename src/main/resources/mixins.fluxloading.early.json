@@ -9,6 +9,7 @@
   ],
   "client": [
     "ChunkRenderWorkerMixin",
+    "EntityRendererMixin",
     "GuiDownloadTerrainMixin",
     "GuiScreenWorkingMixin",
     "LoadingScreenRendererMixin",

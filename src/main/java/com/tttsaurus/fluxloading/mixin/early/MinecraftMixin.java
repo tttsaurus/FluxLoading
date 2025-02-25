@@ -8,7 +8,6 @@ import com.tttsaurus.fluxloading.render.GlResourceManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -49,15 +48,6 @@ public class MinecraftMixin
     {
         // when pause game
         WorldLoadingScreenOverhaul.prepareScreenShot();
-
-        Minecraft minecraft = Minecraft.getMinecraft();
-        Vec3d vec3d = minecraft.world.getFogColor(minecraft.getRenderPartialTicks());
-        int red = (int)(vec3d.x * 255);
-        int green = (int)(vec3d.y * 255);
-        int blue = (int)(vec3d.z * 255);
-        int rgba = (255 << 24) | (red << 16) | (green << 8) | blue;
-
-        WorldLoadingScreenOverhaul.setFogColor(rgba);
 
         original.call(instance, i);
     }

@@ -13,31 +13,24 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 
 public final class WorldLoadingScreenOverhaul
 {
-    private static final Minecraft minecraft = Minecraft.getMinecraft();
-
     private static ShaderProgram shaderProgram = null;
     private static Mesh mesh = null;
 
     private static boolean screenShotToggle = false;
     private static boolean drawOverlay = false;
     private static Texture2D texture = null;
-    private static ByteBuffer textureBuffer = null;
-    private static int textureBufferWidth;
-    private static int textureBufferHeight;
-    private static int fogColor;
+    private static BufferedImage screenShot = null;
 
     private static boolean countingChunkLoaded = false;
     private static int chunkLoadedNum = 0;
@@ -50,20 +43,21 @@ public final class WorldLoadingScreenOverhaul
     private static double prevFadeOutTime = 0d;
 
     //<editor-fold desc="getters & setters">
+    public static boolean getScreenShotToggle() { return screenShotToggle; }
     public static void prepareScreenShot() { screenShotToggle = true; }
+    public static void finishScreenShot() { screenShotToggle = false; }
 
     public static boolean getDrawOverlay() { return drawOverlay; }
     public static void setDrawOverlay(boolean flag) { drawOverlay = flag; }
 
     public static boolean isTextureAvailable() { return texture != null; }
-
     public static void updateTexture(Texture2D tex)
     {
         if (texture != null) texture.dispose();
         texture = tex;
     }
 
-    public static void setFogColor(int color) { fogColor = color; }
+    public static void setScreenShot(BufferedImage image) { screenShot = image; }
 
     public static boolean getCountingChunkLoaded() { return countingChunkLoaded; }
     public static void setCountingChunkLoaded(boolean flag) { countingChunkLoaded = flag; }
@@ -103,29 +97,18 @@ public final class WorldLoadingScreenOverhaul
     }
     //</editor-fold>
 
+    //<editor-fold desc="save & read">
     public static void trySaveToLocal()
     {
         IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
         if (server != null)
         {
             File worldSaveDir = new File("saves/" + server.getFolderName());
-            if (textureBuffer != null)
+            if (screenShot != null)
                 RenderUtils.createPng(
                         worldSaveDir,
                         "last_screenshot",
-                        textureBuffer,
-                        textureBufferWidth,
-                        textureBufferHeight);
-
-            try
-            {
-                RandomAccessFile fogColorFile = new RandomAccessFile("saves/" + server.getFolderName() + "/last_fog_color", "rw");
-                fogColorFile.setLength(0);
-                fogColorFile.seek(0);
-                fogColorFile.writeInt(fogColor);
-                fogColorFile.close();
-            }
-            catch (Exception ignored) { }
+                        screenShot);
         }
     }
     public static void tryReadFromLocal(String folderName)
@@ -136,15 +119,8 @@ public final class WorldLoadingScreenOverhaul
             Texture2D texture = RenderUtils.readPng(screenshot);
             if (texture != null) WorldLoadingScreenOverhaul.updateTexture(texture);
         }
-
-        try
-        {
-            RandomAccessFile fogColorFile = new RandomAccessFile("saves/" + folderName + "/last_fog_color", "rw");
-            fogColor = fogColorFile.readInt();
-            fogColorFile.close();
-        }
-        catch (Exception ignored) { }
     }
+    //</editor-fold>
 
     public static void drawOverlay()
     {
@@ -159,9 +135,6 @@ public final class WorldLoadingScreenOverhaul
 
         GlStateManager.enableBlend();
         GlStateManager.disableDepth();
-
-        if (time < 0.5d)
-            RenderUtils.renderRectFullScreen(fogColor);
 
         GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE, CommonBuffers.intBuffer);
         int texUnit = CommonBuffers.intBuffer.get(0);
@@ -228,19 +201,6 @@ public final class WorldLoadingScreenOverhaul
                 return;
             }
             drawOverlay(time);
-        }
-    }
-
-    @SubscribeEvent
-    public static void onRenderWorldLast(RenderWorldLastEvent event)
-    {
-        if (screenShotToggle)
-        {
-            screenShotToggle = false;
-
-            textureBuffer = RenderUtils.getInGameScreenShotByteBufferFullScreen();
-            textureBufferWidth = minecraft.displayWidth;
-            textureBufferHeight = minecraft.displayHeight;
         }
     }
 
