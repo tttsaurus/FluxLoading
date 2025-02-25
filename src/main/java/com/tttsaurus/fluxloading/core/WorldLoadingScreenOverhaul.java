@@ -82,7 +82,7 @@ public final class WorldLoadingScreenOverhaul
     {
         fadeOutStopWatch = new StopWatch();
         fadeOutStopWatch.start();
-        smoothDamp = new SmoothDamp(0, 1, (float)(fadeOutDuration * 0.283d));
+        smoothDamp = new SmoothDamp(0, 1, (float)fadeOutDuration);
         prevFadeOutTime = 0d;
     }
     public static void resetFadeOutTimer()
