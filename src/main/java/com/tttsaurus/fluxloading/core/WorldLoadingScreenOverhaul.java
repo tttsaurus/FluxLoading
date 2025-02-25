@@ -12,7 +12,9 @@ import com.tttsaurus.fluxloading.render.shader.ShaderProgram;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.util.ScreenShotHelper;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.time.StopWatch;
@@ -43,9 +45,7 @@ public final class WorldLoadingScreenOverhaul
     private static double prevFadeOutTime = 0d;
 
     //<editor-fold desc="getters & setters">
-    public static boolean getScreenShotToggle() { return screenShotToggle; }
     public static void prepareScreenShot() { screenShotToggle = true; }
-    public static void finishScreenShot() { screenShotToggle = false; }
 
     public static boolean getDrawOverlay() { return drawOverlay; }
     public static void setDrawOverlay(boolean flag) { drawOverlay = flag; }
@@ -56,8 +56,6 @@ public final class WorldLoadingScreenOverhaul
         if (texture != null) texture.dispose();
         texture = tex;
     }
-
-    public static void setScreenShot(BufferedImage image) { screenShot = image; }
 
     public static boolean getCountingChunkLoaded() { return countingChunkLoaded; }
     public static void setCountingChunkLoaded(boolean flag) { countingChunkLoaded = flag; }
@@ -204,12 +202,23 @@ public final class WorldLoadingScreenOverhaul
         }
     }
 
+    @SubscribeEvent
+    public static void onRenderWorldLast(RenderWorldLastEvent event)
+    {
+        if (screenShotToggle)
+        {
+            screenShotToggle = false;
+            Minecraft minecraft = Minecraft.getMinecraft();
+            screenShot = ScreenShotHelper.createScreenshot(minecraft.displayWidth, minecraft.displayHeight, minecraft.getFramebuffer());
+        }
+    }
+
     private static void initShader()
     {
         if (shaderProgram == null)
         {
-            Shader vertex = ShaderLoader.load("fluxloading:shaders/test_vertex.glsl", Shader.ShaderType.VERTEX);
-            Shader frag = ShaderLoader.load("fluxloading:shaders/test_frag.glsl", Shader.ShaderType.FRAGMENT);
+            Shader vertex = ShaderLoader.load("fluxloading:shaders/loading_screen_vertex.glsl", Shader.ShaderType.VERTEX);
+            Shader frag = ShaderLoader.load("fluxloading:shaders/loading_screen_frag.glsl", Shader.ShaderType.FRAGMENT);
 
             shaderProgram = new ShaderProgram(vertex, frag);
             shaderProgram.setup();
