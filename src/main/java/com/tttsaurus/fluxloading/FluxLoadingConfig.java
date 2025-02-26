@@ -21,7 +21,7 @@ public class FluxLoadingConfig
 
             WAIT_CHUNK_BUILD_COEFFICIENT = CONFIG.getFloat("Wait Chunk Build Coefficient", "general", 1f, 0f, 1f, "Theoretically, FluxLoading will wait until all chunks finished building if \"Wait Chunk Build Coefficient\" equaled 1.0\nSet it to lower numbers even 0.0 if you stuck at the loading screen");
             EXTRA_WAIT_TIME = CONFIG.getFloat("Extra Wait Time", "general", 0.5f, 0.1f, 10f, "Extra wait time before fade out animation");
-            FADE_OUT_DURATION = CONFIG.getFloat("Fade Out Duration", "general", 1.0f, 0.5f, 10f, "Actual fade out time feels shorter than this due to the exponentially decaying fade out function");
+            FADE_OUT_DURATION = CONFIG.getFloat("Fade Out Duration", "general", 1.0f, 0.5f, 10f, "The actual fade out time may feel shorter than this due to the exponentially decaying fade out function");
 
             ENABLE_WAVING_EFFECT = CONFIG.getBoolean("Enable Waving Effect", "shader", false, "An fade out option");
             ENABLE_DISSOLVING_EFFECT = CONFIG.getBoolean("Enable Dissolving Effect", "shader", false, "An fade out option");
