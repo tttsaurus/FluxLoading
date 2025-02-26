@@ -1,6 +1,7 @@
 package com.tttsaurus.fluxloading.core;
 
 import com.tttsaurus.fluxloading.FluxLoading;
+import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.animation.SmoothDamp;
 import com.tttsaurus.fluxloading.render.CommonBuffers;
 import com.tttsaurus.fluxloading.render.Mesh;
@@ -26,6 +27,7 @@ import java.io.File;
 
 public final class WorldLoadingScreenOverhaul
 {
+    // render
     private static ShaderProgram shaderProgram = null;
     private static Mesh mesh = null;
 
@@ -34,11 +36,15 @@ public final class WorldLoadingScreenOverhaul
     private static Texture2D texture = null;
     private static BufferedImage screenShot = null;
 
+    // waiting chunk build
     private static boolean countingChunkLoaded = false;
     private static int chunkLoadedNum = 0;
     private static boolean finishedLoadingChunks = false;
     private static int targetChunkNum = 0;
+    private static float targetChunkNumCoefficient = 1.0f;
 
+    // fade out animation
+    private static double extraWaitTime = 0.5d;
     private static double fadeOutDuration = 1.0d;
     private static StopWatch fadeOutStopWatch = null;
     private static SmoothDamp smoothDamp = null;
@@ -73,10 +79,17 @@ public final class WorldLoadingScreenOverhaul
             int n = Minecraft.getMinecraft().gameSettings.renderDistanceChunks;
             int area = (2 * n + 1) * (2 * n + 1);
             targetChunkNum = (int)((Minecraft.getMinecraft().gameSettings.fovSetting / 360f) * area);
+            targetChunkNum = (int)(targetChunkNumCoefficient * targetChunkNum);
+            targetChunkNum = targetChunkNum <= 0 ? 1 : targetChunkNum;
         }
         return targetChunkNum;
     }
     public static void resetTargetChunkNum() { targetChunkNum = 0; }
+
+    public static void setTargetChunkNumCoefficient(float coefficient) { targetChunkNumCoefficient = coefficient; }
+
+    public static void setExtraWaitTime(double time) { extraWaitTime = time; }
+    public static void setFadeOutDuration(double time) { fadeOutDuration = time; }
 
     public static void startFadeOutTimer()
     {
@@ -147,9 +160,9 @@ public final class WorldLoadingScreenOverhaul
 
         shaderProgram.use();
 
-        if (time >= 0.5d)
+        if (time >= extraWaitTime)
         {
-            double nowFadeOutTime = (time - 0.5d);
+            double nowFadeOutTime = (time - extraWaitTime);
             double delta = (nowFadeOutTime - prevFadeOutTime);
             float percentage = smoothDamp.evaluate((float)delta);
             prevFadeOutTime = nowFadeOutTime;
@@ -189,7 +202,7 @@ public final class WorldLoadingScreenOverhaul
         if (isTextureAvailable() && fadeOutStopWatch != null)
         {
             double time = fadeOutStopWatch.getNanoTime() / 1E9d;
-            if (time >= fadeOutDuration + 0.5d)
+            if (time >= fadeOutDuration + extraWaitTime)
             {
                 resetFadeOutTimer();
                 texture.dispose();
@@ -229,8 +242,8 @@ public final class WorldLoadingScreenOverhaul
             int screenTextureLoc = shaderProgram.getUniformLocation("screenTexture");
             GL20.glUniform1i(screenTextureLoc, 1);
             shaderProgram.setUniform("percentage", 0f);
-            shaderProgram.setUniform("enableDissolving", false);
-            shaderProgram.setUniform("enableWaving", false);
+            shaderProgram.setUniform("enableDissolving", FluxLoadingConfig.ENABLE_DISSOLVING_EFFECT);
+            shaderProgram.setUniform("enableWaving", FluxLoadingConfig.ENABLE_WAVING_EFFECT);
             shaderProgram.unuse();
 
             mesh = new Mesh(new float[24], new int[]{0, 1, 2});
