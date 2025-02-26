@@ -39,7 +39,7 @@ void main()
         float dist = length(dir);
         if (dist > 0.0)
         {
-            float waveStrength = percentage * 0.05;
+            float waveStrength = (percentage < 0.5) ? percentage * 0.05 : (1 - percentage) * 0.05;
             waveStrength *= (1.0 - dist);
             if (waveStrength > 0.0)
             {
