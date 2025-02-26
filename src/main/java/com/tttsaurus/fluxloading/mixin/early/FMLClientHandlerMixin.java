@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
 import net.minecraft.world.storage.WorldSummary;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -20,20 +21,25 @@ public class FMLClientHandlerMixin
             ))
     public String mixin_tryLoadExistingWorld_WorldSummary$getFileName(WorldSummary instance, Operation<String> original)
     {
-        String folderName = original.call(instance);
+        if (FMLCommonHandler.instance().getSide().isClient())
+        {
+            String folderName = original.call(instance);
 
-        // join world
-        WorldLoadingScreenOverhaul.setDrawOverlay(true);
+            // join world
+            WorldLoadingScreenOverhaul.setDrawOverlay(true);
 
-        // try load screenshot
-        WorldLoadingScreenOverhaul.tryReadFromLocal(folderName);
+            // try load screenshot
+            WorldLoadingScreenOverhaul.tryReadFromLocal(folderName);
 
-        WorldLoadingScreenOverhaul.setFinishedLoadingChunks(false);
-        WorldLoadingScreenOverhaul.resetChunkLoadedNum();
-        WorldLoadingScreenOverhaul.resetFadeOutTimer();
-        WorldLoadingScreenOverhaul.resetTargetChunkNum();
-        WorldLoadingScreenOverhaul.setCountingChunkLoaded(true);
+            WorldLoadingScreenOverhaul.setFinishedLoadingChunks(false);
+            WorldLoadingScreenOverhaul.resetChunkLoadedNum();
+            WorldLoadingScreenOverhaul.resetFadeOutTimer();
+            WorldLoadingScreenOverhaul.resetTargetChunkNum();
+            WorldLoadingScreenOverhaul.setCountingChunkLoaded(true);
 
-        return folderName;
+            return folderName;
+        }
+        else
+            return original.call(instance);
     }
 }
