@@ -38,8 +38,11 @@ void main()
 
     float dissolveThreshold = noise(TexCoords * 7.0);
     if (dissolveThreshold < percentage)
-        discard;
+    {
+        FragColor.a -= 0.3;
+        FragColor.a = (FragColor.a < 0.0) ? 0.0 : FragColor.a;
+    }
 
     if (percentage != 0.0)
-        FragColor = vec4(FragColor.rgb, FragColor.a * (1.0 - percentage));
+        FragColor.a = FragColor.a * (1.0 - percentage);
 }

@@ -39,7 +39,7 @@ public final class WorldLoadingScreenOverhaul
     private static boolean finishedLoadingChunks = false;
     private static int targetChunkNum = 0;
 
-    private static double fadeOutDuration = 0.8d;
+    private static double fadeOutDuration = 1.0d;
     private static StopWatch fadeOutStopWatch = null;
     private static SmoothDamp smoothDamp = null;
     private static double prevFadeOutTime = 0d;
