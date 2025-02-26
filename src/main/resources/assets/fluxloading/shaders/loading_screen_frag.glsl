@@ -3,6 +3,9 @@
 uniform sampler2D screenTexture;
 uniform float percentage;
 
+uniform bool enableDissolving;
+uniform bool enableWaving;
+
 in vec2 TexCoords;
 out vec4 FragColor;
 
@@ -27,7 +30,28 @@ float noise(vec2 p)
 
 void main()
 {
-    vec4 texColor = texture(screenTexture, TexCoords);
+    vec2 coords = TexCoords;
+
+    if (enableWaving && percentage > 0.0)
+    {
+        vec2 center = vec2(0.5, 0.5);
+        vec2 dir = TexCoords - center;
+        float dist = length(dir);
+        if (dist > 0.0)
+        {
+            float waveStrength = percentage * 0.05;
+            waveStrength *= (1.0 - dist);
+            if (waveStrength > 0.0)
+            {
+                float wave = sin(dist * 30.0 + percentage * 10.0) * waveStrength;
+                coords = TexCoords + normalize(dir) * wave;
+                coords.x = clamp(coords.x, 0.0, 1.0);
+                coords.y = clamp(coords.y, 0.0, 1.0);
+            }
+        }
+    }
+
+    vec4 texColor = texture(screenTexture, coords);
     vec3 color = texColor.rgb;
     float a = texColor.a;
 
@@ -36,13 +60,16 @@ void main()
     else
         FragColor = vec4(color, 1.0);
 
-    float dissolveThreshold = noise(TexCoords * 7.0);
-    if (dissolveThreshold < percentage)
+    if (enableDissolving)
     {
-        FragColor.a -= 0.3;
-        FragColor.a = (FragColor.a < 0.0) ? 0.0 : FragColor.a;
+        float dissolveThreshold = noise(TexCoords * 7.0);
+        if (dissolveThreshold < percentage)
+        {
+            FragColor.a -= 0.3;
+            FragColor.a = (FragColor.a < 0.0) ? 0.0 : FragColor.a;
+        }
     }
 
-    if (percentage != 0.0)
-        FragColor.a = FragColor.a * (1.0 - percentage);
+    if (percentage > 0.0)
+        FragColor.a *= (1.0 - percentage);
 }

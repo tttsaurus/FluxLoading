@@ -229,6 +229,8 @@ public final class WorldLoadingScreenOverhaul
             int screenTextureLoc = shaderProgram.getUniformLocation("screenTexture");
             GL20.glUniform1i(screenTextureLoc, 1);
             shaderProgram.setUniform("percentage", 0f);
+            shaderProgram.setUniform("enableDissolving", false);
+            shaderProgram.setUniform("enableWaving", false);
             shaderProgram.unuse();
 
             mesh = new Mesh(new float[24], new int[]{0, 1, 2});
