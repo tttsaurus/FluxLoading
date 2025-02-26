@@ -15,7 +15,8 @@ public class LoadingScreenRendererMixin
             method = "setLoadingProgress",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/Tessellator;draw()V"
+                    target = "Lnet/minecraft/client/renderer/Tessellator;draw()V",
+                    ordinal = 0
             ))
     public void mixin_setLoadingProgress_Tessellator$draw(Tessellator instance, Operation<Void> original)
     {
