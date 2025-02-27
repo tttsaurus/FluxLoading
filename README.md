@@ -7,3 +7,4 @@ FluxLoading is a mod that enhances immersion by capturing a screenshot of the lo
 ## Compatibility
 - [Nothirium](https://www.curseforge.com/minecraft/mc-mods/nothirium)
 - [Loading Progress Bar](https://www.curseforge.com/minecraft/mc-mods/loading-progress-bar)
+- [AnotherTips](https://www.curseforge.com/minecraft/mc-mods/anothertips)
