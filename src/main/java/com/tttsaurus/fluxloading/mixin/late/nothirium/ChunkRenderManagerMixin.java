@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public class ChunkRenderManagerMixin
 {
     @WrapMethod(method = "getRenderer", remap = false)
-    private static IChunkRenderer<?> mixin(Operation<IChunkRenderer<?>> original)
+    private static IChunkRenderer<?> getRenderer(Operation<IChunkRenderer<?>> original)
     {
         // render chunk
 
