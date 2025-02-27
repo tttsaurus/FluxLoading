@@ -1,6 +1,5 @@
 package com.tttsaurus.fluxloading.mixin.early;
 
-import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
 import net.minecraft.client.renderer.chunk.ChunkRenderWorker;
