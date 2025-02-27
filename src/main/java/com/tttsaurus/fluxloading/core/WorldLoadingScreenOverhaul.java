@@ -250,4 +250,13 @@ public final class WorldLoadingScreenOverhaul
             mesh.setup();
         }
     }
+    public static void resetShader()
+    {
+        if (shaderProgram != null)
+        {
+            shaderProgram.use();
+            shaderProgram.setUniform("percentage", 0f);
+            shaderProgram.unuse();
+        }
+    }
 }
