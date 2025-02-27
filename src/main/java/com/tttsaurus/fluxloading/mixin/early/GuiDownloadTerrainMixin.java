@@ -14,11 +14,11 @@ public class GuiDownloadTerrainMixin
             method = "drawScreen",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiScreen;drawScreen(IIF)V"
+                    target = "Lnet/minecraft/client/gui/GuiDownloadTerrain;drawBackground(I)V"
             ))
-    public void mixin_drawScreen_GuiScreen$drawScreen(GuiDownloadTerrain instance, int j, int i, float mouseX, Operation<Void> original)
+    public void mixin_drawScreen_GuiScreen$drawBackground(GuiDownloadTerrain instance, int i, Operation<Void> original)
     {
-        original.call(instance, j, i, mouseX);
+        original.call(instance, i);
 
         if (WorldLoadingScreenOverhaul.getDrawOverlay() && WorldLoadingScreenOverhaul.isTextureAvailable())
             WorldLoadingScreenOverhaul.drawOverlay();
