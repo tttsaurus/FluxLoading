@@ -39,4 +39,5 @@
  */
 dependencies {
 
+    compileOnly rfg.deobf("curse.maven:nothirium-624960:6219433")
 }

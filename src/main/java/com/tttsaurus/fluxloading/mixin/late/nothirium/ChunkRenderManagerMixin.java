@@ -1,20 +1,18 @@
-package com.tttsaurus.fluxloading.mixin.early;
+package com.tttsaurus.fluxloading.mixin.late.nothirium;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
-import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
-import net.minecraft.client.renderer.chunk.ChunkRenderWorker;
+import meldexun.nothirium.api.renderer.chunk.IChunkRenderer;
+import meldexun.nothirium.mc.renderer.ChunkRenderManager;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ChunkRenderWorker.class)
-public class ChunkRenderWorkerMixin
+@Mixin(ChunkRenderManager.class)
+public class ChunkRenderManagerMixin
 {
-    // won't be called when nothirium is installed
-    @Inject(method = "processTask", at = @At("RETURN"))
-    public void processTask(ChunkCompileTaskGenerator generator, CallbackInfo ci)
+    @WrapMethod(method = "getRenderer", remap = false)
+    private static IChunkRenderer<?> mixin(Operation<IChunkRenderer<?>> original)
     {
         // render chunk
 
@@ -31,5 +29,7 @@ public class ChunkRenderWorkerMixin
                 WorldLoadingScreenOverhaul.startFadeOutTimer();
             }
         }
+
+        return original.call();
     }
 }
