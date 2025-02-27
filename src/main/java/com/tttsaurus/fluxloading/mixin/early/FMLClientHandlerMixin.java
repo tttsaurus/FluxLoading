@@ -18,7 +18,8 @@ public class FMLClientHandlerMixin
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/storage/WorldSummary;getFileName()Ljava/lang/String;",
                     ordinal = 0
-            ))
+            ),
+            remap = false)
     public String mixin_tryLoadExistingWorld_WorldSummary$getFileName(WorldSummary instance, Operation<String> original)
     {
         if (FMLCommonHandler.instance().getSide().isClient())
