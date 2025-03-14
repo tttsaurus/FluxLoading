@@ -72,20 +72,19 @@ public final class Mesh implements IGlDisposable
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
 
-        //vertices = null;
-        //indices = null;
-
         GlResourceManager.addDisposable(this);
     }
 
     public void render()
     {
+        int prevVao = GL11.glGetInteger(GL30.GL_VERTEX_ARRAY_BINDING);
+
         GL30.glBindVertexArray(vao);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
 
         GL11.glDrawElements(GL11.GL_TRIANGLES, indicesLength, GL11.GL_UNSIGNED_INT, 0);
 
-        GL30.glBindVertexArray(0);
+        GL30.glBindVertexArray(prevVao);
     }
 
     public void dispose()

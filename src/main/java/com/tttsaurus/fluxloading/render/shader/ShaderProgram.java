@@ -177,6 +177,17 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable
             v = (float)((int)value);
         return v;
     }
+    private static double getDouble(Class<?> clazz, Object value)
+    {
+        double v = 0;
+        if (TypeUtils.isDoubleOrWrappedDouble(clazz))
+            v = (double)value;
+        else if (TypeUtils.isIntOrWrappedInt(clazz))
+            v = (double)((int)value);
+        else if (TypeUtils.isFloatOrWrappedFloat(clazz))
+            v = (double)((float)value);
+        return v;
+    }
     private int getInt(Class<?> clazz, Object value)
     {
         int v = 0;
@@ -225,6 +236,8 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable
 
             if (type.getSymbol().equals(UniformType.SYMBOL_FLOAT))
                 GL20.glUniform1f(loc, getFloat(clazz, value));
+            else if (type.getSymbol().equals(UniformType.SYMBOL_DOUBLE))
+                GL40.glUniform1d(loc, getDouble(clazz, value));
             else if (type.getSymbol().equals(UniformType.SYMBOL_INT))
                 GL20.glUniform1i(loc, getInt(clazz, value));
             else if (type.getSymbol().equals(UniformType.SYMBOL_UINT))
@@ -297,7 +310,13 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable
                     GL20.glUniformMatrix4(loc, false, buffer);
             }
         }
+        else if (type.getKind() == UniformTypeKind.SAMPLER)
+        {
+            Object value = values[0];
+            Class<?> clazz = value.getClass();
 
+            GL20.glUniform1i(loc, getInt(clazz, value));
+        }
     }
 
     public void use()

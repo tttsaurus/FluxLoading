@@ -13,6 +13,7 @@ public class UniformType
     protected static final UniformType ARRAY = new UniformType("NO_SYMBOL", UniformTypeKind.ARRAY);
 
     public static final String SYMBOL_FLOAT = "float";
+    public static final String SYMBOL_DOUBLE = "double";
     public static final String SYMBOL_INT = "int";
     public static final String SYMBOL_UINT = "unit";
     public static final String SYMBOL_BOOL = "bool";
@@ -48,6 +49,7 @@ public class UniformType
     protected static final List<UniformType> TYPE_PRESET = new ArrayList<>(Arrays.asList(
 
             new UniformType(SYMBOL_FLOAT, UniformTypeKind.SCALAR),
+            new UniformType(SYMBOL_DOUBLE, UniformTypeKind.SCALAR),
             new UniformType(SYMBOL_INT, UniformTypeKind.SCALAR),
             new UniformType(SYMBOL_UINT, UniformTypeKind.SCALAR),
             new UniformType(SYMBOL_BOOL, UniformTypeKind.SCALAR),
