@@ -21,7 +21,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -33,6 +32,7 @@ public final class WorldLoadingScreenOverhaul
 
     private static boolean screenShotToggle = false;
     private static boolean drawOverlay = false;
+    private static boolean forceLoadingTitle = false;
     private static Texture2D texture = null;
     private static BufferedImage screenShot = null;
 
@@ -55,6 +55,9 @@ public final class WorldLoadingScreenOverhaul
 
     public static boolean getDrawOverlay() { return drawOverlay; }
     public static void setDrawOverlay(boolean flag) { drawOverlay = flag; }
+
+    public static boolean getForceLoadingTitle() { return forceLoadingTitle; }
+    public static void setForceLoadingTitle(boolean flag) { forceLoadingTitle = flag; }
 
     public static boolean isTextureAvailable() { return texture != null; }
     public static void updateTexture(Texture2D tex)
@@ -243,7 +246,7 @@ public final class WorldLoadingScreenOverhaul
             shaderProgram.setUniform("percentage", 0f);
             shaderProgram.setUniform("enableDissolving", FluxLoadingConfig.ENABLE_DISSOLVING_EFFECT);
             shaderProgram.setUniform("enableWaving", FluxLoadingConfig.ENABLE_WAVING_EFFECT);
-            shaderProgram.setUniform("enableDarkOverlay", true);
+            shaderProgram.setUniform("enableDarkOverlay", FluxLoadingConfig.ENABLE_DARK_OVERLAY);
             shaderProgram.unuse();
 
             mesh = new Mesh(new float[24], new int[]{0, 1, 2});

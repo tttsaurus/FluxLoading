@@ -2,6 +2,7 @@ package com.tttsaurus.fluxloading.mixin.early;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
 import net.minecraft.world.storage.WorldSummary;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -28,6 +29,9 @@ public class FMLClientHandlerMixin
             // join world
             WorldLoadingScreenOverhaul.resetShader();
             WorldLoadingScreenOverhaul.setDrawOverlay(true);
+
+            if (FluxLoadingConfig.INSTANTLY_POPPED_UP_LOADING_TITLE)
+                WorldLoadingScreenOverhaul.setForceLoadingTitle(true);
 
             // try load screenshot
             WorldLoadingScreenOverhaul.tryReadFromLocal(folderName);
