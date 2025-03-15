@@ -5,6 +5,7 @@ uniform float percentage;
 
 uniform bool enableDissolving;
 uniform bool enableWaving;
+uniform bool enableDarkOverlay;
 
 in vec2 TexCoords;
 out vec4 FragColor;
@@ -69,6 +70,9 @@ void main()
             FragColor.a = (FragColor.a < 0.0) ? 0.0 : FragColor.a;
         }
     }
+
+    if (enableDarkOverlay)
+        FragColor.rgb *= 0.6;
 
     if (percentage > 0.0)
         FragColor.a *= (1.0 - percentage);

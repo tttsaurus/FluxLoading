@@ -10,6 +10,7 @@ public class FluxLoadingConfig
 
     public static boolean ENABLE_WAVING_EFFECT;
     public static boolean ENABLE_DISSOLVING_EFFECT;
+    public static boolean ENABLE_DARK_OVERLAY;
 
     public static Configuration CONFIG;
 
@@ -25,6 +26,7 @@ public class FluxLoadingConfig
 
             ENABLE_WAVING_EFFECT = CONFIG.getBoolean("Enable Waving Effect", "shader", false, "A fade out option");
             ENABLE_DISSOLVING_EFFECT = CONFIG.getBoolean("Enable Dissolving Effect", "shader", false, "A fade out option");
+            ENABLE_DARK_OVERLAY = CONFIG.getBoolean("Enable Dark Overlay", "shader", false, "An overlay on the screenshot");
         }
         catch (Exception ignored) { }
         finally

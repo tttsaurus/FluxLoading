@@ -239,11 +239,11 @@ public final class WorldLoadingScreenOverhaul
             FluxLoading.logger.info(shaderProgram.getSetupDebugReport());
 
             shaderProgram.use();
-            int screenTextureLoc = shaderProgram.getUniformLocation("screenTexture");
-            GL20.glUniform1i(screenTextureLoc, 1);
+            shaderProgram.setUniform("screenTexture", 1);
             shaderProgram.setUniform("percentage", 0f);
             shaderProgram.setUniform("enableDissolving", FluxLoadingConfig.ENABLE_DISSOLVING_EFFECT);
             shaderProgram.setUniform("enableWaving", FluxLoadingConfig.ENABLE_WAVING_EFFECT);
+            shaderProgram.setUniform("enableDarkOverlay", true);
             shaderProgram.unuse();
 
             mesh = new Mesh(new float[24], new int[]{0, 1, 2});
