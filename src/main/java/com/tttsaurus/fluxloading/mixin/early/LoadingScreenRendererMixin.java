@@ -11,8 +11,6 @@ import net.minecraft.client.resources.I18n;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import java.awt.*;
-
 @Mixin(LoadingScreenRenderer.class)
 public class LoadingScreenRendererMixin
 {

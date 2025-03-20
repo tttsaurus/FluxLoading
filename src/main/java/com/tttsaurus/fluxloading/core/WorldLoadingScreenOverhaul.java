@@ -11,7 +11,9 @@ import com.tttsaurus.fluxloading.render.shader.Shader;
 import com.tttsaurus.fluxloading.render.shader.ShaderLoader;
 import com.tttsaurus.fluxloading.render.shader.ShaderProgram;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -21,6 +23,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -201,6 +204,11 @@ public final class WorldLoadingScreenOverhaul
         if (isTextureAvailable() && !finishedLoadingChunks)
         {
             drawOverlay();
+
+            ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
+            String i18nText = I18n.format("fluxloading.loading_wait");
+            float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
+            RenderUtils.renderText(i18nText, (resolution.getScaledWidth() - width) / 2, (float) (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2, 1, Color.WHITE.getRGB(), true);
         }
         if (isTextureAvailable() && fadeOutStopWatch != null)
         {
@@ -209,9 +217,7 @@ public final class WorldLoadingScreenOverhaul
             {
                 resetFadeOutTimer();
                 texture.dispose();
-                shaderProgram.use();
-                shaderProgram.setUniform("percentage", 0f);
-                shaderProgram.unuse();
+                resetShader();
                 return;
             }
             drawOverlay(time);
