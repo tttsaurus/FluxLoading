@@ -18,6 +18,7 @@ public class ClientProxy extends CommonProxy
         FluxLoadingConfig.CONFIG = new Configuration(event.getSuggestedConfigurationFile());
         FluxLoadingConfig.loadConfig();
 
+        WorldLoadingScreenOverhaul.setChunkBuildingTitle(FluxLoadingConfig.CHUNK_BUILDING_INDICATOR);
         WorldLoadingScreenOverhaul.setTargetChunkNumCoefficient(FluxLoadingConfig.WAIT_CHUNK_BUILD_COEFFICIENT);
         WorldLoadingScreenOverhaul.setExtraWaitTime(FluxLoadingConfig.EXTRA_WAIT_TIME);
         WorldLoadingScreenOverhaul.setFadeOutDuration(FluxLoadingConfig.FADE_OUT_DURATION);

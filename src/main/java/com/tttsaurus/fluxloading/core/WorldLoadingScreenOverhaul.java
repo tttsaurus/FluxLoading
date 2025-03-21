@@ -36,6 +36,7 @@ public final class WorldLoadingScreenOverhaul
     private static boolean screenShotToggle = false;
     private static boolean drawOverlay = false;
     private static boolean forceLoadingTitle = false;
+    private static boolean chunkBuildingTitle = false;
     private static Texture2D texture = null;
     private static BufferedImage screenShot = null;
 
@@ -61,6 +62,8 @@ public final class WorldLoadingScreenOverhaul
 
     public static boolean getForceLoadingTitle() { return forceLoadingTitle; }
     public static void setForceLoadingTitle(boolean flag) { forceLoadingTitle = flag; }
+
+    public static void setChunkBuildingTitle(boolean flag) { chunkBuildingTitle = flag; }
 
     public static boolean isTextureAvailable() { return texture != null; }
     public static void updateTexture(Texture2D tex)
@@ -134,7 +137,7 @@ public final class WorldLoadingScreenOverhaul
         if (screenshot.exists())
         {
             Texture2D texture = RenderUtils.readPng(screenshot);
-            if (texture != null) WorldLoadingScreenOverhaul.updateTexture(texture);
+            if (texture != null) updateTexture(texture);
         }
     }
     //</editor-fold>
@@ -205,10 +208,13 @@ public final class WorldLoadingScreenOverhaul
         {
             drawOverlay();
 
-            ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
-            String i18nText = I18n.format("fluxloading.loading_wait");
-            float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
-            RenderUtils.renderText(i18nText, (resolution.getScaledWidth() - width) / 2, (float) (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2, 1, Color.WHITE.getRGB(), true);
+            if (chunkBuildingTitle)
+            {
+                ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
+                String i18nText = I18n.format("fluxloading.loading_wait");
+                float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
+                RenderUtils.renderText(i18nText, (resolution.getScaledWidth() - width) / 2, (float) (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2, 1, Color.WHITE.getRGB(), true);
+            }
         }
         if (isTextureAvailable() && fadeOutStopWatch != null)
         {
