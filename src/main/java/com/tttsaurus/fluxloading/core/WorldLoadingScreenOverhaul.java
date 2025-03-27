@@ -281,7 +281,8 @@ public final class WorldLoadingScreenOverhaul
             shaderProgram.unuse();
 
             vertexBuffer = ByteBuffer.allocateDirect(9 * Float.BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer();
-            vertexBuffer.put(new float[9]).flip();
+            // vec2(-1, -1), vec2(3, -1), vec2(-1, 3)
+            vertexBuffer.put(new float[]{-1, -1, 0, 3, -1, 0, -1, 3, 0}).flip();
         }
     }
     public static void resetShader()

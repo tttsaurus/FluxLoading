@@ -1,4 +1,4 @@
-#version 130
+#version 120
 
 uniform sampler2D screenTexture;
 uniform float percentage;
@@ -51,7 +51,7 @@ void main()
         }
     }
 
-    vec4 texColor = texture(screenTexture, coords);
+    vec4 texColor = texture2D(screenTexture, coords);
     vec3 color = texColor.rgb;
     float a = texColor.a;
 
