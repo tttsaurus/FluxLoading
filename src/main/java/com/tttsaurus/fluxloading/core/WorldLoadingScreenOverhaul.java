@@ -48,7 +48,7 @@ public final class WorldLoadingScreenOverhaul
     private static int chunkLoadedNum = 0;
     private static boolean finishedLoadingChunks = false;
     private static int targetChunkNum = 0;
-    private static float targetChunkNumCoefficient = 1.0f;
+    private static float targetChunkNumCoefficient = 0.0f;
 
     // fade out animation
     private static double extraWaitTime = 0.5d;
@@ -88,9 +88,10 @@ public final class WorldLoadingScreenOverhaul
     {
         if (targetChunkNum == 0)
         {
-            int n = Minecraft.getMinecraft().gameSettings.renderDistanceChunks;
+            Minecraft minecraft = Minecraft.getMinecraft();
+            int n = minecraft.gameSettings.renderDistanceChunks;
             int area = (2 * n + 1) * (2 * n + 1);
-            targetChunkNum = (int)((Minecraft.getMinecraft().gameSettings.fovSetting / 360f) * area);
+            targetChunkNum = (int)((minecraft.gameSettings.fovSetting / 360f) * area);
             targetChunkNum = (int)(targetChunkNumCoefficient * targetChunkNum);
             targetChunkNum = targetChunkNum <= 0 ? 1 : targetChunkNum;
         }
