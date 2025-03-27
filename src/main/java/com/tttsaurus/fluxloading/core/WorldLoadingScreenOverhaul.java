@@ -4,7 +4,6 @@ import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.animation.SmoothDamp;
 import com.tttsaurus.fluxloading.render.CommonBuffers;
-import com.tttsaurus.fluxloading.render.Mesh;
 import com.tttsaurus.fluxloading.render.RenderUtils;
 import com.tttsaurus.fluxloading.render.Texture2D;
 import com.tttsaurus.fluxloading.render.shader.Shader;
@@ -23,15 +22,19 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL20;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 
 public final class WorldLoadingScreenOverhaul
 {
     // render
     private static ShaderProgram shaderProgram = null;
-    private static Mesh mesh = null;
+    private static FloatBuffer vertexBuffer;
 
     private static boolean screenShotToggle = false;
     private static boolean drawOverlay = false;
@@ -179,7 +182,7 @@ public final class WorldLoadingScreenOverhaul
             shaderProgram.setUniform("percentage", percentage);
         }
 
-        mesh.render();
+        triggerShader();
         shaderProgram.unuse();
 
         GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE, CommonBuffers.intBuffer);
@@ -241,6 +244,21 @@ public final class WorldLoadingScreenOverhaul
         }
     }
 
+    private static void triggerShader()
+    {
+        GL20.glGetVertexAttrib(0, GL20.GL_VERTEX_ATTRIB_ARRAY_ENABLED, CommonBuffers.intBuffer);
+        boolean enabled = CommonBuffers.intBuffer.get(0) == GL11.GL_TRUE;
+
+        GL20.glEnableVertexAttribArray(0);
+
+        GL20.glVertexAttribPointer(0, 3, false, 0, vertexBuffer);
+        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
+
+        if (enabled)
+            GL20.glEnableVertexAttribArray(0);
+        else
+            GL20.glDisableVertexAttribArray(0);
+    }
     private static void initShader()
     {
         if (shaderProgram == null)
@@ -261,8 +279,8 @@ public final class WorldLoadingScreenOverhaul
             shaderProgram.setUniform("enableDarkOverlay", FluxLoadingConfig.ENABLE_DARK_OVERLAY);
             shaderProgram.unuse();
 
-            mesh = new Mesh(new float[24], new int[]{0, 1, 2});
-            mesh.setup();
+            vertexBuffer = ByteBuffer.allocateDirect(9 * Float.BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer();
+            vertexBuffer.put(new float[9]).flip();
         }
     }
     public static void resetShader()
