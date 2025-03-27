@@ -1,4 +1,4 @@
-#version 330 core
+#version 130
 
 uniform sampler2D screenTexture;
 uniform float percentage;
@@ -7,8 +7,7 @@ uniform bool enableDissolving;
 uniform bool enableWaving;
 uniform bool enableDarkOverlay;
 
-in vec2 TexCoords;
-out vec4 FragColor;
+varying vec2 TexCoords;
 
 float hash(vec2 p)
 {
@@ -57,23 +56,23 @@ void main()
     float a = texColor.a;
 
     if (a < 0.1)
-        FragColor = texColor;
+        gl_FragColor = texColor;
     else
-        FragColor = vec4(color, 1.0);
+        gl_FragColor = vec4(color, 1.0);
 
     if (enableDissolving)
     {
         float dissolveThreshold = noise(TexCoords * 7.0);
         if (dissolveThreshold < percentage)
         {
-            FragColor.a -= 0.3;
-            FragColor.a = (FragColor.a < 0.0) ? 0.0 : FragColor.a;
+            gl_FragColor.a -= 0.3;
+            gl_FragColor.a = (gl_FragColor.a < 0.0) ? 0.0 : gl_FragColor.a;
         }
     }
 
     if (enableDarkOverlay)
-        FragColor.rgb *= 0.6;
+        gl_FragColor.rgb *= 0.6;
 
     if (percentage > 0.0)
-        FragColor.a *= (1.0 - percentage);
+        gl_FragColor.a *= (1.0 - percentage);
 }
