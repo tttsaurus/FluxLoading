@@ -254,11 +254,11 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable {
                     Class<?> clazz2 = value2.getClass();
 
                     if (type.getVariant() == Variant.DEFAULT) GL20
-                            .glUniform3f(loc, getFloat(clazz0, value0), getFloat(clazz1, value1), getFloat(clazz2, value2));
+                        .glUniform3f(loc, getFloat(clazz0, value0), getFloat(clazz1, value1), getFloat(clazz2, value2));
                     else if (type.getVariant() == Variant.I)
                         GL20.glUniform3i(loc, getInt(clazz0, value0), getInt(clazz1, value1), getInt(clazz2, value2));
                     else if (type.getVariant() == Variant.U) GL30
-                            .glUniform3ui(loc, getUint(clazz0, value0), getUint(clazz1, value1), getUint(clazz2, value2));
+                        .glUniform3ui(loc, getUint(clazz0, value0), getUint(clazz1, value1), getUint(clazz2, value2));
                 }
                 case UniformType.SYMBOL_VEC4 -> {
                     Object value0 = values[0];
@@ -271,23 +271,23 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable {
                     Class<?> clazz3 = value3.getClass();
 
                     if (type.getVariant() == Variant.DEFAULT) GL20.glUniform4f(
-                            loc,
-                            getFloat(clazz0, value0),
-                            getFloat(clazz1, value1),
-                            getFloat(clazz2, value2),
-                            getFloat(clazz3, value3));
+                        loc,
+                        getFloat(clazz0, value0),
+                        getFloat(clazz1, value1),
+                        getFloat(clazz2, value2),
+                        getFloat(clazz3, value3));
                     else if (type.getVariant() == Variant.I) GL20.glUniform4i(
-                            loc,
-                            getInt(clazz0, value0),
-                            getInt(clazz1, value1),
-                            getInt(clazz2, value2),
-                            getInt(clazz3, value3));
+                        loc,
+                        getInt(clazz0, value0),
+                        getInt(clazz1, value1),
+                        getInt(clazz2, value2),
+                        getInt(clazz3, value3));
                     else if (type.getVariant() == Variant.U) GL30.glUniform4ui(
-                            loc,
-                            getUint(clazz0, value0),
-                            getUint(clazz1, value1),
-                            getUint(clazz2, value2),
-                            getUint(clazz3, value3));
+                        loc,
+                        getUint(clazz0, value0),
+                        getUint(clazz1, value1),
+                        getUint(clazz2, value2),
+                        getUint(clazz3, value3));
                 }
             }
         } else if (type.getKind() == UniformTypeKind.MATRIX) {

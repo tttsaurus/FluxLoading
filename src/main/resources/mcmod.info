@@ -1,12 +1,21 @@
-[{
-    "modid": "${modid}",
-    "name": "${modname}",
-    "description": "A mod for seamless world loading screen",
-    "version": "${version}",
-    "mcversion": "${mcversion}",
-    "logoFile": "",
-    "url": "",
-    "authorList": [],
-    "credits": "",
-    "dependencies": []
-}]
+{
+    "modListVersion": 2,
+    "modList": [{
+        "modid": "${modId}",
+        "name": "${modName}",
+        "description": "A mod for seamless world loading screen",
+        "version": "${modVersion}",
+        "mcversion": "${minecraftVersion}",
+        "url": "https://github.com/Midnight145/FluxLoading",
+        "updateUrl": "",
+        "authorList": ["tttsaurus, Midnight145"],
+        "credits": "",
+        "logoFile": "",
+        "screenshots": [],
+        "parent": "",
+        "requiredMods": [],
+        "dependencies": [],
+        "dependants": [],
+        "useDependencyInformation": false
+    }]
+}

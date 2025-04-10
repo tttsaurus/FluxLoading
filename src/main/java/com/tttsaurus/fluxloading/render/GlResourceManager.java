@@ -20,7 +20,9 @@ public final class GlResourceManager {
 
     public static void disposeAll(Logger logger) {
         for (IGlDisposable disposable : disposables) {
-            logger.info("Disposing %s", disposable.getClass()
+            logger.info(
+                "Disposing %s",
+                disposable.getClass()
                     .getSimpleName());
             disposable.dispose();
             checkGLError(logger);

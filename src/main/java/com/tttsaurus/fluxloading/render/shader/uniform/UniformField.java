@@ -1,4 +1,5 @@
 package com.tttsaurus.fluxloading.render.shader.uniform;
+
 import com.tttsaurus.fluxloading.util.Tuple;
 
 public class UniformField {

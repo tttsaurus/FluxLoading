@@ -15,7 +15,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
     version = "0.0.1",
     name = "FluxLoading",
     acceptedMinecraftVersions = "[1.7.10]",
-    dependencies = "required-after:mixinbooter@[10.0,)")
+    dependencies = "required-after:unimixins@[0.1.18,)")
 public class FluxLoading {
 
     public static Logger logger;
