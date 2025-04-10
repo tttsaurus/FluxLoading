@@ -21,7 +21,6 @@ public class FMLClientHandlerMixin {
         Operation<Void> original) {
         if (FMLCommonHandler.instance()
             .getEffectiveSide() == Side.CLIENT) {
-            String folderName = dirName + System.lineSeparator() + saveName;
             // join world
             WorldLoadingScreenOverhaul.resetShader();
             WorldLoadingScreenOverhaul.setDrawOverlay(true);
@@ -30,7 +29,7 @@ public class FMLClientHandlerMixin {
                 WorldLoadingScreenOverhaul.setForceLoadingTitle(true);
 
             // try load screenshot
-            WorldLoadingScreenOverhaul.tryReadFromLocal(folderName);
+            WorldLoadingScreenOverhaul.tryReadFromLocal(dirName);
 
             WorldLoadingScreenOverhaul.setFinishedLoadingChunks(false);
             WorldLoadingScreenOverhaul.resetChunkLoadedNum();
