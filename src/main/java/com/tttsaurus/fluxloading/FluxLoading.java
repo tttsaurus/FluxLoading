@@ -9,10 +9,10 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
 @Mod(
-        modid = Tags.MODID,
-        version = Tags.VERSION,
-        name = Tags.MODNAME,
-        acceptedMinecraftVersions = "[1.12.2]",
+        modid = "fluxloading",
+        version = "0.0.1",
+        name = "FluxLoading",
+        acceptedMinecraftVersions = "[1.7.10]",
         dependencies = "required-after:mixinbooter@[10.0,)")
 public class FluxLoading
 {
