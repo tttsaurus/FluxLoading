@@ -1,6 +1,6 @@
 package com.tttsaurus.fluxloading.animation;
 
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 
 public class SmoothDamp {
 
@@ -11,26 +11,6 @@ public class SmoothDamp {
     private final float smoothTime;
     private final float maxSpeed;
 
-    // <editor-fold desc="getters & setters">
-    public float getFrom() {
-        return from;
-    }
-
-    public void setFrom(float from) {
-        this.from = from;
-        dis = Math.abs(to - from);
-    }
-
-    public float getTo() {
-        return to;
-    }
-
-    public void setTo(float to) {
-        this.to = to;
-        dis = Math.abs(to - from);
-    }
-    // </editor-fold>
-
     public SmoothDamp(float from, float to, float smoothTime) {
         dis = Math.abs(to - from);
         this.from = from;
@@ -40,22 +20,13 @@ public class SmoothDamp {
         maxSpeed = Float.POSITIVE_INFINITY;
     }
 
-    public SmoothDamp(float from, float to, float smoothTime, float maxSpeed) {
-        dis = Math.abs(to - from);
-        this.from = from;
-        this.to = to;
-        vel = 0f;
-        this.smoothTime = Math.max(smoothTime * 0.268f, 0.001f);
-        this.maxSpeed = maxSpeed;
-    }
-
     public float evaluate(float deltaTime) {
         float omega = 2f / smoothTime;
         float x = omega * deltaTime;
         float exp = 1f / (1f + x + 0.48f * x * x + 0.235f * x * x * x);
         float change = to - from;
         float maxChange = maxSpeed * smoothTime;
-        change = MathHelper.clamp(change, -maxChange, maxChange);
+        change = MathHelper.clamp_float(change, -maxChange, maxChange);
         float temp = (vel - omega * change) * deltaTime;
         vel = (vel - omega * temp) * exp;
         from = from + change + (temp - change) * exp;
