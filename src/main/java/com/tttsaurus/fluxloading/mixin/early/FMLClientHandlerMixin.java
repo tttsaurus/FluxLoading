@@ -1,24 +1,26 @@
 package com.tttsaurus.fluxloading.mixin.early;
 
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import cpw.mods.fml.relauncher.Side;
 import net.minecraft.client.gui.GuiSelectWorld;
 
 import org.spongepowered.asm.mixin.Mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
 
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
 
-@Mixin(FMLClientHandler.class)
+@Mixin(value = FMLClientHandler.class, remap = false)
 public class FMLClientHandlerMixin {
 
     @WrapMethod(method = "tryLoadExistingWorld")
-    public void mixinTryLoadExistingWorld(GuiSelectWorld selectWorldGUI, String dirName, String saveName, Operation<Void> original) {
-        if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+    public void mixinTryLoadExistingWorld(GuiSelectWorld selectWorldGUI, String dirName, String saveName,
+        Operation<Void> original) {
+        if (FMLCommonHandler.instance()
+            .getEffectiveSide() == Side.CLIENT) {
             String folderName = dirName + System.lineSeparator() + saveName;
             // join world
             WorldLoadingScreenOverhaul.resetShader();

@@ -43,7 +43,7 @@ public class FluxLoadingCoremod implements IFMLLoadingPlugin, IEarlyMixinLoader 
     public List<String> getMixinConfigs() {
         List<String> list = new ArrayList<>();
 
-        list.add("mixins.fluxloading.early.json");
+        list.add("mixins.fluxloading.json");
 
         return list;
     }

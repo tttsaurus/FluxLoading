@@ -33,7 +33,8 @@ public class LoadingScreenRendererMixin {
             value = "INVOKE",
             target = "Lnet/minecraft/client/gui/FontRenderer;drawStringWithShadow(Ljava/lang/String;III)I",
             ordinal = 0))
-    public int mixin_setLoadingProgress_FontRenderer$drawStringWithShadow(FontRenderer instance, String text, int x, int y, int color, Operation<Integer> original) {
+    public int mixin_setLoadingProgress_FontRenderer$drawStringWithShadow(FontRenderer instance, String text, int x,
+        int y, int color, Operation<Integer> original) {
         int res = original.call(instance, text, x, y, color);
 
         if (WorldLoadingScreenOverhaul.getDrawOverlay()) {
