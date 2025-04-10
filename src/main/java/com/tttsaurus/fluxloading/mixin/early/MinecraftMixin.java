@@ -27,7 +27,7 @@ public class MinecraftMixin {
 
     @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At("HEAD"))
     public void loadWorld(WorldClient worldClientIn, String loadingMessage, CallbackInfo ci) {
-        WorldClient world = Minecraft.getMinecraft().world;
+        WorldClient world = Minecraft.getMinecraft().theWorld;
         if (world != null) {
             // leave world
             WorldLoadingScreenOverhaul.setDrawOverlay(false);

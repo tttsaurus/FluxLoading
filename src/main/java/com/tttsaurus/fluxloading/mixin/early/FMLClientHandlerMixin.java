@@ -1,12 +1,12 @@
 package com.tttsaurus.fluxloading.mixin.early;
 
-import net.minecraft.world.storage.WorldSummary;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import cpw.mods.fml.relauncher.Side;
+import net.minecraft.client.gui.GuiSelectWorld;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
 
@@ -16,19 +16,10 @@ import cpw.mods.fml.common.FMLCommonHandler;
 @Mixin(FMLClientHandler.class)
 public class FMLClientHandlerMixin {
 
-    @WrapOperation(
-        method = "tryLoadExistingWorld",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/storage/WorldSummary;getFileName()Ljava/lang/String;",
-            ordinal = 0))
-    public String mixin_tryLoadExistingWorld_WorldSummary$getFileName(WorldSummary instance,
-        Operation<String> original) {
-        if (FMLCommonHandler.instance()
-            .getSide()
-            .isClient()) {
-            String folderName = original.call(instance);
-
+    @WrapMethod(method = "tryLoadExistingWorld")
+    public void mixinTryLoadExistingWorld(GuiSelectWorld selectWorldGUI, String dirName, String saveName, Operation<Void> original) {
+        if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+            String folderName = dirName + System.lineSeparator() + saveName;
             // join world
             WorldLoadingScreenOverhaul.resetShader();
             WorldLoadingScreenOverhaul.setDrawOverlay(true);
@@ -44,8 +35,7 @@ public class FMLClientHandlerMixin {
             WorldLoadingScreenOverhaul.resetFadeOutTimer();
             WorldLoadingScreenOverhaul.resetTargetChunkNum();
             WorldLoadingScreenOverhaul.setCountingChunkLoaded(true);
-
-            return folderName;
-        } else return original.call(instance);
+        }
+        original.call(selectWorldGUI, dirName, saveName);
     }
 }

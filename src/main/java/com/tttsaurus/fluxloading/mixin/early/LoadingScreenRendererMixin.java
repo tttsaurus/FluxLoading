@@ -18,22 +18,22 @@ public class LoadingScreenRendererMixin {
 
     @WrapOperation(
         method = "setLoadingProgress",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/Tessellator;draw()V", ordinal = 0))
-    public void mixin_setLoadingProgress_Tessellator$draw(Tessellator instance, Operation<Void> original) {
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/Tessellator;draw()I", ordinal = 0))
+    public int mixin_setLoadingProgress_Tessellator$draw(Tessellator instance, Operation<Void> original) {
         original.call(instance);
 
         if (WorldLoadingScreenOverhaul.getDrawOverlay() && WorldLoadingScreenOverhaul.isTextureAvailable())
             WorldLoadingScreenOverhaul.drawOverlay();
+        return 0;
     }
 
     @WrapOperation(
         method = "setLoadingProgress",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/FontRenderer;drawStringWithShadow(Ljava/lang/String;FFI)I",
+            target = "Lnet/minecraft/client/gui/FontRenderer;drawStringWithShadow(Ljava/lang/String;III)I",
             ordinal = 0))
-    public int mixin_setLoadingProgress_FontRenderer$drawStringWithShadow(FontRenderer instance, String text, float x,
-        float y, int color, Operation<Integer> original) {
+    public int mixin_setLoadingProgress_FontRenderer$drawStringWithShadow(FontRenderer instance, String text, int x, int y, int color, Operation<Integer> original) {
         int res = original.call(instance, text, x, y, color);
 
         if (WorldLoadingScreenOverhaul.getDrawOverlay()) {
