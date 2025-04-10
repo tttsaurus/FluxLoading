@@ -1,6 +1,6 @@
 package com.tttsaurus.fluxloading.render.shader.uniform;
 
-import net.minecraft.util.Tuple;
+import com.tttsaurus.fluxloading.util.Tuple;
 
 public final class UniformParseUtils {
 
