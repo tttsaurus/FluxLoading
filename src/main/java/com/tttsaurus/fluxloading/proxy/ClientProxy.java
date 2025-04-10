@@ -30,6 +30,6 @@ public class ClientProxy extends CommonProxy {
     public void init(FMLInitializationEvent event, Logger logger) {
         super.init(event, logger);
 
-        MinecraftForge.EVENT_BUS.register(WorldLoadingScreenOverhaul.class);
+        MinecraftForge.EVENT_BUS.register(new WorldLoadingScreenOverhaul());
     }
 }

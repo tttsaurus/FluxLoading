@@ -234,7 +234,7 @@ public final class WorldLoadingScreenOverhaul {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onRenderGameOverlay(RenderGameOverlayEvent.Post event) {
+    public void onRenderGameOverlay(RenderGameOverlayEvent.Post event) {
         if (event.type != RenderGameOverlayEvent.ElementType.ALL) return;
         if (isTextureAvailable() && !finishedLoadingChunks) {
             drawOverlay();
@@ -269,7 +269,7 @@ public final class WorldLoadingScreenOverhaul {
     }
 
     @SubscribeEvent
-    public static void onRenderWorldLast(RenderWorldLastEvent event) {
+    public void onRenderWorldLast(RenderWorldLastEvent event) {
         if (screenShotToggle) {
             screenShotToggle = false;
             Minecraft minecraft = Minecraft.getMinecraft();
