@@ -4,10 +4,10 @@ import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.time.StopWatch;
-import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.*;
 
 import com.tttsaurus.fluxloading.render.CommonBuffers;
@@ -28,10 +28,6 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable {
     private final Map<UniformField, Integer> uniformFields = new ConcurrentHashMap<>();
     private final List<Integer> shaderIDs = new ArrayList<>();
     private final List<Shader> shaders = new ArrayList<>();
-
-    public int getProgramID() {
-        return programID;
-    }
 
     // call after setup()
     public String getSetupDebugReport() {
@@ -173,27 +169,6 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable {
         GlResourceManager.addDisposable(this);
     }
 
-    public int getUniformLocation(UniformField field) {
-        Integer loc = uniformFields.get(field);
-        if (loc == null) return -1;
-        else return loc;
-    }
-
-    public int getUniformLocation(String fieldName) {
-        for (Map.Entry<UniformField, Integer> entry : uniformFields.entrySet()) if (entry.getKey()
-            .getFieldName()
-            .equals(fieldName)) return entry.getValue();
-        return GL20.glGetUniformLocation(programID, fieldName);
-    }
-
-    @Nullable
-    public UniformField getUniform(String fieldName) {
-        for (Map.Entry<UniformField, Integer> entry : uniformFields.entrySet()) if (entry.getKey()
-            .getFieldName()
-            .equals(fieldName)) return entry.getKey();
-        return null;
-    }
-
     private float getFloat(Class<?> clazz, Object value) {
         float v = 0;
         if (TypeUtils.isFloatOrWrappedFloat(clazz)) v = (float) value;
@@ -230,6 +205,7 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable {
     }
 
     // call after use()
+    @SuppressWarnings("DuplicatedCode")
     public void setUniform(String fieldName, Object... values) {
         UniformField field = null;
         int loc = 0;
@@ -247,32 +223,29 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable {
             Object value = values[0];
             Class<?> clazz = value.getClass();
 
-            if (type.getSymbol()
-                .equals(UniformType.SYMBOL_FLOAT)) GL20.glUniform1f(loc, getFloat(clazz, value));
-            else if (type.getSymbol()
-                .equals(UniformType.SYMBOL_DOUBLE)) GL40.glUniform1d(loc, getDouble(clazz, value));
-            else if (type.getSymbol()
-                .equals(UniformType.SYMBOL_INT)) GL20.glUniform1i(loc, getInt(clazz, value));
-            else if (type.getSymbol()
-                .equals(UniformType.SYMBOL_UINT)) GL30.glUniform1ui(loc, getUint(clazz, value));
-            else if (type.getSymbol()
-                .equals(UniformType.SYMBOL_BOOL)) GL20.glUniform1i(loc, getBool(clazz, value));
+            switch (type.getSymbol()) {
+                case UniformType.SYMBOL_FLOAT -> GL20.glUniform1f(loc, getFloat(clazz, value));
+                case UniformType.SYMBOL_DOUBLE -> GL40.glUniform1d(loc, getDouble(clazz, value));
+                case UniformType.SYMBOL_INT -> GL20.glUniform1i(loc, getInt(clazz, value));
+                case UniformType.SYMBOL_UINT -> GL30.glUniform1ui(loc, getUint(clazz, value));
+                case UniformType.SYMBOL_BOOL -> GL20.glUniform1i(loc, getBool(clazz, value));
+            }
         } else if (type.getKind() == UniformTypeKind.VECTOR) {
-            if (type.getSymbol()
-                .equals(UniformType.SYMBOL_VEC2)) {
-                Object value0 = values[0];
-                Class<?> clazz0 = value0.getClass();
-                Object value1 = values[1];
-                Class<?> clazz1 = value1.getClass();
+            switch (type.getSymbol()) {
+                case UniformType.SYMBOL_VEC2 -> {
+                    Object value0 = values[0];
+                    Class<?> clazz0 = value0.getClass();
+                    Object value1 = values[1];
+                    Class<?> clazz1 = value1.getClass();
 
-                if (type.getVariant() == Variant.DEFAULT)
-                    GL20.glUniform2f(loc, getFloat(clazz0, value0), getFloat(clazz1, value1));
-                else if (type.getVariant() == Variant.I)
-                    GL20.glUniform2i(loc, getInt(clazz0, value0), getInt(clazz1, value1));
-                else if (type.getVariant() == Variant.U)
-                    GL30.glUniform2ui(loc, getUint(clazz0, value0), getUint(clazz1, value1));
-            } else if (type.getSymbol()
-                .equals(UniformType.SYMBOL_VEC3)) {
+                    if (type.getVariant() == Variant.DEFAULT)
+                        GL20.glUniform2f(loc, getFloat(clazz0, value0), getFloat(clazz1, value1));
+                    else if (type.getVariant() == Variant.I)
+                        GL20.glUniform2i(loc, getInt(clazz0, value0), getInt(clazz1, value1));
+                    else if (type.getVariant() == Variant.U)
+                        GL30.glUniform2ui(loc, getUint(clazz0, value0), getUint(clazz1, value1));
+                }
+                case UniformType.SYMBOL_VEC3 -> {
                     Object value0 = values[0];
                     Class<?> clazz0 = value0.getClass();
                     Object value1 = values[1];
@@ -281,51 +254,51 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable {
                     Class<?> clazz2 = value2.getClass();
 
                     if (type.getVariant() == Variant.DEFAULT) GL20
-                        .glUniform3f(loc, getFloat(clazz0, value0), getFloat(clazz1, value1), getFloat(clazz2, value2));
+                            .glUniform3f(loc, getFloat(clazz0, value0), getFloat(clazz1, value1), getFloat(clazz2, value2));
                     else if (type.getVariant() == Variant.I)
                         GL20.glUniform3i(loc, getInt(clazz0, value0), getInt(clazz1, value1), getInt(clazz2, value2));
                     else if (type.getVariant() == Variant.U) GL30
-                        .glUniform3ui(loc, getUint(clazz0, value0), getUint(clazz1, value1), getUint(clazz2, value2));
-                } else if (type.getSymbol()
-                    .equals(UniformType.SYMBOL_VEC4)) {
-                        Object value0 = values[0];
-                        Class<?> clazz0 = value0.getClass();
-                        Object value1 = values[1];
-                        Class<?> clazz1 = value1.getClass();
-                        Object value2 = values[2];
-                        Class<?> clazz2 = value2.getClass();
-                        Object value3 = values[3];
-                        Class<?> clazz3 = value3.getClass();
+                            .glUniform3ui(loc, getUint(clazz0, value0), getUint(clazz1, value1), getUint(clazz2, value2));
+                }
+                case UniformType.SYMBOL_VEC4 -> {
+                    Object value0 = values[0];
+                    Class<?> clazz0 = value0.getClass();
+                    Object value1 = values[1];
+                    Class<?> clazz1 = value1.getClass();
+                    Object value2 = values[2];
+                    Class<?> clazz2 = value2.getClass();
+                    Object value3 = values[3];
+                    Class<?> clazz3 = value3.getClass();
 
-                        if (type.getVariant() == Variant.DEFAULT) GL20.glUniform4f(
+                    if (type.getVariant() == Variant.DEFAULT) GL20.glUniform4f(
                             loc,
                             getFloat(clazz0, value0),
                             getFloat(clazz1, value1),
                             getFloat(clazz2, value2),
                             getFloat(clazz3, value3));
-                        else if (type.getVariant() == Variant.I) GL20.glUniform4i(
+                    else if (type.getVariant() == Variant.I) GL20.glUniform4i(
                             loc,
                             getInt(clazz0, value0),
                             getInt(clazz1, value1),
                             getInt(clazz2, value2),
                             getInt(clazz3, value3));
-                        else if (type.getVariant() == Variant.U) GL30.glUniform4ui(
+                    else if (type.getVariant() == Variant.U) GL30.glUniform4ui(
                             loc,
                             getUint(clazz0, value0),
                             getUint(clazz1, value1),
                             getUint(clazz2, value2),
                             getUint(clazz3, value3));
-                    }
+                }
+            }
         } else if (type.getKind() == UniformTypeKind.MATRIX) {
             Object value = values[0];
 
             if (value instanceof FloatBuffer buffer) {
-                if (type.getSymbol()
-                    .equals(UniformType.SYMBOL_MAT2)) GL20.glUniformMatrix2(loc, false, buffer);
-                else if (type.getSymbol()
-                    .equals(UniformType.SYMBOL_MAT3)) GL20.glUniformMatrix3(loc, false, buffer);
-                else if (type.getSymbol()
-                    .equals(UniformType.SYMBOL_MAT4)) GL20.glUniformMatrix4(loc, false, buffer);
+                switch (type.getSymbol()) {
+                    case UniformType.SYMBOL_MAT2 -> GL20.glUniformMatrix2(loc, false, buffer);
+                    case UniformType.SYMBOL_MAT3 -> GL20.glUniformMatrix3(loc, false, buffer);
+                    case UniformType.SYMBOL_MAT4 -> GL20.glUniformMatrix4(loc, false, buffer);
+                }
             }
         } else if (type.getKind() == UniformTypeKind.SAMPLER) {
             Object value = values[0];
@@ -353,7 +326,7 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable {
     }
 
     @Override
-    public int compareTo(@NotNull ShaderProgram o) {
+    public int compareTo(@Nonnull ShaderProgram o) {
         return Integer.compare(programID, o.programID);
     }
 }

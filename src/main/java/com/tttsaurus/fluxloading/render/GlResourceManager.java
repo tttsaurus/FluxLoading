@@ -20,8 +20,7 @@ public final class GlResourceManager {
 
     public static void disposeAll(Logger logger) {
         for (IGlDisposable disposable : disposables) {
-            logger.info(
-                "Disposing " + disposable.getClass()
+            logger.info("Disposing %s", disposable.getClass()
                     .getSimpleName());
             disposable.dispose();
             checkGLError(logger);
@@ -30,7 +29,7 @@ public final class GlResourceManager {
 
     private static void checkGLError(Logger logger) {
         int error;
-        while ((error = GL11.glGetError()) != GL11.GL_NO_ERROR) logger.info("[OpenGL Error] " + getErrorString(error));
+        while ((error = GL11.glGetError()) != GL11.GL_NO_ERROR) logger.info("[OpenGL Error] %s", getErrorString(error));
     }
 
     private static String getErrorString(int error) {

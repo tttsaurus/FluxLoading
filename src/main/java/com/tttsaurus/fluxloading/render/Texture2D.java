@@ -15,25 +15,10 @@ public final class Texture2D implements IGlDisposable {
         .order(ByteOrder.nativeOrder())
         .asIntBuffer();
 
-    private int glTextureID = 0;
-    private final int width;
-    private final int height;
-    private boolean isGlBounded;
+    private int glTextureID;
 
     public int getGlTextureID() {
         return glTextureID;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public boolean getIsGlBounded() {
-        return isGlBounded;
     }
 
     public Texture2D(int width, int height, ByteBuffer byteBuffer) {
@@ -41,8 +26,6 @@ public final class Texture2D implements IGlDisposable {
         int textureID = intBuffer.get(0);
 
         glTextureID = GL11.glGenTextures();
-        this.width = width;
-        this.height = height;
 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, glTextureID);
 
@@ -62,8 +45,6 @@ public final class Texture2D implements IGlDisposable {
             GL11.GL_UNSIGNED_BYTE,
             byteBuffer);
 
-        isGlBounded = true;
-
         GlStateManager.bindTexture(textureID);
 
         GlResourceManager.addDisposable(this);
@@ -72,7 +53,6 @@ public final class Texture2D implements IGlDisposable {
     public void dispose() {
         if (glTextureID != 0) GL11.glDeleteTextures(glTextureID);
         glTextureID = 0;
-        isGlBounded = false;
         GlResourceManager.removeDisposable(this);
     }
 }

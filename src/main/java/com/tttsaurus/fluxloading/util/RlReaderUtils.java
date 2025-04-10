@@ -20,7 +20,7 @@ public final class RlReaderUtils {
 
     @Nonnull
     public static String read(ResourceLocation rl, boolean keepNewLineSymbol) {
-        InputStream stream = null;
+        InputStream stream;
         try {
             IResource resource = Minecraft.getMinecraft()
                 .getResourceManager()

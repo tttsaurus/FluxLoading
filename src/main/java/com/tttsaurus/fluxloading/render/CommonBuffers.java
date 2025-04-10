@@ -10,7 +10,4 @@ public final class CommonBuffers {
     public static final IntBuffer intBuffer = ByteBuffer.allocateDirect(16 << 2)
         .order(ByteOrder.nativeOrder())
         .asIntBuffer();
-    public static final FloatBuffer floatBuffer = ByteBuffer.allocateDirect(16 << 2)
-        .order(ByteOrder.nativeOrder())
-        .asFloatBuffer();
 }
