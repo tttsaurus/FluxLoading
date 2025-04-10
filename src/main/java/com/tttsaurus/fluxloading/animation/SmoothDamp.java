@@ -2,8 +2,8 @@ package com.tttsaurus.fluxloading.animation;
 
 import net.minecraft.util.math.MathHelper;
 
-public class SmoothDamp
-{
+public class SmoothDamp {
+
     private float dis;
     private float from;
     private float to;
@@ -11,24 +11,27 @@ public class SmoothDamp
     private final float smoothTime;
     private final float maxSpeed;
 
-    //<editor-fold desc="getters & setters">
-    public float getFrom() { return from; }
-    public void setFrom(float from)
-    {
+    // <editor-fold desc="getters & setters">
+    public float getFrom() {
+        return from;
+    }
+
+    public void setFrom(float from) {
         this.from = from;
         dis = Math.abs(to - from);
     }
 
-    public float getTo() { return to; }
-    public void setTo(float to)
-    {
+    public float getTo() {
+        return to;
+    }
+
+    public void setTo(float to) {
         this.to = to;
         dis = Math.abs(to - from);
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    public SmoothDamp(float from, float to, float smoothTime)
-    {
+    public SmoothDamp(float from, float to, float smoothTime) {
         dis = Math.abs(to - from);
         this.from = from;
         this.to = to;
@@ -36,8 +39,8 @@ public class SmoothDamp
         this.smoothTime = Math.max(smoothTime * 0.268f, 0.001f);
         maxSpeed = Float.POSITIVE_INFINITY;
     }
-    public SmoothDamp(float from, float to, float smoothTime, float maxSpeed)
-    {
+
+    public SmoothDamp(float from, float to, float smoothTime, float maxSpeed) {
         dis = Math.abs(to - from);
         this.from = from;
         this.to = to;
@@ -46,8 +49,7 @@ public class SmoothDamp
         this.maxSpeed = maxSpeed;
     }
 
-    public float evaluate(float deltaTime)
-    {
+    public float evaluate(float deltaTime) {
         float omega = 2f / smoothTime;
         float x = omega * deltaTime;
         float exp = 1f / (1f + x + 0.48f * x * x + 0.235f * x * x * x);

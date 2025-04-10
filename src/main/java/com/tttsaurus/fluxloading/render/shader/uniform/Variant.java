@@ -1,7 +1,7 @@
 package com.tttsaurus.fluxloading.render.shader.uniform;
 
-public enum Variant
-{
+public enum Variant {
+
     // float
     DEFAULT(""),
 
@@ -12,10 +12,12 @@ public enum Variant
     U("u");
 
     private final String prefix;
-    Variant(String prefix)
-    {
+
+    Variant(String prefix) {
         this.prefix = prefix;
     }
 
-    public String getPrefix() { return prefix; }
+    public String getPrefix() {
+        return prefix;
+    }
 }

@@ -1,5 +1,25 @@
 package com.tttsaurus.fluxloading.core;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+
+import org.apache.commons.lang3.time.StopWatch;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL20;
+
 import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.animation.SmoothDamp;
@@ -9,29 +29,13 @@ import com.tttsaurus.fluxloading.render.Texture2D;
 import com.tttsaurus.fluxloading.render.shader.Shader;
 import com.tttsaurus.fluxloading.render.shader.ShaderLoader;
 import com.tttsaurus.fluxloading.render.shader.ShaderProgram;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.ScreenShotHelper;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.apache.commons.lang3.time.StopWatch;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
+import com.tttsaurus.fluxloading.util.ScreenshotHelper;
 
-public final class WorldLoadingScreenOverhaul
-{
+import cpw.mods.fml.common.eventhandler.EventPriority;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+
+public final class WorldLoadingScreenOverhaul {
+
     // render
     private static ShaderProgram shaderProgram = null;
     private static FloatBuffer vertexBuffer;
@@ -57,101 +61,131 @@ public final class WorldLoadingScreenOverhaul
     private static SmoothDamp smoothDamp = null;
     private static double prevFadeOutTime = 0d;
 
-    //<editor-fold desc="getters & setters">
-    public static void prepareScreenShot() { screenShotToggle = true; }
+    // <editor-fold desc="getters & setters">
+    public static void prepareScreenShot() {
+        screenShotToggle = true;
+    }
 
-    public static boolean getDrawOverlay() { return drawOverlay; }
-    public static void setDrawOverlay(boolean flag) { drawOverlay = flag; }
+    public static boolean getDrawOverlay() {
+        return drawOverlay;
+    }
 
-    public static boolean getForceLoadingTitle() { return forceLoadingTitle; }
-    public static void setForceLoadingTitle(boolean flag) { forceLoadingTitle = flag; }
+    public static void setDrawOverlay(boolean flag) {
+        drawOverlay = flag;
+    }
 
-    public static void setChunkBuildingTitle(boolean flag) { chunkBuildingTitle = flag; }
+    public static boolean getForceLoadingTitle() {
+        return forceLoadingTitle;
+    }
 
-    public static boolean isTextureAvailable() { return texture != null; }
-    public static void updateTexture(Texture2D tex)
-    {
+    public static void setForceLoadingTitle(boolean flag) {
+        forceLoadingTitle = flag;
+    }
+
+    public static void setChunkBuildingTitle(boolean flag) {
+        chunkBuildingTitle = flag;
+    }
+
+    public static boolean isTextureAvailable() {
+        return texture != null;
+    }
+
+    public static void updateTexture(Texture2D tex) {
         if (texture != null) texture.dispose();
         texture = tex;
     }
 
-    public static boolean getCountingChunkLoaded() { return countingChunkLoaded; }
-    public static void setCountingChunkLoaded(boolean flag) { countingChunkLoaded = flag; }
+    public static boolean getCountingChunkLoaded() {
+        return countingChunkLoaded;
+    }
 
-    public static int getChunkLoadedNum() { return chunkLoadedNum; }
-    public static void incrChunkLoadedNum() { chunkLoadedNum++; }
-    public static void resetChunkLoadedNum() { chunkLoadedNum = 0; }
+    public static void setCountingChunkLoaded(boolean flag) {
+        countingChunkLoaded = flag;
+    }
 
-    public static void setFinishedLoadingChunks(boolean flag) { finishedLoadingChunks = flag; }
+    public static int getChunkLoadedNum() {
+        return chunkLoadedNum;
+    }
 
-    public static int getTargetChunkNum()
-    {
-        if (targetChunkNum == 0)
-        {
+    public static void incrChunkLoadedNum() {
+        chunkLoadedNum++;
+    }
+
+    public static void resetChunkLoadedNum() {
+        chunkLoadedNum = 0;
+    }
+
+    public static void setFinishedLoadingChunks(boolean flag) {
+        finishedLoadingChunks = flag;
+    }
+
+    public static int getTargetChunkNum() {
+        if (targetChunkNum == 0) {
             Minecraft minecraft = Minecraft.getMinecraft();
             int n = minecraft.gameSettings.renderDistanceChunks;
             int area = (2 * n + 1) * (2 * n + 1);
-            targetChunkNum = (int)((minecraft.gameSettings.fovSetting / 360f) * area);
-            targetChunkNum = (int)(targetChunkNumCoefficient * targetChunkNum);
+            targetChunkNum = (int) ((minecraft.gameSettings.fovSetting / 360f) * area);
+            targetChunkNum = (int) (targetChunkNumCoefficient * targetChunkNum);
             targetChunkNum = targetChunkNum <= 0 ? 1 : targetChunkNum;
         }
         return targetChunkNum;
     }
-    public static void resetTargetChunkNum() { targetChunkNum = 0; }
 
-    public static void setTargetChunkNumCoefficient(float coefficient) { targetChunkNumCoefficient = coefficient; }
+    public static void resetTargetChunkNum() {
+        targetChunkNum = 0;
+    }
 
-    public static void setExtraWaitTime(double time) { extraWaitTime = time; }
-    public static void setFadeOutDuration(double time) { fadeOutDuration = time; }
+    public static void setTargetChunkNumCoefficient(float coefficient) {
+        targetChunkNumCoefficient = coefficient;
+    }
 
-    public static void startFadeOutTimer()
-    {
+    public static void setExtraWaitTime(double time) {
+        extraWaitTime = time;
+    }
+
+    public static void setFadeOutDuration(double time) {
+        fadeOutDuration = time;
+    }
+
+    public static void startFadeOutTimer() {
         fadeOutStopWatch = new StopWatch();
         fadeOutStopWatch.start();
-        smoothDamp = new SmoothDamp(0, 1, (float)fadeOutDuration);
+        smoothDamp = new SmoothDamp(0, 1, (float) fadeOutDuration);
         prevFadeOutTime = 0d;
     }
-    public static void resetFadeOutTimer()
-    {
-        if (fadeOutStopWatch != null)
-        {
+
+    public static void resetFadeOutTimer() {
+        if (fadeOutStopWatch != null) {
             fadeOutStopWatch.stop();
             fadeOutStopWatch = null;
         }
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="save & read">
-    public static void trySaveToLocal()
-    {
-        IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
-        if (server != null)
-        {
+    // <editor-fold desc="save & read">
+    public static void trySaveToLocal() {
+        IntegratedServer server = Minecraft.getMinecraft()
+            .getIntegratedServer();
+        if (server != null) {
             File worldSaveDir = new File("saves/" + server.getFolderName());
-            if (screenShot != null)
-                RenderUtils.createPng(
-                        worldSaveDir,
-                        "last_screenshot",
-                        screenShot);
+            if (screenShot != null) RenderUtils.createPng(worldSaveDir, "last_screenshot", screenShot);
         }
     }
-    public static void tryReadFromLocal(String folderName)
-    {
+
+    public static void tryReadFromLocal(String folderName) {
         File screenshot = new File("saves/" + folderName + "/last_screenshot.png");
-        if (screenshot.exists())
-        {
+        if (screenshot.exists()) {
             Texture2D texture = RenderUtils.readPng(screenshot);
             if (texture != null) updateTexture(texture);
         }
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    public static void drawOverlay()
-    {
+    public static void drawOverlay() {
         drawOverlay(0);
     }
-    private static void drawOverlay(double time)
-    {
+
+    private static void drawOverlay(double time) {
         initShader();
 
         boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
@@ -173,11 +207,10 @@ public final class WorldLoadingScreenOverhaul
 
         shaderProgram.use();
 
-        if (time >= extraWaitTime)
-        {
+        if (time >= extraWaitTime) {
             double nowFadeOutTime = (time - extraWaitTime);
             double delta = (nowFadeOutTime - prevFadeOutTime);
-            float percentage = smoothDamp.evaluate((float)delta);
+            float percentage = smoothDamp.evaluate((float) delta);
             prevFadeOutTime = nowFadeOutTime;
 
             shaderProgram.setUniform("percentage", percentage);
@@ -194,37 +227,38 @@ public final class WorldLoadingScreenOverhaul
 
         GlStateManager.setActiveTexture(texUnit);
 
-        if (depthTest)
-            GlStateManager.enableDepth();
-        else
-            GlStateManager.disableDepth();
-        if (blend)
-            GlStateManager.enableBlend();
-        else
-            GlStateManager.disableBlend();
+        if (depthTest) GlStateManager.enableDepth();
+        else GlStateManager.disableDepth();
+        if (blend) GlStateManager.enableBlend();
+        else GlStateManager.disableBlend();
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onRenderGameOverlay(RenderGameOverlayEvent.Post event)
-    {
-        if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) return;
-        if (isTextureAvailable() && !finishedLoadingChunks)
-        {
+    public static void onRenderGameOverlay(RenderGameOverlayEvent.Post event) {
+        if (event.type != RenderGameOverlayEvent.ElementType.ALL) return;
+        if (isTextureAvailable() && !finishedLoadingChunks) {
             drawOverlay();
 
-            if (chunkBuildingTitle)
-            {
-                ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
+            if (chunkBuildingTitle) {
+                Minecraft minecraft = Minecraft.getMinecraft();
+                ScaledResolution resolution = new ScaledResolution(
+                    minecraft,
+                    minecraft.displayWidth,
+                    minecraft.displayHeight);
                 String i18nText = I18n.format("fluxloading.loading_wait");
                 float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
-                RenderUtils.renderText(i18nText, (resolution.getScaledWidth() - width) / 2, (float) (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2, 1, Color.WHITE.getRGB(), true);
+                RenderUtils.renderText(
+                    i18nText,
+                    (resolution.getScaledWidth() - width) / 2,
+                    (float) (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2,
+                    1,
+                    Color.WHITE.getRGB(),
+                    true);
             }
         }
-        if (isTextureAvailable() && fadeOutStopWatch != null)
-        {
+        if (isTextureAvailable() && fadeOutStopWatch != null) {
             double time = fadeOutStopWatch.getNanoTime() / 1E9d;
-            if (time >= fadeOutDuration + extraWaitTime)
-            {
+            if (time >= fadeOutDuration + extraWaitTime) {
                 resetFadeOutTimer();
                 texture.dispose();
                 resetShader();
@@ -235,18 +269,16 @@ public final class WorldLoadingScreenOverhaul
     }
 
     @SubscribeEvent
-    public static void onRenderWorldLast(RenderWorldLastEvent event)
-    {
-        if (screenShotToggle)
-        {
+    public static void onRenderWorldLast(RenderWorldLastEvent event) {
+        if (screenShotToggle) {
             screenShotToggle = false;
             Minecraft minecraft = Minecraft.getMinecraft();
-            screenShot = ScreenShotHelper.createScreenshot(minecraft.displayWidth, minecraft.displayHeight, minecraft.getFramebuffer());
+            screenShot = ScreenshotHelper
+                .saveScreenshot(minecraft.displayWidth, minecraft.displayHeight, minecraft.getFramebuffer());
         }
     }
 
-    private static void triggerShader()
-    {
+    private static void triggerShader() {
         GL20.glGetVertexAttrib(0, GL20.GL_VERTEX_ATTRIB_ARRAY_ENABLED, CommonBuffers.intBuffer);
         boolean enabled = CommonBuffers.intBuffer.get(0) == GL11.GL_TRUE;
 
@@ -255,16 +287,14 @@ public final class WorldLoadingScreenOverhaul
         GL20.glVertexAttribPointer(0, 3, false, 0, vertexBuffer);
         GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
 
-        if (enabled)
-            GL20.glEnableVertexAttribArray(0);
-        else
-            GL20.glDisableVertexAttribArray(0);
+        if (enabled) GL20.glEnableVertexAttribArray(0);
+        else GL20.glDisableVertexAttribArray(0);
     }
-    private static void initShader()
-    {
-        if (shaderProgram == null)
-        {
-            Shader vertex = ShaderLoader.load("fluxloading:shaders/loading_screen_vertex.glsl", Shader.ShaderType.VERTEX);
+
+    private static void initShader() {
+        if (shaderProgram == null) {
+            Shader vertex = ShaderLoader
+                .load("fluxloading:shaders/loading_screen_vertex.glsl", Shader.ShaderType.VERTEX);
             Shader frag = ShaderLoader.load("fluxloading:shaders/loading_screen_frag.glsl", Shader.ShaderType.FRAGMENT);
 
             shaderProgram = new ShaderProgram(vertex, frag);
@@ -280,15 +310,17 @@ public final class WorldLoadingScreenOverhaul
             shaderProgram.setUniform("enableDarkOverlay", FluxLoadingConfig.ENABLE_DARK_OVERLAY);
             shaderProgram.unuse();
 
-            vertexBuffer = ByteBuffer.allocateDirect(9 * Float.BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer();
+            vertexBuffer = ByteBuffer.allocateDirect(9 * Float.BYTES)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
             // vec2(-1, -1), vec2(3, -1), vec2(-1, 3)
-            vertexBuffer.put(new float[]{-1, -1, 0, 3, -1, 0, -1, 3, 0}).flip();
+            vertexBuffer.put(new float[] { -1, -1, 0, 3, -1, 0, -1, 3, 0 })
+                .flip();
         }
     }
-    public static void resetShader()
-    {
-        if (shaderProgram != null)
-        {
+
+    public static void resetShader() {
+        if (shaderProgram != null) {
             shaderProgram.use();
             shaderProgram.setUniform("percentage", 0f);
             shaderProgram.unuse();

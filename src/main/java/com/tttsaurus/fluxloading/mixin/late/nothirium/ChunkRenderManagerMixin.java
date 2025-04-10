@@ -1,26 +1,25 @@
 package com.tttsaurus.fluxloading.mixin.late.nothirium;
 
+import org.spongepowered.asm.mixin.Mixin;
+
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
+
 import meldexun.nothirium.api.renderer.chunk.IChunkRenderer;
 import meldexun.nothirium.mc.renderer.ChunkRenderManager;
-import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ChunkRenderManager.class)
-public class ChunkRenderManagerMixin
-{
+public class ChunkRenderManagerMixin {
+
     @WrapMethod(method = "getRenderer", remap = false)
-    private static IChunkRenderer<?> getRenderer(Operation<IChunkRenderer<?>> original)
-    {
+    private static IChunkRenderer<?> getRenderer(Operation<IChunkRenderer<?>> original) {
         // render chunk
 
-        if (WorldLoadingScreenOverhaul.getCountingChunkLoaded())
-        {
+        if (WorldLoadingScreenOverhaul.getCountingChunkLoaded()) {
             WorldLoadingScreenOverhaul.incrChunkLoadedNum();
 
-            if (WorldLoadingScreenOverhaul.getChunkLoadedNum() >= WorldLoadingScreenOverhaul.getTargetChunkNum())
-            {
+            if (WorldLoadingScreenOverhaul.getChunkLoadedNum() >= WorldLoadingScreenOverhaul.getTargetChunkNum()) {
                 WorldLoadingScreenOverhaul.setCountingChunkLoaded(false);
                 WorldLoadingScreenOverhaul.resetChunkLoadedNum();
                 WorldLoadingScreenOverhaul.resetTargetChunkNum();

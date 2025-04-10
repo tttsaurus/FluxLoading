@@ -1,46 +1,46 @@
 package com.tttsaurus.fluxloading.util;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.util.ResourceLocation;
-import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public final class RlReaderUtils
-{
+import javax.annotation.Nonnull;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.IResource;
+import net.minecraft.util.ResourceLocation;
+
+public final class RlReaderUtils {
+
     // notice: ResourceLocation only supports lower case
     @Nonnull
-    public static String read(String rl, boolean keepNewLineSymbol)
-    {
+    public static String read(String rl, boolean keepNewLineSymbol) {
         return read(new ResourceLocation(rl), keepNewLineSymbol);
     }
 
     @Nonnull
-    public static String read(ResourceLocation rl, boolean keepNewLineSymbol)
-    {
+    public static String read(ResourceLocation rl, boolean keepNewLineSymbol) {
         InputStream stream = null;
-        try
-        {
-            IResource resource = Minecraft.getMinecraft().getResourceManager().getResource(rl);
+        try {
+            IResource resource = Minecraft.getMinecraft()
+                .getResourceManager()
+                .getResource(rl);
             stream = resource.getInputStream();
+        } catch (Exception ignored) {
+            return "";
         }
-        catch (Exception ignored) { return ""; }
-        try
-        {
+        try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
             StringBuilder builder = new StringBuilder();
             String line;
-            while ((line = reader.readLine()) != null)
-            {
+            while ((line = reader.readLine()) != null) {
                 builder.append(line);
-                if (keepNewLineSymbol)
-                    builder.append("\n");
+                if (keepNewLineSymbol) builder.append("\n");
             }
             reader.close();
             return builder.toString();
+        } catch (Exception ignored) {
+            return "";
         }
-        catch (Exception ignored) { return ""; }
     }
 }

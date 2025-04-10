@@ -1,6 +1,6 @@
 package com.tttsaurus.fluxloading.render;
 
-public interface IGlDisposable
-{
+public interface IGlDisposable {
+
     void dispose();
 }
