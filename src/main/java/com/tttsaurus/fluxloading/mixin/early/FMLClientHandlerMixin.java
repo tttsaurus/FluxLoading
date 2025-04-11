@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
 
@@ -25,8 +24,8 @@ public class FMLClientHandlerMixin {
             value = "INVOKE",
             target = "Lnet/minecraft/client/Minecraft;launchIntegratedServer(Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/world/WorldSettings;)V",
             remap = true))
-    public void mixinTryLoadExistingWorld(Minecraft instance, String crashreportcategory, String throwable,
-        WorldSettings s2, Operation<Void> original, @Local(name = "dirName") String dirName) {
+    public void mixinTryLoadExistingWorld(Minecraft instance, String dirName, String saveName, WorldSettings settings,
+        Operation<Void> original) {
         if (FMLCommonHandler.instance()
             .getEffectiveSide() == Side.CLIENT) {
             // join world
@@ -46,6 +45,6 @@ public class FMLClientHandlerMixin {
             WorldLoadingScreenOverhaul.resetTargetChunkNum();
             WorldLoadingScreenOverhaul.setCountingChunkLoaded(true);
         }
-        original.call(instance, crashreportcategory, throwable, s2);
+        original.call(instance, dirName, saveName, settings);
     }
 }
