@@ -36,7 +36,6 @@ public class LoadingScreenRendererMixin {
     public int mixin_setLoadingProgress_FontRenderer$drawStringWithShadow(FontRenderer instance, String text, int x,
         int y, int color, Operation<Integer> original) {
         int res = original.call(instance, text, x, y, color);
-
         if (WorldLoadingScreenOverhaul.getDrawOverlay()) {
             if (WorldLoadingScreenOverhaul.getForceLoadingTitle() && text != null && !text.isEmpty())
                 WorldLoadingScreenOverhaul.setForceLoadingTitle(false);

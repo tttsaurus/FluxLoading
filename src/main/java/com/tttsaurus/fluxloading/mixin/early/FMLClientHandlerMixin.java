@@ -1,11 +1,14 @@
 package com.tttsaurus.fluxloading.mixin.early;
 
-import net.minecraft.client.gui.GuiSelectWorld;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.WorldSettings;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
 
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
 
