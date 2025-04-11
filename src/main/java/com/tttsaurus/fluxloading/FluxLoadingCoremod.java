@@ -11,7 +11,7 @@ import com.falsepattern.gasstation.IEarlyMixinLoader;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.Name("FluxLoadingCore")
-@IFMLLoadingPlugin.MCVersion("[1.7.10]")
+@IFMLLoadingPlugin.MCVersion("1.7.10")
 public class FluxLoadingCoremod implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     @Override
