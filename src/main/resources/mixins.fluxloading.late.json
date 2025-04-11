@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.7.10",
+  "refmap": "mixins.fluxloading.refmap.json",
+  "package": "com.tttsaurus.fluxloading.mixin.late",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8"
+}

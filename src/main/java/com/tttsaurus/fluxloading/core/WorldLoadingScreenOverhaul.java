@@ -326,4 +326,18 @@ public final class WorldLoadingScreenOverhaul {
             shaderProgram.unuse();
         }
     }
+
+    public static void onChunkRendered() {
+        if (WorldLoadingScreenOverhaul.getCountingChunkLoaded()) {
+            WorldLoadingScreenOverhaul.incrChunkLoadedNum();
+
+            if (WorldLoadingScreenOverhaul.getChunkLoadedNum() >= WorldLoadingScreenOverhaul.getTargetChunkNum()) {
+                WorldLoadingScreenOverhaul.setCountingChunkLoaded(false);
+                WorldLoadingScreenOverhaul.resetChunkLoadedNum();
+                WorldLoadingScreenOverhaul.resetTargetChunkNum();
+                WorldLoadingScreenOverhaul.setFinishedLoadingChunks(true);
+                WorldLoadingScreenOverhaul.startFadeOutTimer();
+            }
+        }
+    }
 }
