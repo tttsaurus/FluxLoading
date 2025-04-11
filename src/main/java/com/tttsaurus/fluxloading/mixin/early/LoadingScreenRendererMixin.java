@@ -19,12 +19,12 @@ public class LoadingScreenRendererMixin {
     @WrapOperation(
         method = "setLoadingProgress",
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/Tessellator;draw()I", ordinal = 0))
-    public int mixin_setLoadingProgress_Tessellator$draw(Tessellator instance, Operation<Void> original) {
-        original.call(instance);
-
-        if (WorldLoadingScreenOverhaul.getDrawOverlay() && WorldLoadingScreenOverhaul.isTextureAvailable())
+    public int mixin_setLoadingProgress_Tessellator$draw(Tessellator instance, Operation<Integer> original) {
+        int ret = original.call(instance);
+        if (WorldLoadingScreenOverhaul.getDrawOverlay() && WorldLoadingScreenOverhaul.isTextureAvailable()) {
             WorldLoadingScreenOverhaul.drawOverlay();
-        return 0;
+        }
+        return ret;
     }
 
     @WrapOperation(

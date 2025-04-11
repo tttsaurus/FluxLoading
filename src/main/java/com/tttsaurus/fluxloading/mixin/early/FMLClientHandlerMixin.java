@@ -19,17 +19,23 @@ import cpw.mods.fml.relauncher.Side;
 @Mixin(value = FMLClientHandler.class, remap = false)
 public class FMLClientHandlerMixin {
 
-    @WrapMethod(method = "tryLoadExistingWorld")
-    public void mixinTryLoadExistingWorld(GuiSelectWorld selectWorldGUI, String dirName, String saveName,
-        Operation<Void> original) {
+    @WrapOperation(
+        method = "tryLoadExistingWorld",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/Minecraft;launchIntegratedServer(Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/world/WorldSettings;)V",
+            remap = true))
+    public void mixinTryLoadExistingWorld(Minecraft instance, String crashreportcategory, String throwable,
+        WorldSettings s2, Operation<Void> original, @Local(name = "dirName") String dirName) {
         if (FMLCommonHandler.instance()
             .getEffectiveSide() == Side.CLIENT) {
             // join world
             WorldLoadingScreenOverhaul.resetShader();
             WorldLoadingScreenOverhaul.setDrawOverlay(true);
 
-            if (FluxLoadingConfig.INSTANTLY_POPPED_UP_LOADING_TITLE)
+            if (FluxLoadingConfig.INSTANTLY_POPPED_UP_LOADING_TITLE) {
                 WorldLoadingScreenOverhaul.setForceLoadingTitle(true);
+            }
 
             // try load screenshot
             WorldLoadingScreenOverhaul.tryReadFromLocal(dirName);
@@ -40,6 +46,6 @@ public class FMLClientHandlerMixin {
             WorldLoadingScreenOverhaul.resetTargetChunkNum();
             WorldLoadingScreenOverhaul.setCountingChunkLoaded(true);
         }
-        original.call(selectWorldGUI, dirName, saveName);
+        original.call(instance, crashreportcategory, throwable, s2);
     }
 }
