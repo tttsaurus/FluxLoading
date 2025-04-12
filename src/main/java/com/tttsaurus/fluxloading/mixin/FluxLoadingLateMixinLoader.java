@@ -21,6 +21,12 @@ public class FluxLoadingLateMixinLoader implements ILateMixinLoader {
         if (Loader.isModLoaded("embeddium")) {
             mixins.add("MixinSodiumWorldRenderer");
         }
+        if (Loader.isModLoaded("loading_screen_messages")) {
+            mixins.add("MixinLoadingScreen_LoadingScreenMessages");
+        }
+        if (Loader.isModLoaded("aether_legacy")) {
+            mixins.add("MixinAetherLoadingScreen");
+        }
         return mixins;
     }
 }
