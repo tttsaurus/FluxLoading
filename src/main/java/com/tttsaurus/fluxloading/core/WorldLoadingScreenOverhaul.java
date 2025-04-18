@@ -119,6 +119,7 @@ public final class WorldLoadingScreenOverhaul
             fadeOutStopWatch = null;
         }
     }
+    public static boolean isFadingOut() { return fadeOutStopWatch != null; }
     //</editor-fold>
 
     //<editor-fold desc="save & read">
@@ -220,7 +221,7 @@ public final class WorldLoadingScreenOverhaul
                 RenderUtils.renderText(i18nText, (resolution.getScaledWidth() - width) / 2, (float) (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2, 1, Color.WHITE.getRGB(), true);
             }
         }
-        if (isTextureAvailable() && fadeOutStopWatch != null)
+        if (isTextureAvailable() && isFadingOut())
         {
             double time = fadeOutStopWatch.getNanoTime() / 1E9d;
             if (time >= fadeOutDuration + extraWaitTime)
