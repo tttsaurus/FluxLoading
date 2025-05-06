@@ -15,6 +15,7 @@ import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
 import com.tttsaurus.fluxloading.render.GlResourceManager;
 
+@SuppressWarnings("unused")
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
 
@@ -33,7 +34,11 @@ public class MinecraftMixin {
             WorldLoadingScreenOverhaul.setDrawOverlay(false);
 
             // try save screenshot
-            WorldLoadingScreenOverhaul.trySaveToLocal();
+            WorldLoadingScreenOverhaul.trySaveToLocal(
+                WorldLoadingScreenOverhaul.getScreenShot(),
+                WorldLoadingScreenOverhaul.LAST_SCREENSHOT_NAME);
+            WorldLoadingScreenOverhaul
+                .trySaveToLocal(WorldLoadingScreenOverhaul.getThumbnail(), WorldLoadingScreenOverhaul.THUMBNAIL_NAME);
         }
     }
 

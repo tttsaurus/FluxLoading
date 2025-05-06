@@ -1,5 +1,10 @@
 package com.tttsaurus.fluxloading;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import net.minecraft.util.ResourceLocation;
+
 import org.apache.logging.log4j.Logger;
 
 import com.tttsaurus.fluxloading.proxy.CommonProxy;
@@ -19,6 +24,8 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 public class FluxLoading {
 
     public static Logger logger;
+    public static final Map<String, ResourceLocation> screenshotCache = new HashMap<>();
+    public static final ResourceLocation noThumbnailRl = new ResourceLocation("textures/misc/unknown_pack.png");
 
     @SidedProxy(
         clientSide = "com.tttsaurus.fluxloading.proxy.ClientProxy",

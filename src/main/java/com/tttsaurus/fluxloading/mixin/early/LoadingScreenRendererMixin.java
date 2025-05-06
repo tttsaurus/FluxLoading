@@ -1,6 +1,5 @@
 package com.tttsaurus.fluxloading.mixin.early;
 
-import com.tttsaurus.fluxloading.util.MixinHelpers;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;
@@ -10,7 +9,9 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.tttsaurus.fluxloading.util.MixinHelpers;
 
+@SuppressWarnings("unused")
 @Mixin(LoadingScreenRenderer.class)
 public class LoadingScreenRendererMixin {
 

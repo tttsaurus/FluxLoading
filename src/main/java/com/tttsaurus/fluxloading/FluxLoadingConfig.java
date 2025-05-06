@@ -14,6 +14,9 @@ public class FluxLoadingConfig {
     public static boolean ENABLE_DISSOLVING_EFFECT;
     public static boolean ENABLE_DARK_OVERLAY;
 
+    public static boolean ENABLE_THUMBNAIL;
+    public static int THUMBNAIL_SIZE;
+
     public static Configuration CONFIG;
 
     public static void loadConfig() {
@@ -57,6 +60,16 @@ public class FluxLoadingConfig {
                 .getBoolean("Enable Dissolving Effect", "shader", false, "A fade out option");
             ENABLE_DARK_OVERLAY = CONFIG
                 .getBoolean("Enable Dark Overlay", "shader", false, "An overlay on the screenshot");
+
+            ENABLE_THUMBNAIL = CONFIG
+                .getBoolean("Enable Thumbnail", "thumbnail", true, "Enable world selection GUI thumbnails");
+            THUMBNAIL_SIZE = CONFIG.getInt(
+                "Thumbnail Resolution",
+                "thumbnail",
+                512,
+                32,
+                4096,
+                "Size of the world selection GUI thumbnail");
         } catch (Exception ignored) {} finally {
             if (CONFIG.hasChanged()) CONFIG.save();
         }

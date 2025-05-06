@@ -9,6 +9,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
 
+@SuppressWarnings("unused")
 @Mixin(GuiDownloadTerrain.class)
 public class GuiDownloadTerrainMixin {
 

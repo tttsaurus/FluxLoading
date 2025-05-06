@@ -9,9 +9,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
 
+@SuppressWarnings("unused")
 @Mixin(WorldRenderer.class)
 public class MixinWorldRenderer {
-    // This will get loaded and then later overwritten by Sodium if it is present, so we don't need to worry about conditionally loading it.
+    // This will get loaded and then later overwritten by Sodium if it is present, so we don't need to worry about
+    // conditionally loading it.
 
     @Inject(method = "updateRenderer", at = @At("RETURN"))
     public void updateRenderer(CallbackInfo ci) {

@@ -1,11 +1,16 @@
 package com.tttsaurus.fluxloading.core;
 
+import static com.tttsaurus.fluxloading.util.ScreenshotHelper.scaleAndCropToResolution;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+
+import javax.imageio.ImageIO;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -46,6 +51,7 @@ public final class WorldLoadingScreenOverhaul {
     private static boolean chunkBuildingTitle = false;
     private static Texture2D texture = null;
     private static BufferedImage screenShot = null;
+    private static BufferedImage thumbnail = null;
 
     // waiting chunk build
     private static boolean countingChunkLoaded = false;
@@ -60,6 +66,11 @@ public final class WorldLoadingScreenOverhaul {
     private static StopWatch fadeOutStopWatch = null;
     private static SmoothDamp smoothDamp = null;
     private static double prevFadeOutTime = 0d;
+
+    public static boolean freezePlayer = false;
+
+    public static final String LAST_SCREENSHOT_NAME = "last_screenshot";
+    public static final String THUMBNAIL_NAME = "icon";
 
     // <editor-fold desc="getters & setters">
     public static void prepareScreenShot() {
@@ -148,6 +159,7 @@ public final class WorldLoadingScreenOverhaul {
     }
 
     public static void startFadeOutTimer() {
+        freezePlayer = true;
         fadeOutStopWatch = new StopWatch();
         fadeOutStopWatch.start();
         smoothDamp = new SmoothDamp(0, 1, (float) fadeOutDuration);
@@ -159,26 +171,65 @@ public final class WorldLoadingScreenOverhaul {
             fadeOutStopWatch.stop();
             fadeOutStopWatch = null;
         }
+        freezePlayer = false;
+    }
+
+    public static BufferedImage getScreenShot() {
+        return screenShot;
+    }
+
+    public static BufferedImage getThumbnail() {
+        return thumbnail;
     }
     // </editor-fold>
 
     // <editor-fold desc="save & read">
-    public static void trySaveToLocal() {
+    public static void trySaveToLocal(BufferedImage screenShot, String name) {
         IntegratedServer server = Minecraft.getMinecraft()
             .getIntegratedServer();
         if (server != null) {
             File worldSaveDir = new File("saves/" + server.getFolderName());
-            if (screenShot != null) RenderUtils.createPng(worldSaveDir, "last_screenshot", screenShot);
+            if (screenShot != null) RenderUtils.createPng(worldSaveDir, name, screenShot);
         }
     }
 
-    public static void tryReadFromLocal(String folderName) {
-        File screenshot = new File("saves/" + folderName + "/last_screenshot.png");
+    /* Scale and crop if necessary to avoid stretched screenshots */
+    public static void tryReadFromLocalLast(String folderName) {
+        File screenshot = new File("saves/" + folderName + "/" + LAST_SCREENSHOT_NAME + ".png");
         if (screenshot.exists()) {
-            Texture2D texture = RenderUtils.readPng(screenshot);
-            if (texture != null) updateTexture(texture);
+            BufferedImage image;
+            try {
+                image = ImageIO.read(screenshot);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            if (image != null) {
+                int targetW = Minecraft.getMinecraft().displayWidth;
+                int targetH = Minecraft.getMinecraft().displayHeight;
+
+                BufferedImage adapted = scaleAndCropToResolution(image, targetW, targetH);
+
+                int[] pixels = new int[targetW * targetH];
+                adapted.getRGB(0, 0, targetW, targetH, pixels, 0, targetW);
+
+                ByteBuffer buffer = ByteBuffer.allocateDirect(targetW * targetH * 4);
+                for (int y = 0; y < targetH; y++) {
+                    for (int x = 0; x < targetW; x++) {
+                        int pixel = pixels[y * targetW + x];
+                        buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red
+                        buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green
+                        buffer.put((byte) (pixel & 0xFF)); // Blue
+                        buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha
+                    }
+                }
+                buffer.flip();
+
+                Texture2D texture = new Texture2D(targetW, targetH, buffer);
+                updateTexture(texture);
+            }
         }
     }
+
     // </editor-fold>
 
     public static void drawOverlay() {
@@ -233,6 +284,7 @@ public final class WorldLoadingScreenOverhaul {
         else GlStateManager.disableBlend();
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRenderGameOverlay(RenderGameOverlayEvent.Post event) {
         if (event.type != RenderGameOverlayEvent.ElementType.ALL) return;
@@ -268,6 +320,7 @@ public final class WorldLoadingScreenOverhaul {
         }
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event) {
         if (screenShotToggle) {
@@ -275,6 +328,10 @@ public final class WorldLoadingScreenOverhaul {
             Minecraft minecraft = Minecraft.getMinecraft();
             screenShot = ScreenshotHelper
                 .saveScreenshot(minecraft.displayWidth, minecraft.displayHeight, minecraft.getFramebuffer());
+            thumbnail = ScreenshotHelper.scaleAndCropToResolution(
+                screenShot,
+                FluxLoadingConfig.THUMBNAIL_SIZE,
+                FluxLoadingConfig.THUMBNAIL_SIZE);
         }
     }
 

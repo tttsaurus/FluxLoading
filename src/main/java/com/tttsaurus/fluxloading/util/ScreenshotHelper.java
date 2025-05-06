@@ -1,15 +1,26 @@
 package com.tttsaurus.fluxloading.util;
 
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.nio.IntBuffer;
 
+import javax.imageio.ImageIO;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+
+import com.tttsaurus.fluxloading.FluxLoading;
 
 @SuppressWarnings("DuplicatedCode")
 public class ScreenshotHelper {
@@ -69,5 +80,58 @@ public class ScreenshotHelper {
             bufferedimage.setRGB(0, 0, p_148259_2_, p_148259_3_, pixelValues, 0, p_148259_2_);
         }
         return bufferedimage;
+    }
+
+    public static BufferedImage scaleAndCropToResolution(BufferedImage source, int targetWidth, int targetHeight) {
+        int srcWidth = source.getWidth();
+        int srcHeight = source.getHeight();
+
+        double scale = Math.max((double) targetWidth / srcWidth, (double) targetHeight / srcHeight);
+
+        int scaledWidth = (int) (scale * srcWidth);
+        int scaledHeight = (int) (scale * srcHeight);
+
+        Image scaled = source.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+
+        BufferedImage output = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = output.createGraphics();
+
+        int x = (scaledWidth - targetWidth) / 2;
+        int y = (scaledHeight - targetHeight) / 2;
+
+        g2d.drawImage(scaled, -x, -y, null);
+        g2d.dispose();
+
+        return output;
+    }
+
+    public static ResourceLocation getOrLoadScreenshot(String worldName, String screenShotName, int targetWidth,
+        int targetHeight) {
+        String cacheKey = worldName + "_" + screenShotName;
+        return FluxLoading.screenshotCache.computeIfAbsent(cacheKey, key -> {
+            File screenshot = new File(
+                Minecraft.getMinecraft().mcDataDir,
+                "saves/" + worldName + "/" + screenShotName + ".png");
+            if (!screenshot.exists()) return null;
+
+            try {
+                BufferedImage image = ImageIO.read(screenshot);
+                if (image == null) return null;
+
+                BufferedImage resized = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = resized.createGraphics();
+                g.drawImage(image, 0, 0, targetWidth, targetHeight, null);
+                g.dispose();
+
+                DynamicTexture texture = new DynamicTexture(resized);
+
+                return Minecraft.getMinecraft()
+                    .getTextureManager()
+                    .getDynamicTextureLocation("screenshot_" + cacheKey, texture);
+            } catch (IOException e) {
+                FluxLoading.logger.error(e.getMessage(), e);
+                return null;
+            }
+        });
     }
 }

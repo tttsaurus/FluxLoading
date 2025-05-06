@@ -15,6 +15,7 @@ import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 
+@SuppressWarnings("unused")
 @Mixin(value = FMLClientHandler.class, remap = false)
 public class FMLClientHandlerMixin {
 
@@ -37,7 +38,7 @@ public class FMLClientHandlerMixin {
             }
 
             // try load screenshot
-            WorldLoadingScreenOverhaul.tryReadFromLocal(dirName);
+            WorldLoadingScreenOverhaul.tryReadFromLocalLast(dirName);
 
             WorldLoadingScreenOverhaul.setFinishedLoadingChunks(false);
             WorldLoadingScreenOverhaul.resetChunkLoadedNum();
