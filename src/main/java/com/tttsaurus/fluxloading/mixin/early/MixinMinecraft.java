@@ -1,5 +1,6 @@
 package com.tttsaurus.fluxloading.mixin.early;
 
+import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -17,7 +18,7 @@ import com.tttsaurus.fluxloading.render.GlResourceManager;
 
 @SuppressWarnings("unused")
 @Mixin(Minecraft.class)
-public class MinecraftMixin {
+public class MixinMinecraft {
 
     @Inject(method = "shutdown", at = @At("HEAD"))
     public void shutdown(CallbackInfo ci) {
@@ -53,5 +54,12 @@ public class MinecraftMixin {
         WorldLoadingScreenOverhaul.prepareScreenShot();
 
         original.call(instance, i);
+    }
+
+    @Inject(method = "checkGLError", at = @At("HEAD"), cancellable = true)
+    public void checkGLError(String message, CallbackInfo ci) {
+        if (FluxLoadingConfig.DISABLE_GL_SPAM) {
+            ci.cancel();
+        }
     }
 }

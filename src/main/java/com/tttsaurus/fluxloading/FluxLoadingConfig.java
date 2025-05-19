@@ -4,6 +4,7 @@ import net.minecraftforge.common.config.Configuration;
 
 public class FluxLoadingConfig {
 
+    public static boolean DISABLE_GL_SPAM = false;
     public static float WAIT_CHUNK_BUILD_COEFFICIENT;
     public static float EXTRA_WAIT_TIME;
     public static float FADE_OUT_DURATION;
@@ -22,6 +23,8 @@ public class FluxLoadingConfig {
     public static void loadConfig() {
         try {
             CONFIG.load();
+
+            DISABLE_GL_SPAM = CONFIG.getBoolean("Disable GL Spam", "general", true, "Disable GL spam in the console");
 
             WAIT_CHUNK_BUILD_COEFFICIENT = CONFIG.getFloat(
                 "Wait Chunk Build Coefficient",
