@@ -16,7 +16,7 @@ public class GuiDownloadTerrainMixin
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/GuiDownloadTerrain;drawBackground(I)V"
             ))
-    public void mixin_drawScreen_GuiScreen$drawBackground(GuiDownloadTerrain instance, int i, Operation<Void> original)
+    public void drawBackground(GuiDownloadTerrain instance, int i, Operation<Void> original)
     {
         original.call(instance, i);
 

@@ -16,7 +16,7 @@ public class GuiScreenWorkingMixin
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/GuiScreenWorking;drawDefaultBackground()V"
             ))
-    public void mixin_drawScreen_GuiScreenWorking$drawDefaultBackground(GuiScreenWorking instance, Operation<Void> original)
+    public void drawDefaultBackground(GuiScreenWorking instance, Operation<Void> original)
     {
         original.call(instance);
 

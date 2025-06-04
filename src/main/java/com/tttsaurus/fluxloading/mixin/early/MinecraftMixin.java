@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MinecraftMixin
 {
     @Inject(method = "shutdown", at = @At("HEAD"))
-    public void shutdown(CallbackInfo ci)
+    public void beforeShutdown(CallbackInfo ci)
     {
         FluxLoading.logger.info("Starts disposing OpenGL resources");
         GlResourceManager.disposeAll(FluxLoading.logger);
@@ -25,7 +25,7 @@ public class MinecraftMixin
     }
 
     @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At("HEAD"))
-    public void loadWorld(WorldClient worldClientIn, String loadingMessage, CallbackInfo ci)
+    public void beforeLoadWorld(WorldClient worldClientIn, String loadingMessage, CallbackInfo ci)
     {
         WorldClient world = Minecraft.getMinecraft().world;
         if (world != null)
@@ -44,7 +44,7 @@ public class MinecraftMixin
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/Minecraft;displayGuiScreen(Lnet/minecraft/client/gui/GuiScreen;)V"
             ))
-    public void mixin_displayInGameMenu_Minecraft$displayGuiScreen(Minecraft instance, GuiScreen i, Operation<Void> original)
+    public void displayGuiScreen(Minecraft instance, GuiScreen i, Operation<Void> original)
     {
         // when pause game
         WorldLoadingScreenOverhaul.prepareScreenShot();

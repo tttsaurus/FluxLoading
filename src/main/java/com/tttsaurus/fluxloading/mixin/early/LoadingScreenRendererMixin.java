@@ -21,7 +21,7 @@ public class LoadingScreenRendererMixin
                     target = "Lnet/minecraft/client/renderer/Tessellator;draw()V",
                     ordinal = 0
             ))
-    public void mixin_setLoadingProgress_Tessellator$draw(Tessellator instance, Operation<Void> original)
+    public void draw(Tessellator instance, Operation<Void> original)
     {
         original.call(instance);
 
@@ -36,7 +36,7 @@ public class LoadingScreenRendererMixin
                     target = "Lnet/minecraft/client/gui/FontRenderer;drawStringWithShadow(Ljava/lang/String;FFI)I",
                     ordinal = 0
             ))
-    public int mixin_setLoadingProgress_FontRenderer$drawStringWithShadow(FontRenderer instance, String text, float x, float y, int color, Operation<Integer> original)
+    public int drawStringWithShadow(FontRenderer instance, String text, float x, float y, int color, Operation<Integer> original)
     {
         int res = original.call(instance, text, x, y, color);
 
