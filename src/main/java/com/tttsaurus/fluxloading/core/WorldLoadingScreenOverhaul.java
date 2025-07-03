@@ -161,12 +161,12 @@ public final class WorldLoadingScreenOverhaul
         GlStateManager.enableBlend();
         GlStateManager.disableDepth();
 
-        GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE, CommonBuffers.intBuffer);
-        int texUnit = CommonBuffers.intBuffer.get(0);
+        GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE, CommonBuffers.INT_BUFFER_16);
+        int texUnit = CommonBuffers.INT_BUFFER_16.get(0);
 
         GlStateManager.setActiveTexture(GL13.GL_TEXTURE1);
-        GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D, CommonBuffers.intBuffer);
-        int texUnit1TextureID = CommonBuffers.intBuffer.get(0);
+        GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D, CommonBuffers.INT_BUFFER_16);
+        int texUnit1TextureID = CommonBuffers.INT_BUFFER_16.get(0);
 
         GlStateManager.bindTexture(texture.getGlTextureID());
 
@@ -187,8 +187,8 @@ public final class WorldLoadingScreenOverhaul
         triggerShader();
         shaderProgram.unuse();
 
-        GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE, CommonBuffers.intBuffer);
-        texUnit = CommonBuffers.intBuffer.get(0);
+        GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE, CommonBuffers.INT_BUFFER_16);
+        texUnit = CommonBuffers.INT_BUFFER_16.get(0);
 
         GlStateManager.setActiveTexture(GL13.GL_TEXTURE1);
         GlStateManager.bindTexture(texUnit1TextureID);
@@ -248,8 +248,8 @@ public final class WorldLoadingScreenOverhaul
 
     private static void triggerShader()
     {
-        GL20.glGetVertexAttrib(0, GL20.GL_VERTEX_ATTRIB_ARRAY_ENABLED, CommonBuffers.intBuffer);
-        boolean enabled = CommonBuffers.intBuffer.get(0) == GL11.GL_TRUE;
+        GL20.glGetVertexAttrib(0, GL20.GL_VERTEX_ATTRIB_ARRAY_ENABLED, CommonBuffers.INT_BUFFER_16);
+        boolean enabled = CommonBuffers.INT_BUFFER_16.get(0) == GL11.GL_TRUE;
 
         GL20.glEnableVertexAttribArray(0);
 

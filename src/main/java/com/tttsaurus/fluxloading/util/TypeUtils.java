@@ -66,7 +66,7 @@ public final class TypeUtils
     }
     public static boolean isCharacterOrWrappedCharacter(Class<?> clazz)
     {
-        return clazz.getName().equals("character") || clazz.equals(Character.class);
+        return clazz.getName().equals("char") || clazz.equals(Character.class);
     }
     public static boolean isBooleanOrWrappedBoolean(Class<?> clazz)
     {
