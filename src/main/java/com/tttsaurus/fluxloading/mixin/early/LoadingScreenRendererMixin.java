@@ -25,7 +25,7 @@ public class LoadingScreenRendererMixin
     {
         original.call(instance);
 
-        if (WorldLoadingScreenOverhaul.getDrawOverlay() && WorldLoadingScreenOverhaul.isTextureAvailable())
+        if (WorldLoadingScreenOverhaul.isDrawOverlay() && WorldLoadingScreenOverhaul.isTextureAvailable())
             WorldLoadingScreenOverhaul.drawOverlay();
     }
 
@@ -40,11 +40,11 @@ public class LoadingScreenRendererMixin
     {
         int res = original.call(instance, text, x, y, color);
 
-        if (WorldLoadingScreenOverhaul.getDrawOverlay())
+        if (WorldLoadingScreenOverhaul.isDrawOverlay())
         {
-            if (WorldLoadingScreenOverhaul.getForceLoadingTitle() && text != null && !text.isEmpty())
+            if (WorldLoadingScreenOverhaul.isForceLoadingTitle() && text != null && !text.isEmpty())
                 WorldLoadingScreenOverhaul.setForceLoadingTitle(false);
-            if (WorldLoadingScreenOverhaul.getForceLoadingTitle())
+            if (WorldLoadingScreenOverhaul.isForceLoadingTitle())
             {
                 String i18nText = I18n.format("menu.loadingLevel");
                 int width = RenderUtils.fontRenderer.getStringWidth(i18nText);

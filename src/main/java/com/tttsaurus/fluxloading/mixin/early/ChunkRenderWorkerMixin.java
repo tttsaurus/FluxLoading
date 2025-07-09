@@ -17,7 +17,7 @@ public class ChunkRenderWorkerMixin
     {
         // render chunk
 
-        if (WorldLoadingScreenOverhaul.getCountingChunkLoaded())
+        if (WorldLoadingScreenOverhaul.isCountingChunkLoaded())
         {
             WorldLoadingScreenOverhaul.incrChunkLoadedNum();
 

@@ -60,10 +60,10 @@ public final class WorldLoadingScreenOverhaul
     //<editor-fold desc="getters & setters">
     public static void prepareScreenShot() { screenShotToggle = true; }
 
-    public static boolean getDrawOverlay() { return drawOverlay; }
+    public static boolean isDrawOverlay() { return drawOverlay; }
     public static void setDrawOverlay(boolean flag) { drawOverlay = flag; }
 
-    public static boolean getForceLoadingTitle() { return forceLoadingTitle; }
+    public static boolean isForceLoadingTitle() { return forceLoadingTitle; }
     public static void setForceLoadingTitle(boolean flag) { forceLoadingTitle = flag; }
 
     public static void setChunkBuildingTitle(boolean flag) { chunkBuildingTitle = flag; }
@@ -75,7 +75,7 @@ public final class WorldLoadingScreenOverhaul
         texture = tex;
     }
 
-    public static boolean getCountingChunkLoaded() { return countingChunkLoaded; }
+    public static boolean isCountingChunkLoaded() { return countingChunkLoaded; }
     public static void setCountingChunkLoaded(boolean flag) { countingChunkLoaded = flag; }
 
     public static int getChunkLoadedNum() { return chunkLoadedNum; }

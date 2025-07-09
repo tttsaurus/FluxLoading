@@ -15,7 +15,7 @@ public class ChunkRenderManagerMixin
     {
         // render chunk
 
-        if (WorldLoadingScreenOverhaul.getCountingChunkLoaded())
+        if (WorldLoadingScreenOverhaul.isCountingChunkLoaded())
         {
             WorldLoadingScreenOverhaul.incrChunkLoadedNum();
 
