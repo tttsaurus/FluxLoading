@@ -19,7 +19,7 @@ public class ClientProxy extends CommonProxy
         FluxLoadingConfig.loadConfig();
 
         WorldLoadingScreenOverhaul.setChunkBuildingTitle(FluxLoadingConfig.CHUNK_BUILDING_INDICATOR);
-        WorldLoadingScreenOverhaul.setTargetChunkNumCoefficient(FluxLoadingConfig.WAIT_CHUNK_BUILD_COEFFICIENT);
+        WorldLoadingScreenOverhaul.setWaitChunksToLoad(FluxLoadingConfig.WAIT_CHUNKS_TO_LOAD);
         WorldLoadingScreenOverhaul.setExtraWaitTime(FluxLoadingConfig.EXTRA_WAIT_TIME);
         WorldLoadingScreenOverhaul.setFadeOutDuration(FluxLoadingConfig.FADE_OUT_DURATION);
     }

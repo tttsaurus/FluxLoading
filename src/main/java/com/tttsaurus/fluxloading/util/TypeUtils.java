@@ -1,5 +1,7 @@
 package com.tttsaurus.fluxloading.util;
 
+import javax.annotation.Nullable;
+
 public final class TypeUtils
 {
     public static boolean looseTypeCheck(Class<?> clazz1, Class<?> clazz2)
@@ -24,10 +26,29 @@ public final class TypeUtils
             return true;
         return false;
     }
+
     public static boolean isFromParentPackage(Class<?> clazz, String packageName)
     {
         return clazz.getName().startsWith(packageName);
     }
+
+    @Nullable
+    public static Class<?> toWrappedPrimitive(Class<?> primitiveClass)
+    {
+        return switch (primitiveClass.getName())
+        {
+            case "int" -> Integer.class;
+            case "long" -> Long.class;
+            case "short" -> Short.class;
+            case "byte" -> Byte.class;
+            case "double" -> Double.class;
+            case "float" -> Float.class;
+            case "char" -> Character.class;
+            case "boolean" -> Boolean.class;
+            default -> null;
+        };
+    }
+
     public static boolean isPrimitiveOrWrappedPrimitive(Class<?> clazz)
     {
         return clazz.isPrimitive() ||
@@ -40,6 +61,7 @@ public final class TypeUtils
                 clazz == Character.class ||
                 clazz == Boolean.class;
     }
+
     public static boolean isIntOrWrappedInt(Class<?> clazz)
     {
         return clazz.getName().equals("int") || clazz.equals(Integer.class);

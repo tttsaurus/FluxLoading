@@ -19,7 +19,7 @@ public class MinecraftMixin
     @Inject(method = "shutdown", at = @At("HEAD"))
     public void beforeShutdown(CallbackInfo ci)
     {
-        FluxLoading.logger.info("Starts disposing OpenGL resources");
+        FluxLoading.logger.info("Start disposing OpenGL resources");
         GlResourceManager.disposeAll(FluxLoading.logger);
         FluxLoading.logger.info("OpenGL resources disposed");
     }
@@ -47,7 +47,7 @@ public class MinecraftMixin
     public void displayGuiScreen(Minecraft instance, GuiScreen i, Operation<Void> original)
     {
         // when pause game
-        WorldLoadingScreenOverhaul.prepareScreenShot();
+        WorldLoadingScreenOverhaul.prepareScreenshot();
 
         original.call(instance, i);
     }

@@ -1,8 +1,13 @@
 package com.tttsaurus.fluxloading.mixin.early;
 
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
+import com.tttsaurus.fluxloading.core.accessor.ChunkProviderClientAccessor;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ChunkProviderClient;
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
 import net.minecraft.client.renderer.chunk.ChunkRenderWorker;
+import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,18 +20,30 @@ public class ChunkRenderWorkerMixin
     @Inject(method = "processTask", at = @At("RETURN"))
     public void processTask(ChunkCompileTaskGenerator generator, CallbackInfo ci)
     {
-        // render chunk
-
         if (WorldLoadingScreenOverhaul.isCountingChunkLoaded())
         {
-            WorldLoadingScreenOverhaul.incrChunkLoadedNum();
-
-            if (WorldLoadingScreenOverhaul.getChunkLoadedNum() >= WorldLoadingScreenOverhaul.getTargetChunkNum())
+            if (!WorldLoadingScreenOverhaul.isWaitChunksToLoad())
             {
                 WorldLoadingScreenOverhaul.setCountingChunkLoaded(false);
-                WorldLoadingScreenOverhaul.resetChunkLoadedNum();
-                WorldLoadingScreenOverhaul.resetTargetChunkNum();
-                WorldLoadingScreenOverhaul.setFinishedLoadingChunks(true);
+                WorldLoadingScreenOverhaul.startFadeOutTimer();
+                return;
+            }
+
+            WorldLoadingScreenOverhaul.incrChunkLoadedNum();
+
+            ChunkProviderClient chunkProvider = Minecraft.getMinecraft().world.getChunkProvider();
+            Long2ObjectMap<Chunk> loadedChunks = ChunkProviderClientAccessor.getLoadedChunks(chunkProvider);
+
+            if (loadedChunks.size() > 4 && !WorldLoadingScreenOverhaul.isStartCalcTargetChunkNum())
+            {
+                WorldLoadingScreenOverhaul.setStartCalcTargetChunkNum(true);
+                WorldLoadingScreenOverhaul.calcTargetChunkNum();
+            }
+
+            if (WorldLoadingScreenOverhaul.isTargetChunkNumCalculated() && WorldLoadingScreenOverhaul.getChunkLoadedNum() >= WorldLoadingScreenOverhaul.getTargetChunkNum())
+            {
+                WorldLoadingScreenOverhaul.setCountingChunkLoaded(false);
+                WorldLoadingScreenOverhaul.setFinishChunkLoading(true);
                 WorldLoadingScreenOverhaul.startFadeOutTimer();
             }
         }

@@ -3,18 +3,27 @@ package com.tttsaurus.fluxloading.core;
 import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.animation.SmoothDamp;
+import com.tttsaurus.fluxloading.core.accessor.ChunkProviderClientAccessor;
 import com.tttsaurus.fluxloading.render.CommonBuffers;
 import com.tttsaurus.fluxloading.render.RenderUtils;
 import com.tttsaurus.fluxloading.render.Texture2D;
 import com.tttsaurus.fluxloading.render.shader.Shader;
 import com.tttsaurus.fluxloading.render.shader.ShaderLoader;
 import com.tttsaurus.fluxloading.render.shader.ShaderProgram;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.multiplayer.ChunkProviderClient;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.culling.ClippingHelper;
+import net.minecraft.client.renderer.culling.ClippingHelperImpl;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.ScreenShotHelper;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -36,19 +45,21 @@ public final class WorldLoadingScreenOverhaul
     private static ShaderProgram shaderProgram = null;
     private static FloatBuffer vertexBuffer;
 
-    private static boolean screenShotToggle = false;
+    private static boolean screenshotToggle = false;
     private static boolean drawOverlay = false;
     private static boolean forceLoadingTitle = false;
     private static boolean chunkBuildingTitle = false;
     private static Texture2D texture = null;
-    private static BufferedImage screenShot = null;
+    private static BufferedImage screenshot = null;
 
     // waiting chunk build
+    private static boolean waitChunksToLoad = false;
+    private static boolean finishChunkLoading = false;
     private static boolean countingChunkLoaded = false;
     private static int chunkLoadedNum = 0;
-    private static boolean finishedLoadingChunks = false;
     private static int targetChunkNum = 0;
-    private static float targetChunkNumCoefficient = 0.0f;
+    private static boolean startCalcTargetChunkNum = false;
+    private static boolean targetChunkNumCalculated = false;
 
     // fade out animation
     private static double extraWaitTime = 0.5d;
@@ -58,50 +69,56 @@ public final class WorldLoadingScreenOverhaul
     private static double prevFadeOutTime = 0d;
 
     //<editor-fold desc="getters & setters">
-    public static void prepareScreenShot() { screenShotToggle = true; }
+    public static void prepareScreenshot() { screenshotToggle = true; }
 
     public static boolean isDrawOverlay() { return drawOverlay; }
+
     public static void setDrawOverlay(boolean flag) { drawOverlay = flag; }
 
     public static boolean isForceLoadingTitle() { return forceLoadingTitle; }
+
     public static void setForceLoadingTitle(boolean flag) { forceLoadingTitle = flag; }
 
     public static void setChunkBuildingTitle(boolean flag) { chunkBuildingTitle = flag; }
 
     public static boolean isTextureAvailable() { return texture != null; }
+
     public static void updateTexture(Texture2D tex)
     {
         if (texture != null) texture.dispose();
         texture = tex;
     }
 
+    public static boolean isWaitChunksToLoad() { return waitChunksToLoad; }
+
+    public static void setWaitChunksToLoad(boolean flag) { waitChunksToLoad = flag; }
+
+    public static void setFinishChunkLoading(boolean flag) { finishChunkLoading = flag; }
+
     public static boolean isCountingChunkLoaded() { return countingChunkLoaded; }
+
     public static void setCountingChunkLoaded(boolean flag) { countingChunkLoaded = flag; }
 
     public static int getChunkLoadedNum() { return chunkLoadedNum; }
+
     public static void incrChunkLoadedNum() { chunkLoadedNum++; }
+
     public static void resetChunkLoadedNum() { chunkLoadedNum = 0; }
 
-    public static void setFinishedLoadingChunks(boolean flag) { finishedLoadingChunks = flag; }
+    public static boolean isStartCalcTargetChunkNum() { return startCalcTargetChunkNum; }
 
-    public static int getTargetChunkNum()
-    {
-        if (targetChunkNum == 0)
-        {
-            Minecraft minecraft = Minecraft.getMinecraft();
-            int n = minecraft.gameSettings.renderDistanceChunks;
-            int area = (2 * n + 1) * (2 * n + 1);
-            targetChunkNum = (int)((minecraft.gameSettings.fovSetting / 360f) * area);
-            targetChunkNum = (int)(targetChunkNumCoefficient * targetChunkNum);
-            targetChunkNum = targetChunkNum <= 0 ? 1 : targetChunkNum;
-        }
-        return targetChunkNum;
-    }
+    public static void setStartCalcTargetChunkNum(boolean flag) { startCalcTargetChunkNum = flag; }
+
+    public static boolean isTargetChunkNumCalculated() { return targetChunkNumCalculated; }
+
+    public static void setTargetChunkNumCalculated(boolean flag) { targetChunkNumCalculated = flag; }
+
+    public static int getTargetChunkNum() { return targetChunkNum; }
+
     public static void resetTargetChunkNum() { targetChunkNum = 0; }
 
-    public static void setTargetChunkNumCoefficient(float coefficient) { targetChunkNumCoefficient = coefficient; }
-
     public static void setExtraWaitTime(double time) { extraWaitTime = time; }
+
     public static void setFadeOutDuration(double time) { fadeOutDuration = time; }
 
     public static void startFadeOutTimer()
@@ -111,6 +128,7 @@ public final class WorldLoadingScreenOverhaul
         smoothDamp = new SmoothDamp(0, 1, (float)fadeOutDuration);
         prevFadeOutTime = 0d;
     }
+
     public static void resetFadeOutTimer()
     {
         if (fadeOutStopWatch != null)
@@ -119,8 +137,55 @@ public final class WorldLoadingScreenOverhaul
             fadeOutStopWatch = null;
         }
     }
+
     public static boolean isFadingOut() { return fadeOutStopWatch != null; }
     //</editor-fold>
+
+    public static void calcTargetChunkNum()
+    {
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.addScheduledTask(() ->
+        {
+            ChunkProviderClient chunkProvider = mc.world.getChunkProvider();
+            Long2ObjectMap<Chunk> loadedChunks = ChunkProviderClientAccessor.getLoadedChunks(chunkProvider);
+
+            Entity camera = mc.getRenderViewEntity();
+            double partialTicks = mc.getRenderPartialTicks();
+
+            double camX = camera.lastTickPosX + (camera.posX - camera.lastTickPosX) * partialTicks;
+            double camY = camera.lastTickPosY + (camera.posY - camera.lastTickPosY) * partialTicks;
+            double camZ = camera.lastTickPosZ + (camera.posZ - camera.lastTickPosZ) * partialTicks;
+
+            ClippingHelper frustumHelper = ClippingHelperImpl.getInstance();
+            Frustum viewFrustum = new Frustum(frustumHelper);
+            viewFrustum.setPosition(camX, camY, camZ);
+
+            int num = 0;
+
+            for (Chunk chunk : loadedChunks.values())
+            {
+                int chunkX = chunk.x;
+                int chunkZ = chunk.z;
+
+                double minX = chunkX * 16;
+                double minY = 0;
+                double minZ = chunkZ * 16;
+
+                double maxX = minX + 16;
+                double maxY = 256;
+                double maxZ = minZ + 16;
+
+                AxisAlignedBB box = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+
+                if (viewFrustum.isBoundingBoxInFrustum(box))
+                    if (!chunk.isEmpty())
+                        num++;
+            }
+
+            targetChunkNum = num;
+            targetChunkNumCalculated = true;
+        });
+    }
 
     //<editor-fold desc="save & read">
     public static void trySaveToLocal()
@@ -129,13 +194,14 @@ public final class WorldLoadingScreenOverhaul
         if (server != null)
         {
             File worldSaveDir = new File("saves/" + server.getFolderName());
-            if (screenShot != null)
+            if (screenshot != null)
                 RenderUtils.createPng(
                         worldSaveDir,
                         "last_screenshot",
-                        screenShot);
+                        screenshot);
         }
     }
+
     public static void tryReadFromLocal(String folderName)
     {
         File screenshot = new File("saves/" + folderName + "/last_screenshot.png");
@@ -151,6 +217,7 @@ public final class WorldLoadingScreenOverhaul
     {
         drawOverlay(0);
     }
+
     private static void drawOverlay(double time)
     {
         initShader();
@@ -209,40 +276,45 @@ public final class WorldLoadingScreenOverhaul
     public static void onRenderGameOverlay(RenderGameOverlayEvent.Post event)
     {
         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) return;
-        if (isTextureAvailable() && !finishedLoadingChunks)
-        {
-            drawOverlay();
 
-            if (chunkBuildingTitle)
-            {
-                ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
-                String i18nText = I18n.format("fluxloading.loading_wait");
-                float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
-                RenderUtils.renderText(i18nText, (resolution.getScaledWidth() - width) / 2, (float) (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2, 1, Color.WHITE.getRGB(), true);
-            }
-        }
-        if (isTextureAvailable() && isFadingOut())
+        if (isTextureAvailable())
         {
-            double time = fadeOutStopWatch.getNanoTime() / 1E9d;
-            if (time >= fadeOutDuration + extraWaitTime)
+            if (!finishChunkLoading)
             {
-                resetFadeOutTimer();
-                texture.dispose();
-                resetShader();
-                return;
+                drawOverlay();
+
+                if (chunkBuildingTitle)
+                {
+                    ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
+                    String i18nText = I18n.format("fluxloading.loading_wait");
+                    float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
+                    RenderUtils.renderText(i18nText, (resolution.getScaledWidth() - width) / 2, (float) (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2, 1, Color.WHITE.getRGB(), true);
+                }
             }
-            drawOverlay(time);
+            // extra wait time is a part of fading out process
+            if (isFadingOut())
+            {
+                double time = fadeOutStopWatch.getNanoTime() / 1E9d;
+                if (time >= fadeOutDuration + extraWaitTime)
+                {
+                    resetFadeOutTimer();
+                    texture.dispose();
+                    resetShader();
+                    return;
+                }
+                drawOverlay(time);
+            }
         }
     }
 
     @SubscribeEvent
     public static void onRenderWorldLast(RenderWorldLastEvent event)
     {
-        if (screenShotToggle)
+        if (screenshotToggle)
         {
-            screenShotToggle = false;
+            screenshotToggle = false;
             Minecraft minecraft = Minecraft.getMinecraft();
-            screenShot = ScreenShotHelper.createScreenshot(minecraft.displayWidth, minecraft.displayHeight, minecraft.getFramebuffer());
+            screenshot = ScreenShotHelper.createScreenshot(minecraft.displayWidth, minecraft.displayHeight, minecraft.getFramebuffer());
         }
     }
 
@@ -261,6 +333,7 @@ public final class WorldLoadingScreenOverhaul
         else
             GL20.glDisableVertexAttribArray(0);
     }
+
     private static void initShader()
     {
         if (shaderProgram == null)
@@ -286,6 +359,7 @@ public final class WorldLoadingScreenOverhaul
             vertexBuffer.put(new float[]{-1, -1, 0, 3, -1, 0, -1, 3, 0}).flip();
         }
     }
+
     public static void resetShader()
     {
         if (shaderProgram != null)
