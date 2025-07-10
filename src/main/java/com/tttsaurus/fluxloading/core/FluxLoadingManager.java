@@ -12,6 +12,7 @@ import com.tttsaurus.fluxloading.render.shader.ShaderLoader;
 import com.tttsaurus.fluxloading.render.shader.ShaderProgram;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.ChunkProviderClient;
 import net.minecraft.client.renderer.GlStateManager;
@@ -28,6 +29,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -42,17 +44,22 @@ import java.nio.FloatBuffer;
 @SuppressWarnings("all")
 public final class FluxLoadingManager
 {
+    private static boolean active = false;
+
     // render
     private static ShaderProgram shaderProgram = null;
     private static FloatBuffer vertexBuffer;
 
     private static boolean screenshotToggle = false;
-    private static boolean drawOverlay = false;
     private static boolean forceLoadingTitle = false;
     private static boolean chunkLoadingTitle = false;
     private static Texture2D texture = null;
     private static BufferedImage screenshot = null;
+
+    // movement lock
     private static boolean movementLocked = false;
+    private static boolean lockPosFetched = false;
+    private static double lockX, lockY, lockZ;
 
     // extra chunk loading
     private static boolean waitChunksToLoad = true;
@@ -71,11 +78,11 @@ public final class FluxLoadingManager
     private static double prevFadeOutTime = 0d;
 
     //<editor-fold desc="getters & setters">
+    public static boolean isActive() { return active; }
+
+    public static void setActive(boolean flag) { active = flag; }
+
     public static void prepareScreenshot() { screenshotToggle = true; }
-
-    public static boolean isDrawOverlay() { return drawOverlay; }
-
-    public static void setDrawOverlay(boolean flag) { drawOverlay = flag; }
 
     public static boolean isForceLoadingTitle() { return forceLoadingTitle; }
 
@@ -93,7 +100,11 @@ public final class FluxLoadingManager
 
     public static boolean isMovementLocked() { return movementLocked; }
 
-    public static void setMovementLocked(boolean flag) { movementLocked = flag; }
+    public static void resetMovementLocked()
+    {
+        movementLocked = false;
+        lockPosFetched = false;
+    }
 
     public static boolean isWaitChunksToLoad() { return waitChunksToLoad; }
 
@@ -217,6 +228,7 @@ public final class FluxLoadingManager
     }
     //</editor-fold>
 
+    //<editor-fold desc="draw overlay">
     public static void drawOverlay()
     {
         if (!FluxLoadingAPI.duringDefaultWorldLoadingPhase)
@@ -278,13 +290,14 @@ public final class FluxLoadingManager
         else
             GlStateManager.disableBlend();
     }
+    //</editor-fold>
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onRenderGameOverlay(RenderGameOverlayEvent.Post event)
     {
         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) return;
 
-        if (isTextureAvailable())
+        if (isActive() && isTextureAvailable())
         {
             if (!FluxLoadingAPI.finishLoading)
             {
@@ -368,6 +381,40 @@ public final class FluxLoadingManager
         }
     }
 
+    @SubscribeEvent
+    public static void onClientTick(TickEvent.ClientTickEvent event)
+    {
+        if (event.phase == TickEvent.Phase.END && Minecraft.getMinecraft().player != null)
+        {
+            if (movementLocked)
+            {
+                EntityPlayerSP player = Minecraft.getMinecraft().player;
+
+                if (!lockPosFetched)
+                {
+                    lockPosFetched = true;
+                    lockX = player.posX;
+                    lockY = player.posY;
+                    lockZ = player.posZ;
+                }
+
+                player.movementInput.moveForward = 0;
+                player.movementInput.moveStrafe = 0;
+                player.movementInput.forwardKeyDown = false;
+                player.movementInput.backKeyDown = false;
+                player.movementInput.leftKeyDown = false;
+                player.movementInput.rightKeyDown = false;
+                player.movementInput.jump = false;
+                player.movementInput.sneak = false;
+                player.motionX = 0;
+                player.motionY = 0;
+                player.motionZ = 0;
+                player.setPosition(lockX, lockY, lockZ);
+            }
+        }
+    }
+
+    //<editor-fold desc="shader">
     private static void triggerShader()
     {
         GL20.glGetVertexAttrib(0, GL20.GL_VERTEX_ATTRIB_ARRAY_ENABLED, CommonBuffers.INT_BUFFER_16);
@@ -419,4 +466,5 @@ public final class FluxLoadingManager
             shaderProgram.unuse();
         }
     }
+    //</editor-fold>
 }

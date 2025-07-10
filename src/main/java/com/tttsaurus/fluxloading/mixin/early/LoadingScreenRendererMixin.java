@@ -25,7 +25,7 @@ public class LoadingScreenRendererMixin
     {
         original.call(instance);
 
-        if (FluxLoadingManager.isDrawOverlay() && FluxLoadingManager.isTextureAvailable())
+        if (FluxLoadingManager.isActive() && FluxLoadingManager.isTextureAvailable())
             FluxLoadingManager.drawOverlay();
     }
 
@@ -40,7 +40,7 @@ public class LoadingScreenRendererMixin
     {
         int res = original.call(instance, text, x, y, color);
 
-        if (FluxLoadingManager.isDrawOverlay())
+        if (FluxLoadingManager.isActive())
         {
             if (FluxLoadingManager.isForceLoadingTitle() && text != null && !text.isEmpty())
                 FluxLoadingManager.setForceLoadingTitle(false);

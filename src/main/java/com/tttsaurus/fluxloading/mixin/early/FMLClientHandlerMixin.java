@@ -61,7 +61,7 @@ public class FMLClientHandlerMixin
             fluxloading$finishLoadingSetter.invoke(false);
 
             FluxLoadingManager.resetShader();
-            FluxLoadingManager.setDrawOverlay(true);
+            FluxLoadingManager.setActive(true);
 
             if (FluxLoadingConfig.INSTANTLY_POPPED_UP_LOADING_TITLE)
                 FluxLoadingManager.setForceLoadingTitle(true);
@@ -74,7 +74,7 @@ public class FMLClientHandlerMixin
             FluxLoadingManager.resetChunkLoadedNum();
             FluxLoadingManager.resetTargetChunkNum();
             FluxLoadingManager.resetFadeOutTimer();
-            FluxLoadingManager.setMovementLocked(false);
+            FluxLoadingManager.resetMovementLocked();
             FluxLoadingManager.setFinishChunkLoading(false);
             FluxLoadingManager.setCountingChunkLoaded(true);
 

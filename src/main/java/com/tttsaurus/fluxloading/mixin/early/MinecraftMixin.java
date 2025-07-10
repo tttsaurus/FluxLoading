@@ -31,7 +31,7 @@ public class MinecraftMixin
         if (world != null)
         {
             // leave world
-            FluxLoadingManager.setDrawOverlay(false);
+            FluxLoadingManager.setActive(false);
 
             // try save screenshot
             FluxLoadingManager.trySaveToLocal();
