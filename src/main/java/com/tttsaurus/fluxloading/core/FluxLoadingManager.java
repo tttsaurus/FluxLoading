@@ -359,7 +359,8 @@ public final class FluxLoadingManager
 
     public static void tick()
     {
-        FluxLoadingAPI.executeFluxLoadingTickListeners();
+        for (Runnable runnable: FluxLoadingAPI.fluxLoadingTickListeners)
+            runnable.run();
         FluxLoadingAPI.tickNum++;
     }
 
@@ -435,7 +436,13 @@ public final class FluxLoadingManager
                         FluxLoadingNetwork.requestPlayerLock(false);
                     }
 
-                    FluxLoading.logger.info("Finished world flux loading process. Tick count: " + FluxLoadingAPI.tickNum);
+                    FluxLoadingAPI.stopWatch.stop();
+                    double timeMs = FluxLoadingAPI.stopWatch.getNanoTime() / 1e6d;
+
+                    for (Runnable runnable: FluxLoadingAPI.fluxLoadingEndListeners)
+                        runnable.run();
+
+                    FluxLoading.logger.info("Finished world flux loading process. Time taken: " + timeMs + " ms. Tick count: " + FluxLoadingAPI.tickNum);
 
                     return;
                 }

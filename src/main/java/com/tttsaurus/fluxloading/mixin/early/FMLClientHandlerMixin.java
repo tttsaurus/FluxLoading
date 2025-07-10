@@ -6,13 +6,16 @@ import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.FluxLoadingAPI;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import com.tttsaurus.fluxloading.core.function.Action_1Param;
+import com.tttsaurus.fluxloading.core.function.Func;
 import com.tttsaurus.fluxloading.core.util.AccessorUnreflector;
 import net.minecraft.world.storage.WorldSummary;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.apache.commons.lang3.time.StopWatch;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import java.util.List;
 
 @SuppressWarnings("all")
 @Mixin(FMLClientHandler.class)
@@ -30,6 +33,10 @@ public class FMLClientHandlerMixin
     private Action_1Param<Boolean> fluxloading$finishLoadingSetter;
     @Unique
     private Action_1Param<Integer> fluxloading$tickNum;
+    @Unique
+    private Func<List<Runnable>> fluxloading$fluxLoadingStartListenersGetter;
+    @Unique
+    private Action_1Param<StopWatch> fluxloading$stopWatchSetter;
 
     @WrapOperation(
             method = "tryLoadExistingWorld",
@@ -57,6 +64,10 @@ public class FMLClientHandlerMixin
                 fluxloading$finishLoadingSetter = (Action_1Param<Boolean>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "finishLoading");
             if (fluxloading$tickNum == null)
                 fluxloading$tickNum = (Action_1Param<Integer>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "tickNum");
+            if (fluxloading$fluxLoadingStartListenersGetter == null)
+                fluxloading$fluxLoadingStartListenersGetter = (Func<List<Runnable>>)AccessorUnreflector.getDeclaredFieldGetter(FluxLoadingAPI.class, "fluxLoadingStartListeners");
+            if (fluxloading$stopWatchSetter == null)
+                fluxloading$stopWatchSetter = (Action_1Param<StopWatch>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "stopWatch");
 
             fluxloading$duringDefaultWorldLoadingPhaseSetter.invoke(false);
             fluxloading$duringExtraChunkLoadingPhaseSetter.invoke(false);
@@ -64,6 +75,9 @@ public class FMLClientHandlerMixin
             fluxloading$duringFadingOutPhaseSetter.invoke(false);
             fluxloading$finishLoadingSetter.invoke(false);
             fluxloading$tickNum.invoke(0);
+
+            for (Runnable runnable: fluxloading$fluxLoadingStartListenersGetter.invoke())
+                runnable.run();
 
             FluxLoadingManager.resetShader();
             FluxLoadingManager.setActive(true);
@@ -82,6 +96,10 @@ public class FMLClientHandlerMixin
             FluxLoadingManager.resetMovementLocked();
             FluxLoadingManager.setFinishChunkLoading(false);
             FluxLoadingManager.setCountingChunkLoaded(true);
+
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+            fluxloading$stopWatchSetter.invoke(stopWatch);
 
             return folderName;
         }
