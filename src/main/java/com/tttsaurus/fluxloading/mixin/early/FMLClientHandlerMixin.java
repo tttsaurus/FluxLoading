@@ -28,6 +28,8 @@ public class FMLClientHandlerMixin
     private Action_1Param<Boolean> fluxloading$duringFadingOutPhaseSetter;
     @Unique
     private Action_1Param<Boolean> fluxloading$finishLoadingSetter;
+    @Unique
+    private Action_1Param<Integer> fluxloading$tickNum;
 
     @WrapOperation(
             method = "tryLoadExistingWorld",
@@ -53,12 +55,15 @@ public class FMLClientHandlerMixin
                 fluxloading$duringFadingOutPhaseSetter = (Action_1Param<Boolean>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "duringFadingOutPhase");
             if (fluxloading$finishLoadingSetter == null)
                 fluxloading$finishLoadingSetter = (Action_1Param<Boolean>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "finishLoading");
+            if (fluxloading$tickNum == null)
+                fluxloading$tickNum = (Action_1Param<Integer>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "tickNum");
 
             fluxloading$duringDefaultWorldLoadingPhaseSetter.invoke(false);
             fluxloading$duringExtraChunkLoadingPhaseSetter.invoke(false);
             fluxloading$duringExtraWaitPhaseSetter.invoke(false);
             fluxloading$duringFadingOutPhaseSetter.invoke(false);
             fluxloading$finishLoadingSetter.invoke(false);
+            fluxloading$tickNum.invoke(0);
 
             FluxLoadingManager.resetShader();
             FluxLoadingManager.setActive(true);
@@ -69,10 +74,10 @@ public class FMLClientHandlerMixin
             // try load screenshot
             FluxLoadingManager.tryReadFromLocal(folderName);
 
-            FluxLoadingManager.setTargetChunkNumCalculated(false);
             FluxLoadingManager.setStartCalcTargetChunkNum(false);
-            FluxLoadingManager.resetChunkLoadedNum();
+            FluxLoadingManager.resetTargetChunkNumCalculated();
             FluxLoadingManager.resetTargetChunkNum();
+            FluxLoadingManager.resetChunkLoadedNum();
             FluxLoadingManager.resetFadeOutTimer();
             FluxLoadingManager.resetMovementLocked();
             FluxLoadingManager.setFinishChunkLoading(false);

@@ -26,7 +26,10 @@ public class LoadingScreenRendererMixin
         original.call(instance);
 
         if (FluxLoadingManager.isActive() && FluxLoadingManager.isTextureAvailable())
+        {
+            FluxLoadingManager.tick();
             FluxLoadingManager.drawOverlay();
+        }
     }
 
     @WrapOperation(

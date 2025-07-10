@@ -139,7 +139,7 @@ public final class FluxLoadingManager
 
     public static boolean isTargetChunkNumCalculated() { return targetChunkNumCalculated; }
 
-    public static void setTargetChunkNumCalculated(boolean flag) { targetChunkNumCalculated = flag; }
+    public static void resetTargetChunkNumCalculated() { targetChunkNumCalculated = false; }
 
     public static int getTargetChunkNum() { return targetChunkNum; }
 
@@ -357,6 +357,12 @@ public final class FluxLoadingManager
     }
     //</editor-fold>
 
+    public static void tick()
+    {
+        FluxLoadingAPI.executeFluxLoadingTickListeners();
+        FluxLoadingAPI.tickNum++;
+    }
+
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onRenderGameOverlay(RenderGameOverlayEvent.Post event)
     {
@@ -366,6 +372,7 @@ public final class FluxLoadingManager
         {
             if (!FluxLoadingAPI.finishLoading)
             {
+                tick();
                 if (!movementLocked)
                 {
                     movementLocked = true;
@@ -381,7 +388,7 @@ public final class FluxLoadingManager
                     FluxLoadingAPI.duringExtraChunkLoadingPhase = true;
                 }
 
-                //drawOverlay(0);
+                drawOverlay(0);
 
                 if (chunkLoadingTitle)
                 {
@@ -427,6 +434,8 @@ public final class FluxLoadingManager
                         Minecraft.getMinecraft().mouseHelper.grabMouseCursor();
                         FluxLoadingNetwork.requestPlayerLock(false);
                     }
+
+                    FluxLoading.logger.info("Finished world flux loading process. Tick count: " + FluxLoadingAPI.tickNum);
 
                     return;
                 }

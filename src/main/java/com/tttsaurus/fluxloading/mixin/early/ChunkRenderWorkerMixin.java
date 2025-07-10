@@ -22,12 +22,15 @@ public class ChunkRenderWorkerMixin
     {
         if (FluxLoadingManager.isCountingChunkLoaded())
         {
-            if (!FluxLoadingManager.isWaitChunksToLoad() && FluxLoadingManager.getChunkLoadedNum() >= 1)
+            if (!FluxLoadingManager.isWaitChunksToLoad())
             {
-                FluxLoadingManager.setCountingChunkLoaded(false);
-                FluxLoadingManager.setFinishChunkLoading(true);
-                FluxLoadingManager.startFadeOutTimer();
-                return;
+                if (FluxLoadingManager.getChunkLoadedNum() >= 1)
+                {
+                    FluxLoadingManager.setCountingChunkLoaded(false);
+                    FluxLoadingManager.setFinishChunkLoading(true);
+                    FluxLoadingManager.startFadeOutTimer();
+                    return;
+                }
             }
             else
             {

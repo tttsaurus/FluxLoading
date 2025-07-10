@@ -20,12 +20,15 @@ public class ChunkRenderManagerMixin
     {
         if (FluxLoadingManager.isCountingChunkLoaded())
         {
-            if (!FluxLoadingManager.isWaitChunksToLoad() && FluxLoadingManager.getChunkLoadedNum() >= 1)
+            if (!FluxLoadingManager.isWaitChunksToLoad())
             {
-                FluxLoadingManager.setCountingChunkLoaded(false);
-                FluxLoadingManager.setFinishChunkLoading(true);
-                FluxLoadingManager.startFadeOutTimer();
-                return original.call();
+                if (FluxLoadingManager.getChunkLoadedNum() >= 1)
+                {
+                    FluxLoadingManager.setCountingChunkLoaded(false);
+                    FluxLoadingManager.setFinishChunkLoading(true);
+                    FluxLoadingManager.startFadeOutTimer();
+                    return original.call();
+                }
             }
             else
             {
