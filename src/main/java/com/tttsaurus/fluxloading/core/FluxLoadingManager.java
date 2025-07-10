@@ -434,9 +434,9 @@ public final class FluxLoadingManager
 
                     if (movementLocked)
                     {
-                        movementLocked = false;
                         Minecraft.getMinecraft().mouseHelper.grabMouseCursor();
                         FluxLoadingNetwork.requestPlayerLock(false);
+                        movementLocked = false;
                     }
 
                     FluxLoadingAPI.stopWatch.stop();

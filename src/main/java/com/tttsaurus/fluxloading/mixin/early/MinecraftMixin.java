@@ -1,5 +1,6 @@
 package com.tttsaurus.fluxloading.mixin.early;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.FluxLoading;
@@ -50,5 +51,12 @@ public class MinecraftMixin
         FluxLoadingManager.prepareScreenshot();
 
         original.call(instance, i);
+    }
+
+    @WrapMethod(method = "runTickKeyboard")
+    public void runTickKeyboard(Operation<Void> original)
+    {
+        if (!FluxLoadingManager.isMovementLocked())
+            original.call();
     }
 }
