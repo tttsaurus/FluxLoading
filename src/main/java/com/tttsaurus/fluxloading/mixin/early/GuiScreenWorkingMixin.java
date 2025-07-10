@@ -20,7 +20,7 @@ public class GuiScreenWorkingMixin
     {
         original.call(instance);
 
-        if (FluxLoadingManager.isActive() && FluxLoadingManager.isTextureAvailable())
+        if (FluxLoadingManager.isActive())
         {
             FluxLoadingManager.tick();
             FluxLoadingManager.drawOverlay();

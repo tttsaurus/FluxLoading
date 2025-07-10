@@ -76,30 +76,33 @@ public class FMLClientHandlerMixin
             fluxloading$finishLoadingSetter.invoke(false);
             fluxloading$tickNum.invoke(0);
 
-            for (Runnable runnable: fluxloading$fluxLoadingStartListenersGetter.invoke())
-                runnable.run();
-
-            FluxLoadingManager.resetShader();
-            FluxLoadingManager.setActive(true);
-
-            if (FluxLoadingConfig.INSTANTLY_POPPED_UP_LOADING_TITLE)
-                FluxLoadingManager.setForceLoadingTitle(true);
-
             // try load screenshot
             FluxLoadingManager.tryReadFromLocal(folderName);
 
-            FluxLoadingManager.setStartCalcTargetChunkNum(false);
-            FluxLoadingManager.resetTargetChunkNumCalculated();
-            FluxLoadingManager.resetTargetChunkNum();
-            FluxLoadingManager.resetChunkLoadedNum();
-            FluxLoadingManager.resetFadeOutTimer();
-            FluxLoadingManager.resetMovementLocked();
-            FluxLoadingManager.setFinishChunkLoading(false);
-            FluxLoadingManager.setCountingChunkLoaded(true);
+            if (FluxLoadingManager.isTextureAvailable())
+            {
+                for (Runnable runnable: fluxloading$fluxLoadingStartListenersGetter.invoke())
+                    runnable.run();
 
-            StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
-            fluxloading$stopWatchSetter.invoke(stopWatch);
+                FluxLoadingManager.resetShader();
+                FluxLoadingManager.setActive(true);
+
+                if (FluxLoadingConfig.INSTANTLY_POPPED_UP_LOADING_TITLE)
+                    FluxLoadingManager.setForceLoadingTitle(true);
+
+                FluxLoadingManager.setStartCalcTargetChunkNum(false);
+                FluxLoadingManager.resetTargetChunkNumCalculated();
+                FluxLoadingManager.resetTargetChunkNum();
+                FluxLoadingManager.resetChunkLoadedNum();
+                FluxLoadingManager.resetFadeOutTimer();
+                FluxLoadingManager.resetMovementLocked();
+                FluxLoadingManager.setFinishChunkLoading(false);
+                FluxLoadingManager.setCountingChunkLoaded(true);
+
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+                fluxloading$stopWatchSetter.invoke(stopWatch);
+            }
 
             return folderName;
         }

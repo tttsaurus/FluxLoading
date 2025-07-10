@@ -45,9 +45,8 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.List;
 
 @SuppressWarnings("all")
 public final class FluxLoadingManager
@@ -372,7 +371,7 @@ public final class FluxLoadingManager
     {
         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) return;
 
-        if (isActive() && isTextureAvailable())
+        if (isActive())
         {
             if (!FluxLoadingAPI.finishLoading)
             {
@@ -511,13 +510,21 @@ public final class FluxLoadingManager
         {
             MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 
+            List<UUID> outdated = new ArrayList<>();
             for (Map.Entry<UUID, Vec3d> entry: serverLockPos.entrySet())
             {
                 UUID uuid = entry.getKey();
-                Vec3d pos = entry.getValue();
                 EntityPlayerMP player = server.getPlayerList().getPlayerByUUID(uuid);
+                if (player == null)
+                {
+                    outdated.add(uuid);
+                    continue;
+                }
+                Vec3d pos = entry.getValue();
                 player.connection.setPlayerLocation(pos.x, pos.y, pos.z, player.rotationYaw, player.rotationPitch);
             }
+            for (UUID uuid: outdated)
+                serverLockPos.remove(uuid);
         }
     }
 }
