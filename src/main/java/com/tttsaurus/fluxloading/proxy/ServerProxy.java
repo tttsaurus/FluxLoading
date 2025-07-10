@@ -11,6 +11,7 @@ public class ServerProxy extends CommonProxy
     {
         super.preInit(event, logger);
     }
+
     @Override
     public void init(FMLInitializationEvent event, Logger logger)
     {

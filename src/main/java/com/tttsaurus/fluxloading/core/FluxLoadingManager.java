@@ -4,6 +4,7 @@ import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.animation.SmoothDamp;
 import com.tttsaurus.fluxloading.core.accessor.ChunkProviderClientAccessor;
+import com.tttsaurus.fluxloading.core.network.FluxLoadingNetwork;
 import com.tttsaurus.fluxloading.core.render.CommonBuffers;
 import com.tttsaurus.fluxloading.core.render.RenderUtils;
 import com.tttsaurus.fluxloading.core.render.Texture2D;
@@ -22,12 +23,15 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -41,6 +45,9 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @SuppressWarnings("all")
 public final class FluxLoadingManager
@@ -374,7 +381,7 @@ public final class FluxLoadingManager
                     FluxLoadingAPI.duringExtraChunkLoadingPhase = true;
                 }
 
-                drawOverlay(0);
+                //drawOverlay(0);
 
                 if (chunkLoadingTitle)
                 {
@@ -418,6 +425,7 @@ public final class FluxLoadingManager
                     {
                         movementLocked = false;
                         Minecraft.getMinecraft().mouseHelper.grabMouseCursor();
+                        FluxLoadingNetwork.requestPlayerLock(false);
                     }
 
                     return;
@@ -455,6 +463,7 @@ public final class FluxLoadingManager
                     lockX = player.posX;
                     lockY = player.posY;
                     lockZ = player.posZ;
+                    FluxLoadingNetwork.requestPlayerLock(true);
                 }
 
                 player.movementInput.moveForward = 0;
@@ -474,14 +483,21 @@ public final class FluxLoadingManager
     }
 
     // server side lock
-    @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event)
-    {
-        if (event.phase == TickEvent.Phase.END && !event.player.world.isRemote)
-        {
-            if (event.player instanceof EntityPlayerMP player)
-            {
+    public static final Map<UUID, Vec3d> serverLockPos = new HashMap<>();
 
+    @SubscribeEvent
+    public static void onServerTick(TickEvent.ServerTickEvent event)
+    {
+        if (event.phase == TickEvent.Phase.END)
+        {
+            MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+
+            for (Map.Entry<UUID, Vec3d> entry: serverLockPos.entrySet())
+            {
+                UUID uuid = entry.getKey();
+                Vec3d pos = entry.getValue();
+                EntityPlayerMP player = server.getPlayerList().getPlayerByUUID(uuid);
+                player.connection.setPlayerLocation(pos.x, pos.y, pos.z, player.rotationYaw, player.rotationPitch);
             }
         }
     }

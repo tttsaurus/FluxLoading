@@ -23,6 +23,7 @@ public class ClientProxy extends CommonProxy
         FluxLoadingManager.setExtraWaitTime(FluxLoadingConfig.EXTRA_WAIT_TIME);
         FluxLoadingManager.setFadeOutDuration(FluxLoadingConfig.FADE_OUT_DURATION);
     }
+
     @Override
     public void init(FMLInitializationEvent event, Logger logger)
     {
