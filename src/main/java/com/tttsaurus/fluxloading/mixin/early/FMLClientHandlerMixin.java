@@ -3,7 +3,7 @@ package com.tttsaurus.fluxloading.mixin.early;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
-import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
+import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import net.minecraft.world.storage.WorldSummary;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -27,22 +27,22 @@ public class FMLClientHandlerMixin
             String folderName = original.call(instance);
 
             // join world
-            WorldLoadingScreenOverhaul.resetShader();
-            WorldLoadingScreenOverhaul.setDrawOverlay(true);
+            FluxLoadingManager.resetShader();
+            FluxLoadingManager.setDrawOverlay(true);
 
             if (FluxLoadingConfig.INSTANTLY_POPPED_UP_LOADING_TITLE)
-                WorldLoadingScreenOverhaul.setForceLoadingTitle(true);
+                FluxLoadingManager.setForceLoadingTitle(true);
 
             // try load screenshot
-            WorldLoadingScreenOverhaul.tryReadFromLocal(folderName);
+            FluxLoadingManager.tryReadFromLocal(folderName);
 
-            WorldLoadingScreenOverhaul.setTargetChunkNumCalculated(false);
-            WorldLoadingScreenOverhaul.setStartCalcTargetChunkNum(false);
-            WorldLoadingScreenOverhaul.resetChunkLoadedNum();
-            WorldLoadingScreenOverhaul.resetTargetChunkNum();
-            WorldLoadingScreenOverhaul.resetFadeOutTimer();
-            WorldLoadingScreenOverhaul.setFinishChunkLoading(false);
-            WorldLoadingScreenOverhaul.setCountingChunkLoaded(true);
+            FluxLoadingManager.setTargetChunkNumCalculated(false);
+            FluxLoadingManager.setStartCalcTargetChunkNum(false);
+            FluxLoadingManager.resetChunkLoadedNum();
+            FluxLoadingManager.resetTargetChunkNum();
+            FluxLoadingManager.resetFadeOutTimer();
+            FluxLoadingManager.setFinishChunkLoading(false);
+            FluxLoadingManager.setCountingChunkLoaded(true);
 
             return folderName;
         }

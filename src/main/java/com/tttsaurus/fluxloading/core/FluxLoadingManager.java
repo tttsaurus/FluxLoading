@@ -39,7 +39,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-public final class WorldLoadingScreenOverhaul
+public final class FluxLoadingManager
 {
     // render
     private static ShaderProgram shaderProgram = null;
@@ -48,11 +48,11 @@ public final class WorldLoadingScreenOverhaul
     private static boolean screenshotToggle = false;
     private static boolean drawOverlay = false;
     private static boolean forceLoadingTitle = false;
-    private static boolean chunkBuildingTitle = false;
+    private static boolean chunkLoadingTitle = false;
     private static Texture2D texture = null;
     private static BufferedImage screenshot = null;
 
-    // waiting chunk build
+    // chunk loading
     private static boolean waitChunksToLoad = false;
     private static boolean finishChunkLoading = false;
     private static boolean countingChunkLoaded = false;
@@ -61,7 +61,7 @@ public final class WorldLoadingScreenOverhaul
     private static boolean startCalcTargetChunkNum = false;
     private static boolean targetChunkNumCalculated = false;
 
-    // fade out animation
+    // fade-out animation
     private static double extraWaitTime = 0.5d;
     private static double fadeOutDuration = 1.0d;
     private static StopWatch fadeOutStopWatch = null;
@@ -79,7 +79,7 @@ public final class WorldLoadingScreenOverhaul
 
     public static void setForceLoadingTitle(boolean flag) { forceLoadingTitle = flag; }
 
-    public static void setChunkBuildingTitle(boolean flag) { chunkBuildingTitle = flag; }
+    public static void setChunkLoadingTitle(boolean flag) { chunkLoadingTitle = flag; }
 
     public static boolean isTextureAvailable() { return texture != null; }
 
@@ -137,8 +137,6 @@ public final class WorldLoadingScreenOverhaul
             fadeOutStopWatch = null;
         }
     }
-
-    public static boolean isFadingOut() { return fadeOutStopWatch != null; }
     //</editor-fold>
 
     public static void calcTargetChunkNum()
@@ -283,7 +281,7 @@ public final class WorldLoadingScreenOverhaul
             {
                 drawOverlay();
 
-                if (chunkBuildingTitle)
+                if (chunkLoadingTitle)
                 {
                     ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
                     String i18nText = I18n.format("fluxloading.loading_wait");
@@ -291,8 +289,7 @@ public final class WorldLoadingScreenOverhaul
                     RenderUtils.renderText(i18nText, (resolution.getScaledWidth() - width) / 2, (float) (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2, 1, Color.WHITE.getRGB(), true);
                 }
             }
-            // extra wait time is a part of fading out process
-            if (isFadingOut())
+            if (fadeOutStopWatch != null)
             {
                 double time = fadeOutStopWatch.getNanoTime() / 1E9d;
                 if (time >= fadeOutDuration + extraWaitTime)

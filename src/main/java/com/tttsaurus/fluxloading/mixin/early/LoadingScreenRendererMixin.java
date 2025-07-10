@@ -2,7 +2,7 @@ package com.tttsaurus.fluxloading.mixin.early;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
+import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import com.tttsaurus.fluxloading.render.RenderUtils;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.gui.FontRenderer;
@@ -25,8 +25,8 @@ public class LoadingScreenRendererMixin
     {
         original.call(instance);
 
-        if (WorldLoadingScreenOverhaul.isDrawOverlay() && WorldLoadingScreenOverhaul.isTextureAvailable())
-            WorldLoadingScreenOverhaul.drawOverlay();
+        if (FluxLoadingManager.isDrawOverlay() && FluxLoadingManager.isTextureAvailable())
+            FluxLoadingManager.drawOverlay();
     }
 
     @WrapOperation(
@@ -40,11 +40,11 @@ public class LoadingScreenRendererMixin
     {
         int res = original.call(instance, text, x, y, color);
 
-        if (WorldLoadingScreenOverhaul.isDrawOverlay())
+        if (FluxLoadingManager.isDrawOverlay())
         {
-            if (WorldLoadingScreenOverhaul.isForceLoadingTitle() && text != null && !text.isEmpty())
-                WorldLoadingScreenOverhaul.setForceLoadingTitle(false);
-            if (WorldLoadingScreenOverhaul.isForceLoadingTitle())
+            if (FluxLoadingManager.isForceLoadingTitle() && text != null && !text.isEmpty())
+                FluxLoadingManager.setForceLoadingTitle(false);
+            if (FluxLoadingManager.isForceLoadingTitle())
             {
                 String i18nText = I18n.format("menu.loadingLevel");
                 int width = RenderUtils.fontRenderer.getStringWidth(i18nText);

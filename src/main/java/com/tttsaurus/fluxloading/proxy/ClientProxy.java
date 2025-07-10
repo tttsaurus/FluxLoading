@@ -1,7 +1,7 @@
 package com.tttsaurus.fluxloading.proxy;
 
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
-import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
+import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -18,16 +18,16 @@ public class ClientProxy extends CommonProxy
         FluxLoadingConfig.CONFIG = new Configuration(event.getSuggestedConfigurationFile());
         FluxLoadingConfig.loadConfig();
 
-        WorldLoadingScreenOverhaul.setChunkBuildingTitle(FluxLoadingConfig.CHUNK_BUILDING_INDICATOR);
-        WorldLoadingScreenOverhaul.setWaitChunksToLoad(FluxLoadingConfig.WAIT_CHUNKS_TO_LOAD);
-        WorldLoadingScreenOverhaul.setExtraWaitTime(FluxLoadingConfig.EXTRA_WAIT_TIME);
-        WorldLoadingScreenOverhaul.setFadeOutDuration(FluxLoadingConfig.FADE_OUT_DURATION);
+        FluxLoadingManager.setChunkLoadingTitle(FluxLoadingConfig.CHUNK_LOADING_INDICATOR);
+        FluxLoadingManager.setWaitChunksToLoad(FluxLoadingConfig.WAIT_CHUNKS_TO_LOAD);
+        FluxLoadingManager.setExtraWaitTime(FluxLoadingConfig.EXTRA_WAIT_TIME);
+        FluxLoadingManager.setFadeOutDuration(FluxLoadingConfig.FADE_OUT_DURATION);
     }
     @Override
     public void init(FMLInitializationEvent event, Logger logger)
     {
         super.init(event, logger);
 
-        MinecraftForge.EVENT_BUS.register(WorldLoadingScreenOverhaul.class);
+        MinecraftForge.EVENT_BUS.register(FluxLoadingManager.class);
     }
 }

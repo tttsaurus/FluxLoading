@@ -2,7 +2,7 @@ package com.tttsaurus.fluxloading.mixin.early;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
+import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import net.minecraft.client.gui.GuiDownloadTerrain;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,7 +20,7 @@ public class GuiDownloadTerrainMixin
     {
         original.call(instance, i);
 
-        if (WorldLoadingScreenOverhaul.isDrawOverlay() && WorldLoadingScreenOverhaul.isTextureAvailable())
-            WorldLoadingScreenOverhaul.drawOverlay();
+        if (FluxLoadingManager.isDrawOverlay() && FluxLoadingManager.isTextureAvailable())
+            FluxLoadingManager.drawOverlay();
     }
 }

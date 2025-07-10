@@ -3,7 +3,7 @@ package com.tttsaurus.fluxloading.mixin.early;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.FluxLoading;
-import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
+import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import com.tttsaurus.fluxloading.render.GlResourceManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -31,10 +31,10 @@ public class MinecraftMixin
         if (world != null)
         {
             // leave world
-            WorldLoadingScreenOverhaul.setDrawOverlay(false);
+            FluxLoadingManager.setDrawOverlay(false);
 
             // try save screenshot
-            WorldLoadingScreenOverhaul.trySaveToLocal();
+            FluxLoadingManager.trySaveToLocal();
         }
     }
 
@@ -47,7 +47,7 @@ public class MinecraftMixin
     public void displayGuiScreen(Minecraft instance, GuiScreen i, Operation<Void> original)
     {
         // when pause game
-        WorldLoadingScreenOverhaul.prepareScreenshot();
+        FluxLoadingManager.prepareScreenshot();
 
         original.call(instance, i);
     }

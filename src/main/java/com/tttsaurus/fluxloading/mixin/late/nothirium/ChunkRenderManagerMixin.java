@@ -2,7 +2,7 @@ package com.tttsaurus.fluxloading.mixin.late.nothirium;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
+import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import com.tttsaurus.fluxloading.core.accessor.ChunkProviderClientAccessor;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import meldexun.nothirium.api.renderer.chunk.IChunkRenderer;
@@ -18,31 +18,31 @@ public class ChunkRenderManagerMixin
     @WrapMethod(method = "getRenderer", remap = false)
     private static IChunkRenderer<?> getRenderer(Operation<IChunkRenderer<?>> original)
     {
-        if (WorldLoadingScreenOverhaul.isCountingChunkLoaded())
+        if (FluxLoadingManager.isCountingChunkLoaded())
         {
-            if (!WorldLoadingScreenOverhaul.isWaitChunksToLoad())
+            if (!FluxLoadingManager.isWaitChunksToLoad())
             {
-                WorldLoadingScreenOverhaul.setCountingChunkLoaded(false);
-                WorldLoadingScreenOverhaul.startFadeOutTimer();
+                FluxLoadingManager.setCountingChunkLoaded(false);
+                FluxLoadingManager.startFadeOutTimer();
                 return original.call();
             }
 
-            WorldLoadingScreenOverhaul.incrChunkLoadedNum();
+            FluxLoadingManager.incrChunkLoadedNum();
 
             ChunkProviderClient chunkProvider = Minecraft.getMinecraft().world.getChunkProvider();
             Long2ObjectMap<Chunk> loadedChunks = ChunkProviderClientAccessor.getLoadedChunks(chunkProvider);
 
-            if (loadedChunks.size() > 4 && !WorldLoadingScreenOverhaul.isStartCalcTargetChunkNum())
+            if (loadedChunks.size() > 4 && !FluxLoadingManager.isStartCalcTargetChunkNum())
             {
-                WorldLoadingScreenOverhaul.setStartCalcTargetChunkNum(true);
-                WorldLoadingScreenOverhaul.calcTargetChunkNum();
+                FluxLoadingManager.setStartCalcTargetChunkNum(true);
+                FluxLoadingManager.calcTargetChunkNum();
             }
 
-            if (WorldLoadingScreenOverhaul.isTargetChunkNumCalculated() && WorldLoadingScreenOverhaul.getChunkLoadedNum() >= WorldLoadingScreenOverhaul.getTargetChunkNum())
+            if (FluxLoadingManager.isTargetChunkNumCalculated() && FluxLoadingManager.getChunkLoadedNum() >= FluxLoadingManager.getTargetChunkNum())
             {
-                WorldLoadingScreenOverhaul.setCountingChunkLoaded(false);
-                WorldLoadingScreenOverhaul.setFinishChunkLoading(true);
-                WorldLoadingScreenOverhaul.startFadeOutTimer();
+                FluxLoadingManager.setCountingChunkLoaded(false);
+                FluxLoadingManager.setFinishChunkLoading(true);
+                FluxLoadingManager.startFadeOutTimer();
             }
         }
 

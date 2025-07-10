@@ -1,6 +1,6 @@
 package com.tttsaurus.fluxloading.mixin.early;
 
-import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
+import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import com.tttsaurus.fluxloading.core.accessor.ChunkProviderClientAccessor;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.client.Minecraft;
@@ -20,31 +20,31 @@ public class ChunkRenderWorkerMixin
     @Inject(method = "processTask", at = @At("RETURN"))
     public void processTask(ChunkCompileTaskGenerator generator, CallbackInfo ci)
     {
-        if (WorldLoadingScreenOverhaul.isCountingChunkLoaded())
+        if (FluxLoadingManager.isCountingChunkLoaded())
         {
-            if (!WorldLoadingScreenOverhaul.isWaitChunksToLoad())
+            if (!FluxLoadingManager.isWaitChunksToLoad())
             {
-                WorldLoadingScreenOverhaul.setCountingChunkLoaded(false);
-                WorldLoadingScreenOverhaul.startFadeOutTimer();
+                FluxLoadingManager.setCountingChunkLoaded(false);
+                FluxLoadingManager.startFadeOutTimer();
                 return;
             }
 
-            WorldLoadingScreenOverhaul.incrChunkLoadedNum();
+            FluxLoadingManager.incrChunkLoadedNum();
 
             ChunkProviderClient chunkProvider = Minecraft.getMinecraft().world.getChunkProvider();
             Long2ObjectMap<Chunk> loadedChunks = ChunkProviderClientAccessor.getLoadedChunks(chunkProvider);
 
-            if (loadedChunks.size() > 4 && !WorldLoadingScreenOverhaul.isStartCalcTargetChunkNum())
+            if (loadedChunks.size() > 4 && !FluxLoadingManager.isStartCalcTargetChunkNum())
             {
-                WorldLoadingScreenOverhaul.setStartCalcTargetChunkNum(true);
-                WorldLoadingScreenOverhaul.calcTargetChunkNum();
+                FluxLoadingManager.setStartCalcTargetChunkNum(true);
+                FluxLoadingManager.calcTargetChunkNum();
             }
 
-            if (WorldLoadingScreenOverhaul.isTargetChunkNumCalculated() && WorldLoadingScreenOverhaul.getChunkLoadedNum() >= WorldLoadingScreenOverhaul.getTargetChunkNum())
+            if (FluxLoadingManager.isTargetChunkNumCalculated() && FluxLoadingManager.getChunkLoadedNum() >= FluxLoadingManager.getTargetChunkNum())
             {
-                WorldLoadingScreenOverhaul.setCountingChunkLoaded(false);
-                WorldLoadingScreenOverhaul.setFinishChunkLoading(true);
-                WorldLoadingScreenOverhaul.startFadeOutTimer();
+                FluxLoadingManager.setCountingChunkLoaded(false);
+                FluxLoadingManager.setFinishChunkLoading(true);
+                FluxLoadingManager.startFadeOutTimer();
             }
         }
     }
