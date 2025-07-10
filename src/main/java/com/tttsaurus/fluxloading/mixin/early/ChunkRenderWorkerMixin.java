@@ -1,5 +1,6 @@
 package com.tttsaurus.fluxloading.mixin.early;
 
+import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import com.tttsaurus.fluxloading.core.accessor.ChunkProviderClientAccessor;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -26,6 +27,11 @@ public class ChunkRenderWorkerMixin
             {
                 if (FluxLoadingManager.getChunkLoadedNum() >= 1)
                 {
+                    Minecraft.getMinecraft().addScheduledTask(() ->
+                    {
+                        FluxLoading.logger.info("Chunk Loading Stage - Not going to wait chunks to load");
+                    });
+
                     FluxLoadingManager.setCountingChunkLoaded(false);
                     FluxLoadingManager.setFinishChunkLoading(true);
                     FluxLoadingManager.startFadeOutTimer();
@@ -39,6 +45,11 @@ public class ChunkRenderWorkerMixin
 
                 if (loadedChunks.size() > 4 && !FluxLoadingManager.isStartCalcTargetChunkNum())
                 {
+                    Minecraft.getMinecraft().addScheduledTask(() ->
+                    {
+                        FluxLoading.logger.info("Chunk Loading Stage - Waiting chunks to load");
+                    });
+
                     FluxLoadingManager.setStartCalcTargetChunkNum(true);
                     FluxLoadingManager.calcTargetChunkNum();
                 }

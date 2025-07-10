@@ -208,6 +208,9 @@ public final class FluxLoadingManager
                         num++;
             }
 
+            FluxLoading.logger.info("Chunk count from ChunkProviderClient: " + loadedChunks.size());
+            FluxLoading.logger.info("Visible chunks from player's perspective: " + num);
+
             targetChunkNum = num;
             targetChunkNumCalculated = true;
         });
