@@ -12,7 +12,8 @@
     "GuiDownloadTerrainMixin",
     "GuiScreenWorkingMixin",
     "LoadingScreenRendererMixin",
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "MouseHelperMixin"
   ],
   "server": []
 }

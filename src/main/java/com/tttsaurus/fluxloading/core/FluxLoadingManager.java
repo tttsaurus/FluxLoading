@@ -52,6 +52,7 @@ public final class FluxLoadingManager
     private static boolean chunkLoadingTitle = false;
     private static Texture2D texture = null;
     private static BufferedImage screenshot = null;
+    private static boolean movementLocked = false;
 
     // extra chunk loading
     private static boolean waitChunksToLoad = true;
@@ -89,6 +90,10 @@ public final class FluxLoadingManager
         if (texture != null) texture.dispose();
         texture = tex;
     }
+
+    public static boolean isMovementLocked() { return movementLocked; }
+
+    public static void setMovementLocked(boolean flag) { movementLocked = flag; }
 
     public static boolean isWaitChunksToLoad() { return waitChunksToLoad; }
 
@@ -281,6 +286,15 @@ public final class FluxLoadingManager
 
         if (isTextureAvailable())
         {
+            if (!FluxLoadingAPI.finishLoading)
+            {
+                if (!movementLocked)
+                {
+                    movementLocked = true;
+                    Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
+                }
+            }
+
             if (!finishChunkLoading)
             {
                 if (!FluxLoadingAPI.duringExtraChunkLoadingPhase)
@@ -299,6 +313,7 @@ public final class FluxLoadingManager
                     RenderUtils.renderText(i18nText, (resolution.getScaledWidth() - width) / 2, (float) (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2, 1, Color.WHITE.getRGB(), true);
                 }
             }
+
             if (fadeOutStopWatch != null)
             {
                 double time = fadeOutStopWatch.getNanoTime() / 1E9d;
@@ -326,6 +341,13 @@ public final class FluxLoadingManager
                     FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
                     FluxLoadingAPI.duringExtraWaitPhase = false;
                     FluxLoadingAPI.duringFadingOutPhase = false;
+                    FluxLoadingAPI.finishLoading = true;
+
+                    if (movementLocked)
+                    {
+                        movementLocked = false;
+                        Minecraft.getMinecraft().mouseHelper.grabMouseCursor();
+                    }
 
                     return;
                 }

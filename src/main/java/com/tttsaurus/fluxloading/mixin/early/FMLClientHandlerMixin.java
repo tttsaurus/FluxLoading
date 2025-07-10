@@ -26,6 +26,8 @@ public class FMLClientHandlerMixin
     private Action_1Param<Boolean> fluxloading$duringExtraWaitPhaseSetter;
     @Unique
     private Action_1Param<Boolean> fluxloading$duringFadingOutPhaseSetter;
+    @Unique
+    private Action_1Param<Boolean> fluxloading$finishLoadingSetter;
 
     @WrapOperation(
             method = "tryLoadExistingWorld",
@@ -49,11 +51,14 @@ public class FMLClientHandlerMixin
                 fluxloading$duringExtraWaitPhaseSetter = (Action_1Param<Boolean>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "duringExtraWaitPhase");
             if (fluxloading$duringFadingOutPhaseSetter == null)
                 fluxloading$duringFadingOutPhaseSetter = (Action_1Param<Boolean>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "duringFadingOutPhase");
+            if (fluxloading$finishLoadingSetter == null)
+                fluxloading$finishLoadingSetter = (Action_1Param<Boolean>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "finishLoading");
 
             fluxloading$duringDefaultWorldLoadingPhaseSetter.invoke(false);
             fluxloading$duringExtraChunkLoadingPhaseSetter.invoke(false);
             fluxloading$duringExtraWaitPhaseSetter.invoke(false);
             fluxloading$duringFadingOutPhaseSetter.invoke(false);
+            fluxloading$finishLoadingSetter.invoke(false);
 
             FluxLoadingManager.resetShader();
             FluxLoadingManager.setDrawOverlay(true);
@@ -69,6 +74,7 @@ public class FMLClientHandlerMixin
             FluxLoadingManager.resetChunkLoadedNum();
             FluxLoadingManager.resetTargetChunkNum();
             FluxLoadingManager.resetFadeOutTimer();
+            FluxLoadingManager.setMovementLocked(false);
             FluxLoadingManager.setFinishChunkLoading(false);
             FluxLoadingManager.setCountingChunkLoaded(true);
 

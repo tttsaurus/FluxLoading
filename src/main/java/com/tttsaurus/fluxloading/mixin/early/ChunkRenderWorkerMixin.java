@@ -22,30 +22,33 @@ public class ChunkRenderWorkerMixin
     {
         if (FluxLoadingManager.isCountingChunkLoaded())
         {
-            if (!FluxLoadingManager.isWaitChunksToLoad())
-            {
-                FluxLoadingManager.setCountingChunkLoaded(false);
-                FluxLoadingManager.startFadeOutTimer();
-                return;
-            }
-
-            FluxLoadingManager.incrChunkLoadedNum();
-
-            ChunkProviderClient chunkProvider = Minecraft.getMinecraft().world.getChunkProvider();
-            Long2ObjectMap<Chunk> loadedChunks = ChunkProviderClientAccessor.getLoadedChunks(chunkProvider);
-
-            if (loadedChunks.size() > 4 && !FluxLoadingManager.isStartCalcTargetChunkNum())
-            {
-                FluxLoadingManager.setStartCalcTargetChunkNum(true);
-                FluxLoadingManager.calcTargetChunkNum();
-            }
-
-            if (FluxLoadingManager.isTargetChunkNumCalculated() && FluxLoadingManager.getChunkLoadedNum() >= FluxLoadingManager.getTargetChunkNum())
+            if (!FluxLoadingManager.isWaitChunksToLoad() && FluxLoadingManager.getChunkLoadedNum() >= 1)
             {
                 FluxLoadingManager.setCountingChunkLoaded(false);
                 FluxLoadingManager.setFinishChunkLoading(true);
                 FluxLoadingManager.startFadeOutTimer();
+                return;
             }
+            else
+            {
+                ChunkProviderClient chunkProvider = Minecraft.getMinecraft().world.getChunkProvider();
+                Long2ObjectMap<Chunk> loadedChunks = ChunkProviderClientAccessor.getLoadedChunks(chunkProvider);
+
+                if (loadedChunks.size() > 4 && !FluxLoadingManager.isStartCalcTargetChunkNum())
+                {
+                    FluxLoadingManager.setStartCalcTargetChunkNum(true);
+                    FluxLoadingManager.calcTargetChunkNum();
+                }
+
+                if (FluxLoadingManager.isTargetChunkNumCalculated() && FluxLoadingManager.getChunkLoadedNum() >= FluxLoadingManager.getTargetChunkNum())
+                {
+                    FluxLoadingManager.setCountingChunkLoaded(false);
+                    FluxLoadingManager.setFinishChunkLoading(true);
+                    FluxLoadingManager.startFadeOutTimer();
+                }
+            }
+
+            FluxLoadingManager.incrChunkLoadedNum();
         }
     }
 }
