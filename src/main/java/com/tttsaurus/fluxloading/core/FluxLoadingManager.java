@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.culling.ClippingHelperImpl;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -104,6 +105,9 @@ public final class FluxLoadingManager
     {
         movementLocked = false;
         lockPosFetched = false;
+        lockX = 0;
+        lockY = 0;
+        lockZ = 0;
     }
 
     public static boolean isWaitChunksToLoad() { return waitChunksToLoad; }
@@ -224,6 +228,60 @@ public final class FluxLoadingManager
         {
             Texture2D texture = RenderUtils.readPng(screenshot);
             if (texture != null) updateTexture(texture);
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="shader">
+    private static void triggerShader()
+    {
+        GL20.glGetVertexAttrib(0, GL20.GL_VERTEX_ATTRIB_ARRAY_ENABLED, CommonBuffers.INT_BUFFER_16);
+        boolean enabled = CommonBuffers.INT_BUFFER_16.get(0) == GL11.GL_TRUE;
+
+        GL20.glEnableVertexAttribArray(0);
+
+        GL20.glVertexAttribPointer(0, 3, false, 0, vertexBuffer);
+        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
+
+        if (enabled)
+            GL20.glEnableVertexAttribArray(0);
+        else
+            GL20.glDisableVertexAttribArray(0);
+    }
+
+    private static void initShader()
+    {
+        if (shaderProgram == null)
+        {
+            Shader vertex = ShaderLoader.load("fluxloading:shaders/loading_screen_vertex.glsl", Shader.ShaderType.VERTEX);
+            Shader frag = ShaderLoader.load("fluxloading:shaders/loading_screen_frag.glsl", Shader.ShaderType.FRAGMENT);
+
+            shaderProgram = new ShaderProgram(vertex, frag);
+            shaderProgram.setup();
+
+            FluxLoading.logger.info(shaderProgram.getSetupDebugReport());
+
+            shaderProgram.use();
+            shaderProgram.setUniform("screenTexture", 1);
+            shaderProgram.setUniform("percentage", 0f);
+            shaderProgram.setUniform("enableDissolving", FluxLoadingConfig.ENABLE_DISSOLVING_EFFECT);
+            shaderProgram.setUniform("enableWaving", FluxLoadingConfig.ENABLE_WAVING_EFFECT);
+            shaderProgram.setUniform("enableDarkOverlay", FluxLoadingConfig.ENABLE_DARK_OVERLAY);
+            shaderProgram.unuse();
+
+            vertexBuffer = ByteBuffer.allocateDirect(9 * Float.BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer();
+            // vec2(-1, -1), vec2(3, -1), vec2(-1, 3)
+            vertexBuffer.put(new float[]{-1, -1, 0, 3, -1, 0, -1, 3, 0}).flip();
+        }
+    }
+
+    public static void resetShader()
+    {
+        if (shaderProgram != null)
+        {
+            shaderProgram.use();
+            shaderProgram.setUniform("percentage", 0f);
+            shaderProgram.unuse();
         }
     }
     //</editor-fold>
@@ -381,6 +439,7 @@ public final class FluxLoadingManager
         }
     }
 
+    // client side lock
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event)
     {
@@ -414,57 +473,16 @@ public final class FluxLoadingManager
         }
     }
 
-    //<editor-fold desc="shader">
-    private static void triggerShader()
+    // server side lock
+    @SubscribeEvent
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event)
     {
-        GL20.glGetVertexAttrib(0, GL20.GL_VERTEX_ATTRIB_ARRAY_ENABLED, CommonBuffers.INT_BUFFER_16);
-        boolean enabled = CommonBuffers.INT_BUFFER_16.get(0) == GL11.GL_TRUE;
-
-        GL20.glEnableVertexAttribArray(0);
-
-        GL20.glVertexAttribPointer(0, 3, false, 0, vertexBuffer);
-        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
-
-        if (enabled)
-            GL20.glEnableVertexAttribArray(0);
-        else
-            GL20.glDisableVertexAttribArray(0);
-    }
-
-    private static void initShader()
-    {
-        if (shaderProgram == null)
+        if (event.phase == TickEvent.Phase.END && !event.player.world.isRemote)
         {
-            Shader vertex = ShaderLoader.load("fluxloading:shaders/loading_screen_vertex.glsl", Shader.ShaderType.VERTEX);
-            Shader frag = ShaderLoader.load("fluxloading:shaders/loading_screen_frag.glsl", Shader.ShaderType.FRAGMENT);
+            if (event.player instanceof EntityPlayerMP player)
+            {
 
-            shaderProgram = new ShaderProgram(vertex, frag);
-            shaderProgram.setup();
-
-            FluxLoading.logger.info(shaderProgram.getSetupDebugReport());
-
-            shaderProgram.use();
-            shaderProgram.setUniform("screenTexture", 1);
-            shaderProgram.setUniform("percentage", 0f);
-            shaderProgram.setUniform("enableDissolving", FluxLoadingConfig.ENABLE_DISSOLVING_EFFECT);
-            shaderProgram.setUniform("enableWaving", FluxLoadingConfig.ENABLE_WAVING_EFFECT);
-            shaderProgram.setUniform("enableDarkOverlay", FluxLoadingConfig.ENABLE_DARK_OVERLAY);
-            shaderProgram.unuse();
-
-            vertexBuffer = ByteBuffer.allocateDirect(9 * Float.BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer();
-            // vec2(-1, -1), vec2(3, -1), vec2(-1, 3)
-            vertexBuffer.put(new float[]{-1, -1, 0, 3, -1, 0, -1, 3, 0}).flip();
+            }
         }
     }
-
-    public static void resetShader()
-    {
-        if (shaderProgram != null)
-        {
-            shaderProgram.use();
-            shaderProgram.setUniform("percentage", 0f);
-            shaderProgram.unuse();
-        }
-    }
-    //</editor-fold>
 }
