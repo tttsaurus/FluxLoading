@@ -39,6 +39,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
+@SuppressWarnings("all")
 public final class FluxLoadingManager
 {
     // render
@@ -52,8 +53,8 @@ public final class FluxLoadingManager
     private static Texture2D texture = null;
     private static BufferedImage screenshot = null;
 
-    // chunk loading
-    private static boolean waitChunksToLoad = false;
+    // extra chunk loading
+    private static boolean waitChunksToLoad = true;
     private static boolean finishChunkLoading = false;
     private static boolean countingChunkLoaded = false;
     private static int chunkLoadedNum = 0;
@@ -213,6 +214,9 @@ public final class FluxLoadingManager
 
     public static void drawOverlay()
     {
+        if (!FluxLoadingAPI.duringDefaultWorldLoadingPhase)
+            FluxLoadingAPI.duringDefaultWorldLoadingPhase = true;
+
         drawOverlay(0);
     }
 
@@ -279,7 +283,13 @@ public final class FluxLoadingManager
         {
             if (!finishChunkLoading)
             {
-                drawOverlay();
+                if (!FluxLoadingAPI.duringExtraChunkLoadingPhase)
+                {
+                    FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
+                    FluxLoadingAPI.duringExtraChunkLoadingPhase = true;
+                }
+
+                drawOverlay(0);
 
                 if (chunkLoadingTitle)
                 {
@@ -292,13 +302,34 @@ public final class FluxLoadingManager
             if (fadeOutStopWatch != null)
             {
                 double time = fadeOutStopWatch.getNanoTime() / 1E9d;
+
+                if (!FluxLoadingAPI.duringExtraWaitPhase)
+                {
+                    FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
+                    FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
+                    FluxLoadingAPI.duringExtraWaitPhase = true;
+                }
+
+                if (time >= extraWaitTime && !FluxLoadingAPI.duringFadingOutPhase)
+                {
+                    FluxLoadingAPI.duringExtraWaitPhase = false;
+                    FluxLoadingAPI.duringFadingOutPhase = true;
+                }
+
                 if (time >= fadeOutDuration + extraWaitTime)
                 {
                     resetFadeOutTimer();
                     texture.dispose();
                     resetShader();
+
+                    FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
+                    FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
+                    FluxLoadingAPI.duringExtraWaitPhase = false;
+                    FluxLoadingAPI.duringFadingOutPhase = false;
+
                     return;
                 }
+
                 drawOverlay(time);
             }
         }

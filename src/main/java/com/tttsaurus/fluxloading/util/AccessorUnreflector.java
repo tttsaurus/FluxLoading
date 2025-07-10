@@ -1,5 +1,6 @@
 package com.tttsaurus.fluxloading.util;
 
+import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.function.*;
 import javax.annotation.Nullable;
 import java.lang.invoke.MethodHandle;
