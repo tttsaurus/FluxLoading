@@ -3,7 +3,7 @@ package com.tttsaurus.fluxloading.mixin.early;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
-import com.tttsaurus.fluxloading.render.RenderUtils;
+import com.tttsaurus.fluxloading.core.render.RenderUtils;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;

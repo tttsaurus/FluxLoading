@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
-import com.tttsaurus.fluxloading.render.GlResourceManager;
+import com.tttsaurus.fluxloading.core.render.GlResourceManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;

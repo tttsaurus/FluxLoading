@@ -1,7 +1,7 @@
 package com.tttsaurus.fluxloading.core.accessor;
 
-import com.tttsaurus.fluxloading.function.Func_1Param;
-import com.tttsaurus.fluxloading.util.AccessorUnreflector;
+import com.tttsaurus.fluxloading.core.function.Func_1Param;
+import com.tttsaurus.fluxloading.core.util.AccessorUnreflector;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.client.multiplayer.ChunkProviderClient;
 import net.minecraft.world.chunk.Chunk;
