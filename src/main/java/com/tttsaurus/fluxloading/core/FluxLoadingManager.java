@@ -26,7 +26,6 @@ import net.minecraft.client.renderer.culling.ClippingHelperImpl;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -185,22 +184,16 @@ public final class FluxLoadingManager
 
     public static void calcTargetChunkNum()
     {
-        Minecraft mc = Minecraft.getMinecraft();
-        mc.addScheduledTask(() ->
+        Minecraft.getMinecraft().addScheduledTask(() ->
         {
-            ChunkProviderClient chunkProvider = mc.world.getChunkProvider();
+            ChunkProviderClient chunkProvider = Minecraft.getMinecraft().world.getChunkProvider();
             Long2ObjectMap<Chunk> loadedChunks = ChunkProviderClientAccessor.getLoadedChunks(chunkProvider);
 
-            Entity camera = mc.getRenderViewEntity();
-            double partialTicks = mc.getRenderPartialTicks();
-
-            double camX = camera.lastTickPosX + (camera.posX - camera.lastTickPosX) * partialTicks;
-            double camY = camera.lastTickPosY + (camera.posY - camera.lastTickPosY) * partialTicks;
-            double camZ = camera.lastTickPosZ + (camera.posZ - camera.lastTickPosZ) * partialTicks;
+            Vec3d camPos = RenderUtils.getCameraPos();
 
             ClippingHelper frustumHelper = ClippingHelperImpl.getInstance();
             Frustum viewFrustum = new Frustum(frustumHelper);
-            viewFrustum.setPosition(camX, camY, camZ);
+            viewFrustum.setPosition(camPos.x, camPos.y, camPos.z);
 
             List<Chunk> visibleChunks = new ArrayList<>();
             for (Chunk chunk : loadedChunks.values())
@@ -226,7 +219,7 @@ public final class FluxLoadingManager
             FluxLoading.logger.info("Chunk count from ChunkProviderClient: " + loadedChunks.size());
             FluxLoading.logger.info("Visible chunks from player's perspective: " + visibleChunks.size());
 
-            frustumRays = FrustumChunkRayCastHelper.getRaysFromFrustum(new Vec3d(camX, camY, camZ), ClippingHelperImpl.getInstance(), 10, 10);
+            frustumRays = FrustumChunkRayCastHelper.getRaysFromFrustum(camPos, ClippingHelperImpl.getInstance(), 10, 10);
             targetChunkNum = FrustumChunkRayCastHelper.getChunkRayCastNum(frustumRays, visibleChunks, chunkRayCastTestRayDis);
 
             FluxLoading.logger.info("Visible chunks after frustum ray casting: " + targetChunkNum);
@@ -508,17 +501,12 @@ public final class FluxLoadingManager
             {
                 GlStateManager.pushMatrix();
 
-                Entity camera = Minecraft.getMinecraft().getRenderViewEntity();
-                double partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
-
-                double camX = camera.lastTickPosX + (camera.posX - camera.lastTickPosX) * partialTicks;
-                double camY = camera.lastTickPosY + (camera.posY - camera.lastTickPosY) * partialTicks;
-                double camZ = camera.lastTickPosZ + (camera.posZ - camera.lastTickPosZ) * partialTicks;
+                Vec3d camPos = RenderUtils.getWorldOffset();
 
                 GlStateManager.translate(
-                        (float)(-camX + ray.pos.x),
-                        (float)(-camY + ray.pos.y),
-                        (float)(-camZ + ray.pos.z));
+                        (float)(-camPos.x + ray.pos.x),
+                        (float)(-camPos.y + ray.pos.y),
+                        (float)(-camPos.z + ray.pos.z));
 
                 GlStateManager.disableCull();
                 GlStateManager.enableDepth();

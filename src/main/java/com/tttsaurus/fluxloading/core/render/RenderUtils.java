@@ -3,6 +3,8 @@ package com.tttsaurus.fluxloading.core.render;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Vec3d;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
@@ -209,6 +211,34 @@ public final class RenderUtils
         buffer.flip();
 
         return new Texture2D(width, height, buffer);
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="camera">
+    public static Vec3d getWorldOffset()
+    {
+        Entity camera = Minecraft.getMinecraft().getRenderViewEntity();
+        if (camera == null) camera = Minecraft.getMinecraft().player;
+        double partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
+
+        double camX = camera.lastTickPosX + (camera.posX - camera.lastTickPosX) * partialTicks;
+        double camY = camera.lastTickPosY + (camera.posY - camera.lastTickPosY) * partialTicks;
+        double camZ = camera.lastTickPosZ + (camera.posZ - camera.lastTickPosZ) * partialTicks;
+
+        return new Vec3d(camX, camY, camZ);
+    }
+
+    public static Vec3d getCameraPos()
+    {
+        Entity camera = Minecraft.getMinecraft().getRenderViewEntity();
+        if (camera == null) camera = Minecraft.getMinecraft().player;
+        double partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
+
+        double camX = camera.lastTickPosX + (camera.posX - camera.lastTickPosX) * partialTicks;
+        double camY = camera.lastTickPosY + (camera.posY - camera.lastTickPosY) * partialTicks + camera.getEyeHeight();
+        double camZ = camera.lastTickPosZ + (camera.posZ - camera.lastTickPosZ) * partialTicks;
+
+        return new Vec3d(camX, camY, camZ);
     }
     //</editor-fold>
 }
