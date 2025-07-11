@@ -81,9 +81,6 @@ public class FMLClientHandlerMixin
 
             if (FluxLoadingManager.isTextureAvailable())
             {
-                for (Runnable runnable: fluxloading$fluxLoadingStartListenersGetter.invoke())
-                    runnable.run();
-
                 FluxLoadingManager.resetShader();
                 FluxLoadingManager.setActive(true);
 
@@ -98,6 +95,9 @@ public class FMLClientHandlerMixin
                 FluxLoadingManager.resetMovementLocked();
                 FluxLoadingManager.setFinishChunkLoading(false);
                 FluxLoadingManager.setCountingChunkLoaded(true);
+
+                for (Runnable runnable: fluxloading$fluxLoadingStartListenersGetter.invoke())
+                    runnable.run();
 
                 StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
