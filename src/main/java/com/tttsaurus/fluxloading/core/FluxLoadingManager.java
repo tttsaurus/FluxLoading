@@ -60,6 +60,7 @@ public final class FluxLoadingManager
     private static boolean screenshotToggle = false;
     private static boolean forceLoadingTitle = false;
     private static boolean chunkLoadingTitle = false;
+    private static boolean chunkLoadingPercentage = false;
     private static Texture2D texture = null;
     private static BufferedImage screenshot = null;
 
@@ -96,6 +97,8 @@ public final class FluxLoadingManager
     public static void setForceLoadingTitle(boolean flag) { forceLoadingTitle = flag; }
 
     public static void setChunkLoadingTitle(boolean flag) { chunkLoadingTitle = flag; }
+
+    public static void setChunkLoadingPercentage(boolean flag) { chunkLoadingPercentage = flag; }
 
     public static boolean isTextureAvailable() { return texture != null; }
 
@@ -371,7 +374,7 @@ public final class FluxLoadingManager
     {
         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) return;
 
-        if (isActive())
+        if (active)
         {
             if (!FluxLoadingAPI.finishLoading)
             {
@@ -398,7 +401,20 @@ public final class FluxLoadingManager
                     ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
                     String i18nText = I18n.format("fluxloading.loading_wait");
                     float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
-                    RenderUtils.renderText(i18nText, (resolution.getScaledWidth() - width) / 2, (float) (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2, 1, Color.WHITE.getRGB(), true);
+                    RenderUtils.renderText(i18nText,
+                            (resolution.getScaledWidth() - width) / 2,
+                            (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + (chunkLoadingPercentage ? -10 : 0),
+                            1, Color.WHITE.getRGB(), true);
+
+                    if (chunkLoadingPercentage && targetChunkNumCalculated)
+                    {
+                        String text = String.format("%d/%d, %.1f", chunkLoadedNum, targetChunkNum, (float) chunkLoadedNum / (float) targetChunkNum) + "%";
+                        width = RenderUtils.fontRenderer.getStringWidth(text);
+                        RenderUtils.renderText(text,
+                                (resolution.getScaledWidth() - width) / 2,
+                                (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + 10,
+                                1, Color.WHITE.getRGB(), true);
+                    }
                 }
             }
 
@@ -508,23 +524,26 @@ public final class FluxLoadingManager
     {
         if (event.phase == TickEvent.Phase.END)
         {
-            MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-
-            List<UUID> outdated = new ArrayList<>();
-            for (Map.Entry<UUID, Vec3d> entry: serverLockPos.entrySet())
+            if (!serverLockPos.isEmpty())
             {
-                UUID uuid = entry.getKey();
-                EntityPlayerMP player = server.getPlayerList().getPlayerByUUID(uuid);
-                if (player == null)
+                MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+
+                List<UUID> outdated = new ArrayList<>();
+                for (Map.Entry<UUID, Vec3d> entry: serverLockPos.entrySet())
                 {
-                    outdated.add(uuid);
-                    continue;
+                    UUID uuid = entry.getKey();
+                    EntityPlayerMP player = server.getPlayerList().getPlayerByUUID(uuid);
+                    if (player == null)
+                    {
+                        outdated.add(uuid);
+                        continue;
+                    }
+                    Vec3d pos = entry.getValue();
+                    player.connection.setPlayerLocation(pos.x, pos.y, pos.z, player.rotationYaw, player.rotationPitch);
                 }
-                Vec3d pos = entry.getValue();
-                player.connection.setPlayerLocation(pos.x, pos.y, pos.z, player.rotationYaw, player.rotationPitch);
+                for (UUID uuid: outdated)
+                    serverLockPos.remove(uuid);
             }
-            for (UUID uuid: outdated)
-                serverLockPos.remove(uuid);
         }
     }
 }

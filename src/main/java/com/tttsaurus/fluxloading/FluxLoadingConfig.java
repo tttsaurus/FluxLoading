@@ -9,6 +9,7 @@ public class FluxLoadingConfig
     public static boolean WAIT_CHUNKS_TO_LOAD;
     public static boolean INSTANTLY_POPPED_UP_LOADING_TITLE;
     public static boolean CHUNK_LOADING_INDICATOR;
+    public static boolean CHUNK_LOADING_PERCENTAGE;
 
     public static boolean ENABLE_WAVING_EFFECT;
     public static boolean ENABLE_DISSOLVING_EFFECT;
@@ -22,15 +23,18 @@ public class FluxLoadingConfig
         {
             CONFIG.load();
 
-            EXTRA_WAIT_TIME = CONFIG.getFloat("Extra Wait Time", "general", 0.5f, 0.1f, 10f, "Extra wait time after waiting chunks to load\nIt's the final delay before the fade-out animation");
-            FADE_OUT_DURATION = CONFIG.getFloat("Fade Out Duration", "general", 1.0f, 0.5f, 10f, "The actual fade-out time may feel shorter than this due to the exponentially decaying fade-out function");
-            WAIT_CHUNKS_TO_LOAD = CONFIG.getBoolean("Wait Chunks to Load", "general", true, "Wait chunks to load before fading out");
-            INSTANTLY_POPPED_UP_LOADING_TITLE = CONFIG.getBoolean("Instantly Popped Up Loading Title", "general", true, "Vanilla \"Loading world\" title has a lag, and this option forces that title to pop up immediately");
-            CHUNK_LOADING_INDICATOR = CONFIG.getBoolean("Chunk Loading Indicator", "general", false, "Display a title while waiting chunks to load");
+            EXTRA_WAIT_TIME = CONFIG.getFloat("Extra Wait Time", "general.timing", 0.5f, 0.1f, 10f, "Extra wait time after waiting chunks to load\nIt's the final delay before the fade-out animation");
+            FADE_OUT_DURATION = CONFIG.getFloat("Fade Out Duration", "general.timing", 1.0f, 0.5f, 10f, "The actual fade-out time may feel shorter than this due to the exponentially decaying fade-out function");
 
-            ENABLE_WAVING_EFFECT = CONFIG.getBoolean("Enable Waving Effect", "shader", false, "A fade out option");
-            ENABLE_DISSOLVING_EFFECT = CONFIG.getBoolean("Enable Dissolving Effect", "shader", false, "A fade out option");
-            ENABLE_DARK_OVERLAY = CONFIG.getBoolean("Enable Dark Overlay", "shader", false, "An overlay on the screenshot");
+            WAIT_CHUNKS_TO_LOAD = CONFIG.getBoolean("Wait Chunks to Load", "general.chunk", true, "Wait chunks to load before fading out");
+            CHUNK_LOADING_INDICATOR = CONFIG.getBoolean("Chunk Loading Indicator", "general.chunk", false, "Display a title while waiting chunks to load");
+            CHUNK_LOADING_PERCENTAGE = CONFIG.getBoolean("Chunk Loading Percentage", "general.chunk", false, "Add another line to show loading percentage");
+
+            INSTANTLY_POPPED_UP_LOADING_TITLE = CONFIG.getBoolean("Instantly Popped Up Loading Title", "general.misc", true, "Vanilla \"Loading world\" title has a lag, and this option forces that title to pop up immediately");
+
+            ENABLE_WAVING_EFFECT = CONFIG.getBoolean("Enable Waving Effect", "general.shader", false, "A fade-out option");
+            ENABLE_DISSOLVING_EFFECT = CONFIG.getBoolean("Enable Dissolving Effect", "general.shader", false, "A fade-out option");
+            ENABLE_DARK_OVERLAY = CONFIG.getBoolean("Enable Dark Overlay", "general.shader", false, "An overlay on the screenshot");
         }
         catch (Exception ignored) { }
         finally
