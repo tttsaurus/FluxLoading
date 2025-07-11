@@ -64,8 +64,6 @@ public final class FluxLoadingManager
 
     private static boolean screenshotToggle = false;
     private static boolean forceLoadingTitle = false;
-    private static boolean chunkLoadingTitle = false;
-    private static boolean chunkLoadingPercentage = false;
     private static Texture2D texture = null;
     private static BufferedImage screenshot = null;
 
@@ -82,6 +80,9 @@ public final class FluxLoadingManager
     private static int targetChunkNum = 0;
     private static boolean startCalcTargetChunkNum = false;
     private static boolean targetChunkNumCalculated = false;
+    private static boolean chunkLoadingTitle = false;
+    private static boolean chunkLoadingPercentage = false;
+    private static int chunkRayCastTestRayDis = 512;
 
     // fade-out animation
     private static double extraWaitTime = 0.5d;
@@ -89,6 +90,10 @@ public final class FluxLoadingManager
     private static StopWatch fadeOutStopWatch = null;
     private static SmoothDamp smoothDamp = null;
     private static double prevFadeOutTime = 0d;
+
+    // debug
+    private static boolean debug = false;
+    private static List<Ray> frustumRays = null;
 
     //<editor-fold desc="getters & setters">
     public static boolean isActive() { return active; }
@@ -152,6 +157,8 @@ public final class FluxLoadingManager
 
     public static void resetTargetChunkNum() { targetChunkNum = 0; }
 
+    public static void setChunkRayCastTestRayDis(int dis) { chunkRayCastTestRayDis = dis; }
+
     public static void setExtraWaitTime(double time) { extraWaitTime = time; }
 
     public static void setFadeOutDuration(double time) { fadeOutDuration = time; }
@@ -172,9 +179,9 @@ public final class FluxLoadingManager
             fadeOutStopWatch = null;
         }
     }
-    //</editor-fold>
 
-    private static List<Ray> frustumRays = null;
+    public static void setDebug(boolean flag) { debug = flag; }
+    //</editor-fold>
 
     public static void calcTargetChunkNum()
     {
@@ -220,7 +227,7 @@ public final class FluxLoadingManager
             FluxLoading.logger.info("Visible chunks from player's perspective: " + visibleChunks.size());
 
             frustumRays = FrustumChunkRayCastHelper.getRaysFromFrustum(new Vec3d(camX, camY, camZ), ClippingHelperImpl.getInstance(), 10, 10);
-            targetChunkNum = FrustumChunkRayCastHelper.getChunkRayCastNum(frustumRays, visibleChunks);
+            targetChunkNum = FrustumChunkRayCastHelper.getChunkRayCastNum(frustumRays, visibleChunks, chunkRayCastTestRayDis);
 
             FluxLoading.logger.info("Visible chunks after frustum ray casting: " + targetChunkNum);
 
@@ -405,7 +412,7 @@ public final class FluxLoadingManager
                     FluxLoadingAPI.duringExtraChunkLoadingPhase = true;
                 }
 
-                //drawOverlay(0);
+                drawOverlay(0);
 
                 if (chunkLoadingTitle)
                 {
@@ -494,8 +501,7 @@ public final class FluxLoadingManager
             screenshot = ScreenShotHelper.createScreenshot(minecraft.displayWidth, minecraft.displayHeight, minecraft.getFramebuffer());
         }
 
-        // debug
-        if (frustumRays != null)
+        if (debug && frustumRays != null)
         {
             RenderUtils.storeCommonGlStates();
             for (Ray ray: frustumRays)

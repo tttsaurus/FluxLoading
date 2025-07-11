@@ -111,7 +111,7 @@ public final class FrustumChunkRayCastHelper
         return a.scale(1d - t).add(b.scale(t));
     }
 
-    public static int getChunkRayCastNum(List<Ray> rays, List<Chunk> chunks)
+    public static int getChunkRayCastNum(List<Ray> rays, List<Chunk> chunks, double maxDistance)
     {
         Set<Long> visibleChunks = new HashSet<>();
 
@@ -122,7 +122,6 @@ public final class FrustumChunkRayCastHelper
             chunkMap.put(key, chunk);
         }
 
-        final double maxDistance = 512d;
         final double step = 0.5d;
 
         for (Ray ray : rays)

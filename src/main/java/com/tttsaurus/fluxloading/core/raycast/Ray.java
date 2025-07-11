@@ -2,7 +2,7 @@ package com.tttsaurus.fluxloading.core.raycast;
 
 import net.minecraft.util.math.Vec3d;
 
-public class Ray
+public final class Ray
 {
     public final Vec3d pos;
     public final Vec3d dir;

@@ -20,9 +20,11 @@ public class ClientProxy extends CommonProxy
 
         FluxLoadingManager.setChunkLoadingTitle(FluxLoadingConfig.CHUNK_LOADING_INDICATOR);
         FluxLoadingManager.setChunkLoadingPercentage(FluxLoadingConfig.CHUNK_LOADING_PERCENTAGE);
+        FluxLoadingManager.setChunkRayCastTestRayDis(FluxLoadingConfig.CHUNK_ESTIMATION_RAY_DISTANCE);
         FluxLoadingManager.setWaitChunksToLoad(FluxLoadingConfig.WAIT_CHUNKS_TO_LOAD);
         FluxLoadingManager.setExtraWaitTime(FluxLoadingConfig.EXTRA_WAIT_TIME);
         FluxLoadingManager.setFadeOutDuration(FluxLoadingConfig.FADE_OUT_DURATION);
+        FluxLoadingManager.setDebug(FluxLoadingConfig.DEBUG);
     }
 
     @Override
