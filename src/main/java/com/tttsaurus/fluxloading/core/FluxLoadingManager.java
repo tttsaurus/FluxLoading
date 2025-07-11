@@ -5,6 +5,8 @@ import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.animation.SmoothDamp;
 import com.tttsaurus.fluxloading.core.accessor.ChunkProviderClientAccessor;
 import com.tttsaurus.fluxloading.core.network.FluxLoadingNetwork;
+import com.tttsaurus.fluxloading.core.raycast.FrustumChunkRayCastHelper;
+import com.tttsaurus.fluxloading.core.raycast.Ray;
 import com.tttsaurus.fluxloading.core.render.CommonBuffers;
 import com.tttsaurus.fluxloading.core.render.RenderUtils;
 import com.tttsaurus.fluxloading.core.render.Texture2D;
@@ -16,10 +18,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.ChunkProviderClient;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.culling.ClippingHelper;
 import net.minecraft.client.renderer.culling.ClippingHelperImpl;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -169,6 +174,8 @@ public final class FluxLoadingManager
     }
     //</editor-fold>
 
+    private static List<Ray> frustumRays = null;
+
     public static void calcTargetChunkNum()
     {
         Minecraft mc = Minecraft.getMinecraft();
@@ -188,8 +195,7 @@ public final class FluxLoadingManager
             Frustum viewFrustum = new Frustum(frustumHelper);
             viewFrustum.setPosition(camX, camY, camZ);
 
-            int num = 0;
-
+            List<Chunk> visibleChunks = new ArrayList<>();
             for (Chunk chunk : loadedChunks.values())
             {
                 int chunkX = chunk.x;
@@ -207,13 +213,17 @@ public final class FluxLoadingManager
 
                 if (viewFrustum.isBoundingBoxInFrustum(box))
                     if (!chunk.isEmpty())
-                        num++;
+                        visibleChunks.add(chunk);
             }
 
             FluxLoading.logger.info("Chunk count from ChunkProviderClient: " + loadedChunks.size());
-            FluxLoading.logger.info("Visible chunks from player's perspective: " + num);
+            FluxLoading.logger.info("Visible chunks from player's perspective: " + visibleChunks.size());
 
-            targetChunkNum = num;
+            frustumRays = FrustumChunkRayCastHelper.getRaysFromFrustum(new Vec3d(camX, camY, camZ), ClippingHelperImpl.getInstance(), 10, 10);
+            targetChunkNum = FrustumChunkRayCastHelper.getChunkRayCastNum(frustumRays, visibleChunks);
+
+            FluxLoading.logger.info("Visible chunks after frustum ray casting: " + targetChunkNum);
+
             targetChunkNumCalculated = true;
         });
     }
@@ -386,6 +396,7 @@ public final class FluxLoadingManager
                 }
             }
 
+            //<editor-fold desc="extra chunk loading phase">
             if (!finishChunkLoading)
             {
                 if (!FluxLoadingAPI.duringExtraChunkLoadingPhase)
@@ -394,7 +405,7 @@ public final class FluxLoadingManager
                     FluxLoadingAPI.duringExtraChunkLoadingPhase = true;
                 }
 
-                drawOverlay(0);
+                //drawOverlay(0);
 
                 if (chunkLoadingTitle)
                 {
@@ -408,7 +419,7 @@ public final class FluxLoadingManager
 
                     if (chunkLoadingPercentage && targetChunkNumCalculated)
                     {
-                        String text = String.format("%d/%d, %.1f", chunkLoadedNum, targetChunkNum, (float) chunkLoadedNum / (float) targetChunkNum) + "%";
+                        String text = String.format("%d/%d, %.1f", chunkLoadedNum, targetChunkNum, ((float) chunkLoadedNum / (float) targetChunkNum) * 100f) + "%";
                         width = RenderUtils.fontRenderer.getStringWidth(text);
                         RenderUtils.renderText(text,
                                 (resolution.getScaledWidth() - width) / 2,
@@ -417,7 +428,9 @@ public final class FluxLoadingManager
                     }
                 }
             }
+            //</editor-fold>
 
+            //<editor-fold desc="extra wait phase + fading out phase">
             if (fadeOutStopWatch != null)
             {
                 double time = fadeOutStopWatch.getNanoTime() / 1E9d;
@@ -467,6 +480,7 @@ public final class FluxLoadingManager
 
                 drawOverlay(time);
             }
+            //</editor-fold>
         }
     }
 
@@ -478,6 +492,46 @@ public final class FluxLoadingManager
             screenshotToggle = false;
             Minecraft minecraft = Minecraft.getMinecraft();
             screenshot = ScreenShotHelper.createScreenshot(minecraft.displayWidth, minecraft.displayHeight, minecraft.getFramebuffer());
+        }
+
+        // debug
+        if (frustumRays != null)
+        {
+            RenderUtils.storeCommonGlStates();
+            for (Ray ray: frustumRays)
+            {
+                GlStateManager.pushMatrix();
+
+                Entity camera = Minecraft.getMinecraft().getRenderViewEntity();
+                double partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
+
+                double camX = camera.lastTickPosX + (camera.posX - camera.lastTickPosX) * partialTicks;
+                double camY = camera.lastTickPosY + (camera.posY - camera.lastTickPosY) * partialTicks;
+                double camZ = camera.lastTickPosZ + (camera.posZ - camera.lastTickPosZ) * partialTicks;
+
+                GlStateManager.translate(
+                        (float)(-camX + ray.pos.x),
+                        (float)(-camY + ray.pos.y),
+                        (float)(-camZ + ray.pos.z));
+
+                GlStateManager.disableCull();
+                GlStateManager.enableDepth();
+                GlStateManager.disableTexture2D();
+                GlStateManager.disableLighting();
+                GlStateManager.disableBlend();
+
+                GlStateManager.glLineWidth(3.0F);
+
+                Tessellator tessellator = Tessellator.getInstance();
+                BufferBuilder buffer = tessellator.getBuffer();
+                buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
+                buffer.pos(0, 0, 0).endVertex();
+                buffer.pos(ray.dir.x * 5, ray.dir.y * 5, ray.dir.z * 5).endVertex();
+                tessellator.draw();
+
+                GlStateManager.popMatrix();
+            }
+            RenderUtils.restoreCommonGlStates();
         }
     }
 
