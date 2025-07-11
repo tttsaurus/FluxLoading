@@ -27,8 +27,8 @@ public class LoadingScreenRendererMixin
 
         if (FluxLoadingManager.isActive())
         {
-            FluxLoadingManager.tick();
             FluxLoadingManager.drawOverlay();
+            FluxLoadingManager.tick();
         }
     }
 

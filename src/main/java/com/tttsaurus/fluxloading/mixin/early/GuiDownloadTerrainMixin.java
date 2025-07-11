@@ -22,8 +22,8 @@ public class GuiDownloadTerrainMixin
 
         if (FluxLoadingManager.isActive())
         {
-            FluxLoadingManager.tick();
             FluxLoadingManager.drawOverlay();
+            FluxLoadingManager.tick();
         }
     }
 }

@@ -388,7 +388,6 @@ public final class FluxLoadingManager
         {
             if (!FluxLoadingAPI.finishLoading)
             {
-                tick();
                 if (!movementLocked)
                 {
                     movementLocked = true;
@@ -483,6 +482,8 @@ public final class FluxLoadingManager
                 drawOverlay(time);
             }
             //</editor-fold>
+
+            if (!FluxLoadingAPI.finishLoading) tick();
         }
     }
 

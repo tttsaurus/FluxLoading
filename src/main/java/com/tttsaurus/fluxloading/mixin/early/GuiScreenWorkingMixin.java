@@ -22,8 +22,8 @@ public class GuiScreenWorkingMixin
 
         if (FluxLoadingManager.isActive())
         {
-            FluxLoadingManager.tick();
             FluxLoadingManager.drawOverlay();
+            FluxLoadingManager.tick();
         }
     }
 }

@@ -13,6 +13,10 @@ public class FluxLoadingConfig
     public static int CHUNK_ESTIMATION_RAY_DISTANCE;
     public static boolean DEBUG;
 
+    public static boolean ENABLE_IGI_INTEGRATION;
+    public static boolean REGISTER_FLUXLOADING_MVVM;
+    public static String MVVM_TO_DISPLAY_WHILE_LOADING;
+
     public static boolean ENABLE_WAVING_EFFECT;
     public static boolean ENABLE_DISSOLVING_EFFECT;
     public static boolean ENABLE_DARK_OVERLAY;
@@ -40,6 +44,10 @@ public class FluxLoadingConfig
             ENABLE_WAVING_EFFECT = CONFIG.getBoolean("Enable Waving Effect", "general.shader", false, "A fade-out option");
             ENABLE_DISSOLVING_EFFECT = CONFIG.getBoolean("Enable Dissolving Effect", "general.shader", false, "A fade-out option");
             ENABLE_DARK_OVERLAY = CONFIG.getBoolean("Enable Dark Overlay", "general.shader", false, "An overlay on the screenshot");
+
+            ENABLE_IGI_INTEGRATION = CONFIG.getBoolean("Enable In-Game Info Reborn Integration", "integrating.igi", false, "Whether to enable the whole integration module");
+            REGISTER_FLUXLOADING_MVVM = CONFIG.getBoolean("Register FluxLoading MVVM", "integrating.igi", true, "Whether to register FluxLoading MVVM as a default MVVM to use");
+            MVVM_TO_DISPLAY_WHILE_LOADING = CONFIG.getString("MVVM to Display While Loading", "integrating.igi", "fluxloading", "Input the MVVM registry name here. You can use \"fluxloading\" if you enabled \"Register FluxLoading MVVM\"");
         }
         catch (Exception ignored) { }
         finally
