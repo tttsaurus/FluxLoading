@@ -462,8 +462,8 @@ public final class FluxLoadingManager
 
                     if (movementLocked)
                     {
-                        Minecraft.getMinecraft().mouseHelper.grabMouseCursor();
                         FluxLoadingNetwork.requestPlayerLock(false);
+                        Minecraft.getMinecraft().setIngameFocus();
                         movementLocked = false;
                     }
 
@@ -474,6 +474,8 @@ public final class FluxLoadingManager
                         runnable.run();
 
                     FluxLoading.logger.info("Finished world flux loading process. Time taken: " + timeMs + " ms. Tick count: " + FluxLoadingAPI.tickNum);
+
+                    active = false;
 
                     return;
                 }

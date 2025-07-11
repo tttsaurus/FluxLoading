@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.FluxLoading;
+import com.tttsaurus.fluxloading.core.FluxLoadingAPI;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import com.tttsaurus.fluxloading.core.render.GlResourceManager;
 import net.minecraft.client.Minecraft;
@@ -57,6 +58,13 @@ public class MinecraftMixin
     public void runTickKeyboard(Operation<Void> original)
     {
         if (!FluxLoadingManager.isMovementLocked())
+            original.call();
+    }
+
+    @WrapMethod(method = "setIngameFocus")
+    public void setIngameFocus(Operation<Void> original)
+    {
+        if (!(FluxLoadingManager.isActive() && !FluxLoadingAPI.isFinishLoading()))
             original.call();
     }
 }
