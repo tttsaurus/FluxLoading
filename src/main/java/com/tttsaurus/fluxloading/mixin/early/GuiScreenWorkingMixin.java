@@ -18,12 +18,12 @@ public class GuiScreenWorkingMixin
             ))
     public void drawDefaultBackground(GuiScreenWorking instance, Operation<Void> original)
     {
-        original.call(instance);
-
         if (FluxLoadingManager.isActive())
         {
             FluxLoadingManager.drawOverlay();
             FluxLoadingManager.tick();
         }
+        else
+            original.call(instance);
     }
 }

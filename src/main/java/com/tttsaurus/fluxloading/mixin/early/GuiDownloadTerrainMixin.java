@@ -18,12 +18,12 @@ public class GuiDownloadTerrainMixin
             ))
     public void drawBackground(GuiDownloadTerrain instance, int i, Operation<Void> original)
     {
-        original.call(instance, i);
-
         if (FluxLoadingManager.isActive())
         {
             FluxLoadingManager.drawOverlay();
             FluxLoadingManager.tick();
         }
+        else
+            original.call(instance, i);
     }
 }

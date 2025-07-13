@@ -6,14 +6,19 @@ import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import com.tttsaurus.fluxloading.core.render.RenderUtils;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.resources.I18n;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LoadingScreenRenderer.class)
 public class LoadingScreenRendererMixin
 {
+    @Unique
+    private BufferBuilder fluxloading$tempBufferBuilder;
+
     @WrapOperation(
             method = "setLoadingProgress",
             at = @At(
@@ -23,13 +28,34 @@ public class LoadingScreenRendererMixin
             ))
     public void draw(Tessellator instance, Operation<Void> original)
     {
-        original.call(instance);
-
         if (FluxLoadingManager.isActive())
         {
             FluxLoadingManager.drawOverlay();
             FluxLoadingManager.tick();
+
+            fluxloading$tempBufferBuilder.finishDrawing();
+            fluxloading$tempBufferBuilder.reset();
         }
+        else
+            original.call(instance);
+    }
+
+    @WrapOperation(
+            method = "setLoadingProgress",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/Tessellator;getBuffer()Lnet/minecraft/client/renderer/BufferBuilder;"
+            ))
+    public BufferBuilder getBuffer(Tessellator instance, Operation<BufferBuilder> original)
+    {
+        if (FluxLoadingManager.isActive())
+        {
+            if (fluxloading$tempBufferBuilder == null)
+                fluxloading$tempBufferBuilder = new BufferBuilder(25);
+            return fluxloading$tempBufferBuilder;
+        }
+
+        return original.call(instance);
     }
 
     @WrapOperation(
