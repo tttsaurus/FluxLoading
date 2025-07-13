@@ -306,7 +306,7 @@ public final class FluxLoadingManager
             GL20.glDisableVertexAttribArray(0);
     }
 
-    private static void initShader()
+    public static void initShader()
     {
         if (shaderProgram == null)
         {
@@ -321,8 +321,8 @@ public final class FluxLoadingManager
             shaderProgram.use();
             shaderProgram.setUniform("screenTexture", 1);
             shaderProgram.setUniform("percentage", 0f);
-            shaderProgram.setUniform("enableDissolving", FluxLoadingConfig.ENABLE_DISSOLVING_EFFECT);
-            shaderProgram.setUniform("enableWaving", FluxLoadingConfig.ENABLE_WAVING_EFFECT);
+            shaderProgram.setUniform("enableDissolving", false);
+            shaderProgram.setUniform("enableWaving", false);
             shaderProgram.setUniform("enableDarkOverlay", FluxLoadingConfig.ENABLE_DARK_OVERLAY);
             shaderProgram.unuse();
 
@@ -338,6 +338,27 @@ public final class FluxLoadingManager
         {
             shaderProgram.use();
             shaderProgram.setUniform("percentage", 1f);
+            shaderProgram.unuse();
+        }
+    }
+
+    public static void setShaderFadingState(boolean state)
+    {
+        if (shaderProgram != null)
+        {
+            shaderProgram.use();
+            // fade-in
+            if (state)
+            {
+                shaderProgram.setUniform("enableDissolving", FluxLoadingConfig.ENABLE_FADEIN_DISSOLVING_EFFECT);
+                shaderProgram.setUniform("enableWaving", FluxLoadingConfig.ENABLE_FADEIN_WAVING_EFFECT);
+            }
+            // fade-out
+            else
+            {
+                shaderProgram.setUniform("enableDissolving", FluxLoadingConfig.ENABLE_FADEOUT_DISSOLVING_EFFECT);
+                shaderProgram.setUniform("enableWaving", FluxLoadingConfig.ENABLE_FADEOUT_WAVING_EFFECT);
+            }
             shaderProgram.unuse();
         }
     }
@@ -429,8 +450,6 @@ public final class FluxLoadingManager
 
     private static void drawOverlay(boolean setPercentage, float percentage)
     {
-        initShader();
-
         boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
         boolean depthTest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
 
@@ -549,6 +568,8 @@ public final class FluxLoadingManager
                         FluxLoadingAPI.duringFadingOutPhase = true;
 
                         Minecraft.getMinecraft().setIngameFocus();
+
+                        setShaderFadingState(false);
                     }
 
                     if (fadeOutTime >= fadeOutDuration + extraWaitTime)

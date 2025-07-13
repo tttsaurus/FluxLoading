@@ -26,6 +26,7 @@ public class ClientProxy extends CommonProxy
         FluxLoadingManager.setWaitChunksToLoad(FluxLoadingConfig.WAIT_CHUNKS_TO_LOAD);
         FluxLoadingManager.setExtraWaitTime(FluxLoadingConfig.EXTRA_WAIT_TIME);
         FluxLoadingManager.setFadeOutDuration(FluxLoadingConfig.FADE_OUT_DURATION);
+        FluxLoadingManager.setFadeInDuration(FluxLoadingConfig.FADE_IN_DURATION);
         FluxLoadingManager.setDebug(FluxLoadingConfig.DEBUG);
 
         if (FluxLoading.IS_INGAMEINFO_REBORN_LOADED && FluxLoadingConfig.ENABLE_IGI_INTEGRATION)

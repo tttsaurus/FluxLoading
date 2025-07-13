@@ -87,7 +87,10 @@ public class FMLClientHandlerMixin
 
             if (FluxLoadingManager.isTextureAvailable())
             {
+                FluxLoadingManager.initShader();
                 FluxLoadingManager.resetShader();
+                FluxLoadingManager.setShaderFadingState(true);
+
                 FluxLoadingManager.setActive(true);
 
                 if (FluxLoadingConfig.INSTANTLY_POPPED_UP_LOADING_TITLE)
