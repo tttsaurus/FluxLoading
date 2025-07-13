@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public class LoadingScreenRendererMixin
 {
     @Unique
-    private BufferBuilder fluxloading$tempBufferBuilder;
+    private BufferBuilder fluxloading$proxyBufferBuilder;
 
     @WrapOperation(
             method = "setLoadingProgress",
@@ -34,8 +34,8 @@ public class LoadingScreenRendererMixin
             FluxLoadingManager.drawOverlay();
             FluxLoadingManager.tick();
 
-            fluxloading$tempBufferBuilder.finishDrawing();
-            fluxloading$tempBufferBuilder.reset();
+            fluxloading$proxyBufferBuilder.finishDrawing();
+            fluxloading$proxyBufferBuilder.reset();
         }
         else
             original.call(instance);
@@ -51,9 +51,9 @@ public class LoadingScreenRendererMixin
     {
         if (FluxLoadingManager.isActive())
         {
-            if (fluxloading$tempBufferBuilder == null)
-                fluxloading$tempBufferBuilder = new BufferBuilder(25);
-            return fluxloading$tempBufferBuilder;
+            if (fluxloading$proxyBufferBuilder == null)
+                fluxloading$proxyBufferBuilder = new BufferBuilder(25);
+            return fluxloading$proxyBufferBuilder;
         }
 
         return original.call(instance);
