@@ -387,13 +387,8 @@ public final class FluxLoadingManager
         if (active)
         {
             if (!FluxLoadingAPI.finishLoading)
-            {
                 if (!movementLocked)
-                {
                     movementLocked = true;
-                    Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
-                }
-            }
 
             //<editor-fold desc="extra chunk loading phase">
             if (!finishChunkLoading)
@@ -445,6 +440,8 @@ public final class FluxLoadingManager
                 {
                     FluxLoadingAPI.duringExtraWaitPhase = false;
                     FluxLoadingAPI.duringFadingOutPhase = true;
+
+                    Minecraft.getMinecraft().setIngameFocus();
                 }
 
                 if (time >= fadeOutDuration + extraWaitTime)
@@ -462,7 +459,6 @@ public final class FluxLoadingManager
                     if (movementLocked)
                     {
                         FluxLoadingNetwork.requestPlayerLock(false);
-                        Minecraft.getMinecraft().setIngameFocus();
                         movementLocked = false;
                     }
 

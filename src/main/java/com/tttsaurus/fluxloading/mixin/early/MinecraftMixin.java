@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
-public class MinecraftMixin
+public abstract class MinecraftMixin
 {
     @Inject(method = "shutdown", at = @At("HEAD"))
     public void beforeShutdown(CallbackInfo ci)
@@ -64,7 +64,14 @@ public class MinecraftMixin
     @WrapMethod(method = "setIngameFocus")
     public void setIngameFocus(Operation<Void> original)
     {
-        if (!(FluxLoadingManager.isActive() && !FluxLoadingAPI.isFinishLoading()))
+        if (FluxLoadingManager.isActive())
+        {
+            if (FluxLoadingAPI.isFinishLoading())
+                original.call();
+            else if (FluxLoadingAPI.isDuringFadingOutPhase())
+                original.call();
+        }
+        else
             original.call();
     }
 }
