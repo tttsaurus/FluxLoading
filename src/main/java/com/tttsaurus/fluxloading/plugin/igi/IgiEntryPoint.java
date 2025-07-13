@@ -26,6 +26,7 @@ public final class IgiEntryPoint
 
         FluxLoadingAPI.addFluxLoadingTickListener(holder::update);
 
-        event.runtime.global.openGuiOnStartup(holder, FluxLoadingConfig.MVVM_TO_DISPLAY_WHILE_LOADING);
+        for (String mvvm: FluxLoadingConfig.MVVM_TO_DISPLAY_WHILE_LOADING)
+            event.runtime.global.openGuiOnStartup(FluxLoadingIgiLifecycleHolder.HOLDER_NAME, mvvm);
     }
 }

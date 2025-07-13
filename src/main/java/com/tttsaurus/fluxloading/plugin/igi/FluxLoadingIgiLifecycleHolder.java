@@ -8,11 +8,11 @@ import com.tttsaurus.ingameinfo.common.core.input.InputFrameGenerator;
 
 public final class FluxLoadingIgiLifecycleHolder extends GuiLifecycleHolder
 {
-    public static final String OWNER_NAME = "fluxloading_igi_lifecycle_holder";
+    public static final String HOLDER_NAME = "fluxloading_igi_lifecycle_holder";
 
     public FluxLoadingIgiLifecycleHolder()
     {
-        super(OWNER_NAME, new InputFrameGenerator(new IgiKeyboard(), new IgiMouse()));
+        super(HOLDER_NAME, new InputFrameGenerator(new IgiKeyboard(), new IgiMouse()));
     }
 
     @Override

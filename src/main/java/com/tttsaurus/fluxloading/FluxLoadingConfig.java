@@ -15,7 +15,7 @@ public class FluxLoadingConfig
 
     public static boolean ENABLE_IGI_INTEGRATION;
     public static boolean REGISTER_FLUXLOADING_MVVM;
-    public static String MVVM_TO_DISPLAY_WHILE_LOADING;
+    public static String[] MVVM_TO_DISPLAY_WHILE_LOADING;
 
     public static boolean ENABLE_WAVING_EFFECT;
     public static boolean ENABLE_DISSOLVING_EFFECT;
@@ -47,7 +47,7 @@ public class FluxLoadingConfig
 
             ENABLE_IGI_INTEGRATION = CONFIG.getBoolean("Enable In-Game Info Reborn Integration", "integrating.igi", false, "Whether to enable the whole integration module");
             REGISTER_FLUXLOADING_MVVM = CONFIG.getBoolean("Register FluxLoading MVVM", "integrating.igi", true, "Whether to register FluxLoading MVVM as a default MVVM to use");
-            MVVM_TO_DISPLAY_WHILE_LOADING = CONFIG.getString("MVVM to Display While Loading", "integrating.igi", "fluxloading", "Input the MVVM registry name here. You can use \"fluxloading\" if you enabled \"Register FluxLoading MVVM\"");
+            MVVM_TO_DISPLAY_WHILE_LOADING = CONFIG.getStringList("MVVM to Display While Loading", "integrating.igi", new String[]{"fluxloading"}, "Input MVVM registry names here. You can use \"fluxloading\" if you enabled \"Register FluxLoading MVVM\"");
         }
         catch (Exception ignored) { }
         finally

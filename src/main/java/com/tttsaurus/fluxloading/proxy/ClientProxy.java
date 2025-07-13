@@ -27,9 +27,6 @@ public class ClientProxy extends CommonProxy
         FluxLoadingManager.setFadeOutDuration(FluxLoadingConfig.FADE_OUT_DURATION);
         FluxLoadingManager.setDebug(FluxLoadingConfig.DEBUG);
 
-        // currently disabling it
-        FluxLoadingConfig.ENABLE_IGI_INTEGRATION = false;
-
         if (FluxLoading.IS_INGAMEINFO_REBORN_LOADED && FluxLoadingConfig.ENABLE_IGI_INTEGRATION)
         {
             try
