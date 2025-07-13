@@ -119,6 +119,7 @@ public class FMLClientHandlerMixin
                 for (int i = 0; i < frameCount; i++)
                 {
                     FluxLoadingManager.drawOverlayDefaultWorldLoadingAndFadingInPhase();
+                    FluxLoadingManager.tick();
                     try
                     {
                         Thread.sleep(17);
