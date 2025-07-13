@@ -19,6 +19,7 @@ public class ClientProxy extends CommonProxy
         FluxLoadingConfig.CONFIG = new Configuration(event.getSuggestedConfigurationFile());
         FluxLoadingConfig.loadConfig();
 
+        FluxLoadingManager.setDisableVanillaTexts(FluxLoadingConfig.DISABLE_ALL_VANILLA_LOADING_TEXTS);
         FluxLoadingManager.setChunkLoadingTitle(FluxLoadingConfig.CHUNK_LOADING_INDICATOR);
         FluxLoadingManager.setChunkLoadingPercentage(FluxLoadingConfig.CHUNK_LOADING_PERCENTAGE);
         FluxLoadingManager.setChunkRayCastTestRayDis(FluxLoadingConfig.CHUNK_ESTIMATION_RAY_DISTANCE);

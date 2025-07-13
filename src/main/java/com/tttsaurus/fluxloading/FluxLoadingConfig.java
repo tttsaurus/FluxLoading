@@ -8,6 +8,7 @@ public class FluxLoadingConfig
     public static float FADE_OUT_DURATION;
     public static boolean WAIT_CHUNKS_TO_LOAD;
     public static boolean INSTANTLY_POPPED_UP_LOADING_TITLE;
+    public static boolean DISABLE_ALL_VANILLA_LOADING_TEXTS;
     public static boolean CHUNK_LOADING_INDICATOR;
     public static boolean CHUNK_LOADING_PERCENTAGE;
     public static int CHUNK_ESTIMATION_RAY_DISTANCE;
@@ -40,6 +41,7 @@ public class FluxLoadingConfig
             CHUNK_ESTIMATION_RAY_DISTANCE = CONFIG.getInt("Visible Chunk Estimation Ray Distance", "general.chunk", 512, 100, 10000, "The distance of rays for visible chunk estimation test");
 
             INSTANTLY_POPPED_UP_LOADING_TITLE = CONFIG.getBoolean("Instantly Popped Up Loading Title", "general.misc", true, "Vanilla \"Loading world\" title has a lag, and this option forces that title to pop up immediately");
+            DISABLE_ALL_VANILLA_LOADING_TEXTS = CONFIG.getBoolean("Disable All Vanilla Loading Texts", "general.misc", false, "Whether to disable all vanilla texts during world loading\nIt also affects \"Instantly Popped Up Loading Title\"");
 
             ENABLE_WAVING_EFFECT = CONFIG.getBoolean("Enable Waving Effect", "general.shader", false, "A fade-out option");
             ENABLE_DISSOLVING_EFFECT = CONFIG.getBoolean("Enable Dissolving Effect", "general.shader", false, "A fade-out option");

@@ -63,6 +63,7 @@ public final class FluxLoadingManager
 
     private static boolean screenshotToggle = false;
     private static boolean forceLoadingTitle = false;
+    private static boolean disableVanillaTexts = false;
     private static Texture2D texture = null;
     private static BufferedImage screenshot = null;
 
@@ -104,6 +105,10 @@ public final class FluxLoadingManager
     public static boolean isForceLoadingTitle() { return forceLoadingTitle; }
 
     public static void setForceLoadingTitle(boolean flag) { forceLoadingTitle = flag; }
+
+    public static boolean isDisableVanillaTexts() { return disableVanillaTexts; }
+
+    public static void setDisableVanillaTexts(boolean flag) { disableVanillaTexts = flag; }
 
     public static void setChunkLoadingTitle(boolean flag) { chunkLoadingTitle = flag; }
 
@@ -401,7 +406,7 @@ public final class FluxLoadingManager
 
                 drawOverlay(0);
 
-                if (chunkLoadingTitle)
+                if (chunkLoadingTitle && targetChunkNumCalculated)
                 {
                     ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
                     String i18nText = I18n.format("fluxloading.loading_wait");
@@ -411,7 +416,7 @@ public final class FluxLoadingManager
                             (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + (chunkLoadingPercentage ? -10 : 0),
                             1, Color.WHITE.getRGB(), true);
 
-                    if (chunkLoadingPercentage && targetChunkNumCalculated)
+                    if (chunkLoadingPercentage)
                     {
                         String text = String.format("%d/%d, %.1f", chunkLoadedNum, targetChunkNum, ((float) chunkLoadedNum / (float) targetChunkNum) * 100f) + "%";
                         width = RenderUtils.fontRenderer.getStringWidth(text);

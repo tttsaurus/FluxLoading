@@ -131,8 +131,10 @@ public class LoadingScreenRendererMixin
                     target = "Lnet/minecraft/client/gui/FontRenderer;drawStringWithShadow(Ljava/lang/String;FFI)I",
                     ordinal = 0
             ))
-    public int drawStringWithShadow(FontRenderer instance, String text, float x, float y, int color, Operation<Integer> original)
+    public int drawStringWithShadow0(FontRenderer instance, String text, float x, float y, int color, Operation<Integer> original)
     {
+        if (FluxLoadingManager.isActive() && FluxLoadingManager.isDisableVanillaTexts()) return 0;
+
         int res = original.call(instance, text, x, y, color);
 
         if (FluxLoadingManager.isActive())
@@ -148,5 +150,19 @@ public class LoadingScreenRendererMixin
         }
 
         return res;
+    }
+
+    @WrapOperation(
+            method = "setLoadingProgress",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/FontRenderer;drawStringWithShadow(Ljava/lang/String;FFI)I",
+                    ordinal = 1
+            ))
+    public int drawStringWithShadow1(FontRenderer instance, String text, float x, float y, int color, Operation<Integer> original)
+    {
+        if (FluxLoadingManager.isActive() && FluxLoadingManager.isDisableVanillaTexts()) return 0;
+
+        return original.call(instance, text, x, y, color);
     }
 }
