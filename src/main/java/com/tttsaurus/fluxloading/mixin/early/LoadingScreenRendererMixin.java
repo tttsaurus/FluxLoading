@@ -31,7 +31,7 @@ public class LoadingScreenRendererMixin
     {
         if (FluxLoadingManager.isActive())
         {
-            FluxLoadingManager.drawOverlay();
+            FluxLoadingManager.drawOverlayDefaultWorldLoadingAndFadingInPhase();
             FluxLoadingManager.tick();
 
             fluxloading$proxyBufferBuilder.finishDrawing();

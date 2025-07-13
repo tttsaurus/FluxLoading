@@ -21,7 +21,7 @@ public class GuiScreenWorkingMixin
     {
         if (FluxLoadingManager.isActive())
         {
-            FluxLoadingManager.drawOverlay();
+            FluxLoadingManager.drawOverlayDefaultWorldLoadingAndFadingInPhase();
             FluxLoadingManager.tick();
         }
         else

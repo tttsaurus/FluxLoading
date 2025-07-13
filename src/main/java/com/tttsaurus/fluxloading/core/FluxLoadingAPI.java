@@ -6,12 +6,14 @@ import java.util.List;
 
 public final class FluxLoadingAPI
 {
+    protected static boolean duringFadingInPhase = false;
     protected static boolean duringDefaultWorldLoadingPhase = false;
     protected static boolean duringExtraChunkLoadingPhase = false;
     protected static boolean duringExtraWaitPhase = false;
     protected static boolean duringFadingOutPhase = false;
     protected static boolean finishLoading = false;
 
+    public static boolean isDuringFadingInPhase() { return duringFadingInPhase; }
     public static boolean isDuringDefaultWorldLoadingPhase() { return duringDefaultWorldLoadingPhase; }
     public static boolean isDuringExtraChunkLoadingPhase() { return duringExtraChunkLoadingPhase; }
     public static boolean isDuringExtraWaitPhase() { return duringExtraWaitPhase; }

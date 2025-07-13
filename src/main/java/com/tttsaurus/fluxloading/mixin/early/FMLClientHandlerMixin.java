@@ -8,6 +8,7 @@ import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import com.tttsaurus.fluxloading.core.function.Action_1Param;
 import com.tttsaurus.fluxloading.core.function.Func;
 import com.tttsaurus.fluxloading.core.util.AccessorUnreflector;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.storage.WorldSummary;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -21,6 +22,8 @@ import java.util.List;
 @Mixin(FMLClientHandler.class)
 public class FMLClientHandlerMixin
 {
+    @Unique
+    private Action_1Param<Boolean> fluxloading$duringFadingInPhaseSetter;
     @Unique
     private Action_1Param<Boolean> fluxloading$duringDefaultWorldLoadingPhaseSetter;
     @Unique
@@ -52,6 +55,8 @@ public class FMLClientHandlerMixin
         {
             String folderName = original.call(instance);
 
+            if (fluxloading$duringFadingInPhaseSetter == null)
+                fluxloading$duringFadingInPhaseSetter = (Action_1Param<Boolean>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "duringFadingInPhase");
             if (fluxloading$duringDefaultWorldLoadingPhaseSetter == null)
                 fluxloading$duringDefaultWorldLoadingPhaseSetter = (Action_1Param<Boolean>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "duringDefaultWorldLoadingPhase");
             if (fluxloading$duringExtraChunkLoadingPhaseSetter == null)
@@ -69,6 +74,7 @@ public class FMLClientHandlerMixin
             if (fluxloading$stopWatchSetter == null)
                 fluxloading$stopWatchSetter = (Action_1Param<StopWatch>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "stopWatch");
 
+            fluxloading$duringFadingInPhaseSetter.invoke(false);
             fluxloading$duringDefaultWorldLoadingPhaseSetter.invoke(false);
             fluxloading$duringExtraChunkLoadingPhaseSetter.invoke(false);
             fluxloading$duringExtraWaitPhaseSetter.invoke(false);
@@ -91,8 +97,10 @@ public class FMLClientHandlerMixin
                 FluxLoadingManager.resetTargetChunkNumCalculated();
                 FluxLoadingManager.resetTargetChunkNum();
                 FluxLoadingManager.resetChunkLoadedNum();
-                FluxLoadingManager.resetFadeOutTimer();
                 FluxLoadingManager.resetMovementLocked();
+                FluxLoadingManager.resetFadeOutTimer();
+                FluxLoadingManager.resetFadeInTimer();
+                FluxLoadingManager.resetFinishFadingIn();
                 FluxLoadingManager.setFinishChunkLoading(false);
                 FluxLoadingManager.setCountingChunkLoaded(true);
 
@@ -102,6 +110,19 @@ public class FMLClientHandlerMixin
                 StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
                 fluxloading$stopWatchSetter.invoke(stopWatch);
+
+                // fps: 60
+                int frameCount = (int)(FluxLoadingManager.getFadeInDuration() * 60d);
+                for (int i = 0; i < frameCount; i++)
+                {
+                    FluxLoadingManager.drawOverlayDefaultWorldLoadingAndFadingInPhase();
+                    try
+                    {
+                        Thread.sleep(17);
+                    }
+                    catch (InterruptedException ignored) { }
+                    Minecraft.getMinecraft().updateDisplay();
+                }
             }
 
             return folderName;

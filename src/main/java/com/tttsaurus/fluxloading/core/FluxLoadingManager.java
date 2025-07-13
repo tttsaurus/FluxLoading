@@ -88,8 +88,15 @@ public final class FluxLoadingManager
     private static double extraWaitTime = 0.5d;
     private static double fadeOutDuration = 1.0d;
     private static StopWatch fadeOutStopWatch = null;
-    private static SmoothDamp smoothDamp = null;
+    private static SmoothDamp fadeOutSmoothDamp = null;
     private static double prevFadeOutTime = 0d;
+
+    // fade-in animation
+    private static boolean finishFadingIn = false;
+    private static double fadeInDuration = 1.0d;
+    private static StopWatch fadeInStopWatch = null;
+    private static SmoothDamp fadeInSmoothDamp = null;
+    private static double prevFadeInTime = 0d;
 
     // debug
     private static boolean debug = false;
@@ -171,7 +178,7 @@ public final class FluxLoadingManager
     {
         fadeOutStopWatch = new StopWatch();
         fadeOutStopWatch.start();
-        smoothDamp = new SmoothDamp(0, 1, (float)fadeOutDuration);
+        fadeOutSmoothDamp = new SmoothDamp(0, 1, (float)fadeOutDuration);
         prevFadeOutTime = 0d;
     }
 
@@ -181,6 +188,29 @@ public final class FluxLoadingManager
         {
             fadeOutStopWatch.stop();
             fadeOutStopWatch = null;
+        }
+    }
+
+    public static double getFadeInDuration() { return fadeInDuration; }
+
+    public static void setFadeInDuration(double duration) { fadeInDuration = duration; }
+
+    public static void resetFinishFadingIn() { finishFadingIn = false; }
+
+    public static void startFadeInTimer()
+    {
+        fadeInStopWatch = new StopWatch();
+        fadeInStopWatch.start();
+        fadeInSmoothDamp = new SmoothDamp(1, 0, (float)fadeOutDuration);
+        prevFadeInTime = 0d;
+    }
+
+    public static void resetFadeInTimer()
+    {
+        if (fadeInStopWatch != null)
+        {
+            fadeInStopWatch.stop();
+            fadeInStopWatch = null;
         }
     }
 
@@ -307,22 +337,97 @@ public final class FluxLoadingManager
         if (shaderProgram != null)
         {
             shaderProgram.use();
-            shaderProgram.setUniform("percentage", 0f);
+            shaderProgram.setUniform("percentage", 1f);
             shaderProgram.unuse();
         }
     }
     //</editor-fold>
 
     //<editor-fold desc="draw overlay">
-    public static void drawOverlay()
+    public static void drawOverlayDefaultWorldLoadingAndFadingInPhase()
     {
+        if (!FluxLoadingAPI.duringFadingInPhase && !finishFadingIn)
+        {
+            FluxLoadingAPI.duringFadingInPhase = true;
+            startFadeInTimer();
+        }
         if (!FluxLoadingAPI.duringDefaultWorldLoadingPhase)
             FluxLoadingAPI.duringDefaultWorldLoadingPhase = true;
 
-        drawOverlay(0);
+        boolean set = false;
+        float percentage = 0f;
+        if (!finishFadingIn)
+        {
+            double fadeInTime = fadeInStopWatch.getNanoTime() / 1E9d;
+            if (fadeInTime >= fadeInDuration)
+            {
+                finishFadingIn = true;
+                FluxLoadingAPI.duringFadingInPhase = false;
+                resetFadeInTimer();
+                percentage = 0f;
+                set = true;
+            }
+            else
+            {
+                double delta = fadeInTime - prevFadeInTime;
+                percentage = fadeInSmoothDamp.evaluate((float)delta);
+                prevFadeInTime = fadeInTime;
+                set = true;
+            }
+        }
+
+        drawOverlay(set, percentage);
     }
 
-    private static void drawOverlay(double time)
+    private static void drawOverlayFadingInPhase()
+    {
+        boolean set = false;
+        float percentage = 0f;
+        if (!finishFadingIn)
+        {
+            double fadeInTime = fadeInStopWatch.getNanoTime() / 1E9d;
+            if (fadeInTime >= fadeInDuration)
+            {
+                finishFadingIn = true;
+                FluxLoadingAPI.duringFadingInPhase = false;
+                resetFadeInTimer();
+                percentage = 0f;
+                set = true;
+            }
+            else
+            {
+                double delta = fadeInTime - prevFadeInTime;
+                percentage = fadeInSmoothDamp.evaluate((float)delta);
+                prevFadeInTime = fadeInTime;
+                set = true;
+            }
+        }
+
+        drawOverlay(set, percentage);
+    }
+
+    private static void drawOverlayChunkLoadingPhase()
+    {
+        drawOverlay(false, 0f);
+    }
+
+    private static void drawOverlayWaitAndFadingOutPhase(double fadeOutTime)
+    {
+        boolean set = false;
+        float percentage = 0f;
+        if (fadeOutTime >= extraWaitTime)
+        {
+            double nowFadeOutTime = fadeOutTime - extraWaitTime;
+            double delta = nowFadeOutTime - prevFadeOutTime;
+            percentage = fadeOutSmoothDamp.evaluate((float)delta);
+            prevFadeOutTime = nowFadeOutTime;
+            set = true;
+        }
+
+        drawOverlay(set, percentage);
+    }
+
+    private static void drawOverlay(boolean setPercentage, float percentage)
     {
         initShader();
 
@@ -345,15 +450,8 @@ public final class FluxLoadingManager
 
         shaderProgram.use();
 
-        if (time >= extraWaitTime)
-        {
-            double nowFadeOutTime = (time - extraWaitTime);
-            double delta = (nowFadeOutTime - prevFadeOutTime);
-            float percentage = smoothDamp.evaluate((float)delta);
-            prevFadeOutTime = nowFadeOutTime;
-
+        if (setPercentage)
             shaderProgram.setUniform("percentage", percentage);
-        }
 
         triggerShader();
         shaderProgram.unuse();
@@ -395,94 +493,100 @@ public final class FluxLoadingManager
                 if (!movementLocked)
                     movementLocked = true;
 
-            //<editor-fold desc="extra chunk loading phase">
-            if (!finishChunkLoading)
+            if (FluxLoadingAPI.duringDefaultWorldLoadingPhase)
+                FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
+
+            // usually finishFadingIn == true here
+            if (!finishFadingIn)
+                drawOverlayFadingInPhase();
+            else
             {
-                if (!FluxLoadingAPI.duringExtraChunkLoadingPhase)
+                //<editor-fold desc="extra chunk loading phase">
+                if (!finishChunkLoading)
                 {
-                    FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
-                    FluxLoadingAPI.duringExtraChunkLoadingPhase = true;
-                }
+                    if (!FluxLoadingAPI.duringExtraChunkLoadingPhase)
+                        FluxLoadingAPI.duringExtraChunkLoadingPhase = true;
 
-                drawOverlay(0);
+                    drawOverlayChunkLoadingPhase();
 
-                if (chunkLoadingTitle && targetChunkNumCalculated)
-                {
-                    ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
-                    String i18nText = I18n.format("fluxloading.loading_wait");
-                    float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
-                    RenderUtils.renderText(i18nText,
-                            (resolution.getScaledWidth() - width) / 2,
-                            (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + (chunkLoadingPercentage ? -10 : 0),
-                            1, Color.WHITE.getRGB(), true);
-
-                    if (chunkLoadingPercentage)
+                    if (chunkLoadingTitle && targetChunkNumCalculated)
                     {
-                        String text = String.format("%d/%d, %.1f", chunkLoadedNum, targetChunkNum, ((float) chunkLoadedNum / (float) targetChunkNum) * 100f) + "%";
-                        width = RenderUtils.fontRenderer.getStringWidth(text);
-                        RenderUtils.renderText(text,
+                        ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
+                        String i18nText = I18n.format("fluxloading.loading_wait");
+                        float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
+                        RenderUtils.renderText(i18nText,
                                 (resolution.getScaledWidth() - width) / 2,
-                                (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + 10,
+                                (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + (chunkLoadingPercentage ? -10 : 0),
                                 1, Color.WHITE.getRGB(), true);
+
+                        if (chunkLoadingPercentage)
+                        {
+                            String text = String.format("%d/%d, %.1f", chunkLoadedNum, targetChunkNum, ((float) chunkLoadedNum / (float) targetChunkNum) * 100f) + "%";
+                            width = RenderUtils.fontRenderer.getStringWidth(text);
+                            RenderUtils.renderText(text,
+                                    (resolution.getScaledWidth() - width) / 2,
+                                    (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + 10,
+                                    1, Color.WHITE.getRGB(), true);
+                        }
                     }
                 }
-            }
-            //</editor-fold>
+                //</editor-fold>
 
-            //<editor-fold desc="extra wait phase + fading out phase">
-            if (fadeOutStopWatch != null)
-            {
-                double time = fadeOutStopWatch.getNanoTime() / 1E9d;
-
-                if (!FluxLoadingAPI.duringExtraWaitPhase)
+                //<editor-fold desc="extra wait phase + fading out phase">
+                if (fadeOutStopWatch != null)
                 {
-                    FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
-                    FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
-                    FluxLoadingAPI.duringExtraWaitPhase = true;
-                }
+                    double fadeOutTime = fadeOutStopWatch.getNanoTime() / 1E9d;
 
-                if (time >= extraWaitTime && !FluxLoadingAPI.duringFadingOutPhase)
-                {
-                    FluxLoadingAPI.duringExtraWaitPhase = false;
-                    FluxLoadingAPI.duringFadingOutPhase = true;
-
-                    Minecraft.getMinecraft().setIngameFocus();
-                }
-
-                if (time >= fadeOutDuration + extraWaitTime)
-                {
-                    resetFadeOutTimer();
-                    texture.dispose();
-                    resetShader();
-
-                    FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
-                    FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
-                    FluxLoadingAPI.duringExtraWaitPhase = false;
-                    FluxLoadingAPI.duringFadingOutPhase = false;
-                    FluxLoadingAPI.finishLoading = true;
-
-                    if (movementLocked)
+                    if (!FluxLoadingAPI.duringExtraWaitPhase)
                     {
-                        FluxLoadingNetwork.requestPlayerLock(false);
-                        movementLocked = false;
+                        FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
+                        FluxLoadingAPI.duringExtraWaitPhase = true;
                     }
 
-                    FluxLoadingAPI.stopWatch.stop();
-                    double timeMs = FluxLoadingAPI.stopWatch.getNanoTime() / 1e6d;
+                    if (fadeOutTime >= extraWaitTime && !FluxLoadingAPI.duringFadingOutPhase)
+                    {
+                        FluxLoadingAPI.duringExtraWaitPhase = false;
+                        FluxLoadingAPI.duringFadingOutPhase = true;
 
-                    for (Runnable runnable: FluxLoadingAPI.fluxLoadingEndListeners)
-                        runnable.run();
+                        Minecraft.getMinecraft().setIngameFocus();
+                    }
 
-                    FluxLoading.logger.info("Finished world flux loading process. Time taken: " + timeMs + " ms. Tick count: " + FluxLoadingAPI.tickNum);
+                    if (fadeOutTime >= fadeOutDuration + extraWaitTime)
+                    {
+                        resetFadeOutTimer();
+                        texture.dispose();
+                        resetShader();
 
-                    active = false;
+                        FluxLoadingAPI.duringFadingInPhase = false;
+                        FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
+                        FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
+                        FluxLoadingAPI.duringExtraWaitPhase = false;
+                        FluxLoadingAPI.duringFadingOutPhase = false;
+                        FluxLoadingAPI.finishLoading = true;
 
-                    return;
+                        if (movementLocked)
+                        {
+                            FluxLoadingNetwork.requestPlayerLock(false);
+                            movementLocked = false;
+                        }
+
+                        FluxLoadingAPI.stopWatch.stop();
+                        double timeMs = FluxLoadingAPI.stopWatch.getNanoTime() / 1e6d;
+
+                        for (Runnable runnable: FluxLoadingAPI.fluxLoadingEndListeners)
+                            runnable.run();
+
+                        FluxLoading.logger.info("Finished world flux loading process. Time taken: " + timeMs + " ms. Tick count: " + FluxLoadingAPI.tickNum);
+
+                        active = false;
+
+                        return;
+                    }
+
+                    drawOverlayWaitAndFadingOutPhase(fadeOutTime);
                 }
-
-                drawOverlay(time);
+                //</editor-fold>
             }
-            //</editor-fold>
 
             if (!FluxLoadingAPI.finishLoading) tick();
         }
