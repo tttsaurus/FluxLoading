@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChunkRenderWorker.class)
 public class ChunkRenderWorkerMixin
 {
-    // won't be called when nothirium is installed
+    // won't be called when nothirium/celeritas is installed
     @Inject(method = "processTask", at = @At("RETURN"))
     public void processTask(ChunkCompileTaskGenerator generator, CallbackInfo ci)
     {

@@ -43,4 +43,5 @@ dependencies {
     compileOnly rfg.deobf("curse.maven:ingame-info-reborn-1171541:6762687")
 
     devOnlyNonPublishable rfg.deobf(project.files("libs/OpenTerrainGenerator-1.12.2-v9.5-R2.jar"))
+    devOnlyNonPublishable rfg.deobf(project.files("libs/celeritas-common-2.3.0-dev.3.jar"))
 }

@@ -1,0 +1,12 @@
+{
+  "package": "com.tttsaurus.fluxloading.mixin.late.celeritas",
+  "refmap": "mixins.fluxloading.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "RenderSectionManagerMixin"
+  ],
+  "client": [],
+  "server": []
+}

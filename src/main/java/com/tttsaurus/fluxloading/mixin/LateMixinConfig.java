@@ -16,6 +16,8 @@ public class LateMixinConfig implements ILateMixinLoader
             list.add("mixins.fluxloading.late.nothirium.json");
         if (Loader.isModLoaded("openterraingenerator"))
             list.add("mixins.fluxloading.late.otg.json");
+        if (Loader.isModLoaded("celeritas"))
+            list.add("mixins.fluxloading.late.celeritas.json");
 
         return list;
     }
