@@ -5,6 +5,8 @@
 ## About the Mod
 FluxLoading is a mod that enhances immersion by capturing a screenshot of the logout screen and displaying it when you reload your world. When you rejoin, you'll see the exact scene from where you left off, smoothly fading out into real-time gameplay.
 
+![ezgif-1359521c68cdd9](https://github.com/user-attachments/assets/1e45e221-90c3-4090-af9c-b2daaa46632c)
+
 ## Dependency
 - mixinbooter 10.0+
 
