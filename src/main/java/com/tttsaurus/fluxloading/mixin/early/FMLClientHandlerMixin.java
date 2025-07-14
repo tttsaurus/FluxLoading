@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.FluxLoadingAPI;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
+import com.tttsaurus.fluxloading.core.ShaderResources;
 import com.tttsaurus.fluxloading.core.function.Action_1Param;
 import com.tttsaurus.fluxloading.core.function.Func;
 import com.tttsaurus.fluxloading.core.util.AccessorUnreflector;
@@ -87,9 +88,9 @@ public class FMLClientHandlerMixin
 
             if (FluxLoadingManager.isTextureAvailable())
             {
-                FluxLoadingManager.initShader();
-                FluxLoadingManager.resetShader();
-                FluxLoadingManager.setShaderFadingState(true);
+                ShaderResources.initShader();
+                ShaderResources.resetShader();
+                ShaderResources.setShaderFadingState(true);
 
                 FluxLoadingManager.setActive(true);
 
