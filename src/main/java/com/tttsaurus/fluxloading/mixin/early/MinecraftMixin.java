@@ -64,7 +64,7 @@ public abstract class MinecraftMixin
     @WrapMethod(method = "setIngameFocus")
     public void setIngameFocus(Operation<Void> original)
     {
-        if (FluxLoadingManager.isActive())
+        if (FluxLoadingAPI.isActive())
         {
             if (FluxLoadingAPI.isFinishLoading())
                 original.call();

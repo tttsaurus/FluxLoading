@@ -13,6 +13,7 @@ public final class FluxLoadingAPI
     protected static boolean duringFadingOutPhase = false;
     protected static boolean finishLoading = false;
 
+    public static boolean isActive() { return FluxLoadingManager.isActive(); }
     public static boolean isDuringFadingInPhase() { return duringFadingInPhase; }
     public static boolean isDuringDefaultWorldLoadingPhase() { return duringDefaultWorldLoadingPhase; }
     public static boolean isDuringExtraChunkLoadingPhase() { return duringExtraChunkLoadingPhase; }

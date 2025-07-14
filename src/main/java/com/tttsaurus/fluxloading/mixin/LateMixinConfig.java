@@ -18,6 +18,8 @@ public class LateMixinConfig implements ILateMixinLoader
             list.add("mixins.fluxloading.late.otg.json");
         if (Loader.isModLoaded("celeritas"))
             list.add("mixins.fluxloading.late.celeritas.json");
+        if (Loader.isModLoaded("waila"))
+            list.add("mixins.fluxloading.late.waila.json");
 
         return list;
     }

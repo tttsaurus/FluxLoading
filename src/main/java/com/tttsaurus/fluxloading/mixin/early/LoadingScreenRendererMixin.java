@@ -2,6 +2,7 @@ package com.tttsaurus.fluxloading.mixin.early;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.tttsaurus.fluxloading.core.FluxLoadingAPI;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import com.tttsaurus.fluxloading.core.render.RenderUtils;
 import net.minecraft.client.LoadingScreenRenderer;
@@ -29,7 +30,7 @@ public class LoadingScreenRendererMixin
             ))
     public void draw(Tessellator instance, Operation<Void> original)
     {
-        if (FluxLoadingManager.isActive())
+        if (FluxLoadingAPI.isActive())
         {
             FluxLoadingManager.drawOverlayDefaultWorldLoadingAndFadingInPhase();
             FluxLoadingManager.tick();
@@ -49,7 +50,7 @@ public class LoadingScreenRendererMixin
             ))
     public BufferBuilder getBuffer(Tessellator instance, Operation<BufferBuilder> original)
     {
-        if (FluxLoadingManager.isActive())
+        if (FluxLoadingAPI.isActive())
         {
             if (fluxloading$proxyBufferBuilder == null)
                 fluxloading$proxyBufferBuilder = new BufferBuilder(25);
@@ -67,7 +68,7 @@ public class LoadingScreenRendererMixin
             ))
     public void framebufferClear(Framebuffer instance, Operation<Void> original)
     {
-        if (FluxLoadingManager.isActive()) return;
+        if (FluxLoadingAPI.isActive()) return;
 
         original.call(instance);
     }
@@ -80,7 +81,7 @@ public class LoadingScreenRendererMixin
             ))
     public void clear(int mask, Operation<Void> original)
     {
-        if (FluxLoadingManager.isActive()) return;
+        if (FluxLoadingAPI.isActive()) return;
 
         original.call(mask);
     }
@@ -93,7 +94,7 @@ public class LoadingScreenRendererMixin
             ))
     public void framebufferRender(Framebuffer instance, int width, int height, Operation<Void> original)
     {
-        if (FluxLoadingManager.isActive()) return;
+        if (FluxLoadingAPI.isActive()) return;
 
         original.call(instance, width, height);
     }
@@ -106,7 +107,7 @@ public class LoadingScreenRendererMixin
             ))
     public void bindFramebuffer(Framebuffer instance, boolean p_147610_1_, Operation<Void> original)
     {
-        if (FluxLoadingManager.isActive()) return;
+        if (FluxLoadingAPI.isActive()) return;
 
         original.call(instance, p_147610_1_);
     }
@@ -119,7 +120,7 @@ public class LoadingScreenRendererMixin
             ))
     public void unbindFramebuffer(Framebuffer instance, Operation<Void> original)
     {
-        if (FluxLoadingManager.isActive()) return;
+        if (FluxLoadingAPI.isActive()) return;
 
         original.call(instance);
     }
@@ -133,11 +134,11 @@ public class LoadingScreenRendererMixin
             ))
     public int drawStringWithShadow0(FontRenderer instance, String text, float x, float y, int color, Operation<Integer> original)
     {
-        if (FluxLoadingManager.isActive() && FluxLoadingManager.isDisableVanillaTexts()) return 0;
+        if (FluxLoadingAPI.isActive() && FluxLoadingManager.isDisableVanillaTexts()) return 0;
 
         int res = original.call(instance, text, x, y, color);
 
-        if (FluxLoadingManager.isActive())
+        if (FluxLoadingAPI.isActive())
         {
             if (FluxLoadingManager.isForceLoadingTitle() && text != null && !text.isEmpty())
                 FluxLoadingManager.setForceLoadingTitle(false);
@@ -161,7 +162,7 @@ public class LoadingScreenRendererMixin
             ))
     public int drawStringWithShadow1(FontRenderer instance, String text, float x, float y, int color, Operation<Integer> original)
     {
-        if (FluxLoadingManager.isActive() && FluxLoadingManager.isDisableVanillaTexts()) return 0;
+        if (FluxLoadingAPI.isActive() && FluxLoadingManager.isDisableVanillaTexts()) return 0;
 
         return original.call(instance, text, x, y, color);
     }

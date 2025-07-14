@@ -44,4 +44,5 @@ dependencies {
 
     devOnlyNonPublishable rfg.deobf(project.files("libs/OpenTerrainGenerator-1.12.2-v9.5-R2.jar"))
     devOnlyNonPublishable rfg.deobf(project.files("libs/celeritas-common-2.3.0-dev.3.jar"))
+    devOnlyNonPublishable rfg.deobf(project.files("libs/Hwyla-1.8.26-B41_1.12.2.jar"))
 }

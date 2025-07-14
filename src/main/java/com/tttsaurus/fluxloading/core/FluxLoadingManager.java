@@ -92,7 +92,7 @@ public final class FluxLoadingManager
     private static List<Ray> frustumRays = null;
 
     //<editor-fold desc="getters & setters">
-    public static boolean isActive() { return active; }
+    protected static boolean isActive() { return active; }
 
     public static void setActive(boolean flag) { active = flag; }
 
