@@ -441,6 +441,8 @@ public final class FluxLoadingManager
 
         if (active)
         {
+            RenderUtils.storeCommonGlStates();
+
             if (!FluxLoadingAPI.finishLoading)
                 if (!movementLocked)
                     movementLocked = true;
@@ -543,6 +545,8 @@ public final class FluxLoadingManager
             }
 
             if (!FluxLoadingAPI.finishLoading) tick();
+
+            RenderUtils.restoreCommonGlStates();
         }
     }
 
@@ -559,6 +563,7 @@ public final class FluxLoadingManager
         if (debug && frustumRays != null)
         {
             RenderUtils.storeCommonGlStates();
+
             for (Ray ray: frustumRays)
             {
                 GlStateManager.pushMatrix();
@@ -587,6 +592,7 @@ public final class FluxLoadingManager
 
                 GlStateManager.popMatrix();
             }
+
             RenderUtils.restoreCommonGlStates();
         }
     }
