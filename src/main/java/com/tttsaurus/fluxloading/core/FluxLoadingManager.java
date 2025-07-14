@@ -441,112 +441,114 @@ public final class FluxLoadingManager
 
         if (active)
         {
-            RenderUtils.storeCommonGlStates();
-
             if (!FluxLoadingAPI.finishLoading)
+            {
+                RenderUtils.storeCommonGlStates();
+
                 if (!movementLocked)
                     movementLocked = true;
 
-            if (FluxLoadingAPI.duringDefaultWorldLoadingPhase)
-                FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
+                if (FluxLoadingAPI.duringDefaultWorldLoadingPhase)
+                    FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
 
-            // usually finishFadingIn == true here
-            if (!finishFadingIn)
-                drawOverlayFadingInPhase();
-            else
-            {
-                //<editor-fold desc="extra chunk loading phase">
-                if (!finishChunkLoading)
+                // usually finishFadingIn == true here
+                if (!finishFadingIn)
+                    drawOverlayFadingInPhase();
+                else
                 {
-                    if (!FluxLoadingAPI.duringExtraChunkLoadingPhase)
-                        FluxLoadingAPI.duringExtraChunkLoadingPhase = true;
-
-                    drawOverlayChunkLoadingPhase();
-
-                    if (chunkLoadingTitle && targetChunkNumCalculated)
+                    //<editor-fold desc="extra chunk loading phase">
+                    if (!finishChunkLoading)
                     {
-                        ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
-                        String i18nText = I18n.format("fluxloading.loading_wait");
-                        float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
-                        RenderUtils.renderText(i18nText,
-                                (resolution.getScaledWidth() - width) / 2,
-                                (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + (chunkLoadingPercentage ? -10 : 0),
-                                1, Color.WHITE.getRGB(), true);
+                        if (!FluxLoadingAPI.duringExtraChunkLoadingPhase)
+                            FluxLoadingAPI.duringExtraChunkLoadingPhase = true;
 
-                        if (chunkLoadingPercentage)
+                        drawOverlayChunkLoadingPhase();
+
+                        if (chunkLoadingTitle && targetChunkNumCalculated)
                         {
-                            String text = String.format("%d/%d, %.1f", chunkLoadedNum, targetChunkNum, ((float) chunkLoadedNum / (float) targetChunkNum) * 100f) + "%";
-                            width = RenderUtils.fontRenderer.getStringWidth(text);
-                            RenderUtils.renderText(text,
+                            ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
+                            String i18nText = I18n.format("fluxloading.loading_wait");
+                            float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
+                            RenderUtils.renderText(i18nText,
                                     (resolution.getScaledWidth() - width) / 2,
-                                    (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + 10,
+                                    (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + (chunkLoadingPercentage ? -10 : 0),
                                     1, Color.WHITE.getRGB(), true);
+
+                            if (chunkLoadingPercentage)
+                            {
+                                String text = String.format("%d/%d, %.1f", chunkLoadedNum, targetChunkNum, ((float) chunkLoadedNum / (float) targetChunkNum) * 100f) + "%";
+                                width = RenderUtils.fontRenderer.getStringWidth(text);
+                                RenderUtils.renderText(text,
+                                        (resolution.getScaledWidth() - width) / 2,
+                                        (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + 10,
+                                        1, Color.WHITE.getRGB(), true);
+                            }
                         }
                     }
-                }
-                //</editor-fold>
+                    //</editor-fold>
 
-                //<editor-fold desc="extra wait phase + fading out phase">
-                if (fadeOutStopWatch != null)
-                {
-                    double fadeOutTime = fadeOutStopWatch.getNanoTime() / 1E9d;
-
-                    if (!FluxLoadingAPI.duringExtraWaitPhase)
+                    //<editor-fold desc="extra wait phase + fading out phase">
+                    if (fadeOutStopWatch != null)
                     {
-                        FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
-                        FluxLoadingAPI.duringExtraWaitPhase = true;
-                    }
+                        double fadeOutTime = fadeOutStopWatch.getNanoTime() / 1E9d;
 
-                    if (fadeOutTime >= extraWaitTime && !FluxLoadingAPI.duringFadingOutPhase)
-                    {
-                        FluxLoadingAPI.duringExtraWaitPhase = false;
-                        FluxLoadingAPI.duringFadingOutPhase = true;
-
-                        Minecraft.getMinecraft().setIngameFocus();
-
-                        ShaderResources.setShaderFadingState(false);
-                    }
-
-                    if (fadeOutTime >= fadeOutDuration + extraWaitTime)
-                    {
-                        resetFadeOutTimer();
-                        texture.dispose();
-                        ShaderResources.resetShader();
-
-                        FluxLoadingAPI.duringFadingInPhase = false;
-                        FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
-                        FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
-                        FluxLoadingAPI.duringExtraWaitPhase = false;
-                        FluxLoadingAPI.duringFadingOutPhase = false;
-                        FluxLoadingAPI.finishLoading = true;
-
-                        if (movementLocked)
+                        if (!FluxLoadingAPI.duringExtraWaitPhase)
                         {
-                            FluxLoadingNetwork.requestPlayerLock(false);
-                            movementLocked = false;
+                            FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
+                            FluxLoadingAPI.duringExtraWaitPhase = true;
                         }
 
-                        FluxLoadingAPI.stopWatch.stop();
-                        double timeMs = FluxLoadingAPI.stopWatch.getNanoTime() / 1e6d;
+                        if (fadeOutTime >= extraWaitTime && !FluxLoadingAPI.duringFadingOutPhase)
+                        {
+                            FluxLoadingAPI.duringExtraWaitPhase = false;
+                            FluxLoadingAPI.duringFadingOutPhase = true;
 
-                        for (Runnable runnable: FluxLoadingAPI.fluxLoadingEndListeners)
-                            runnable.run();
+                            Minecraft.getMinecraft().setIngameFocus();
 
-                        FluxLoading.logger.info("Finished world flux loading process. Time taken: " + timeMs + " ms. Tick count: " + FluxLoadingAPI.tickNum);
+                            ShaderResources.setShaderFadingState(false);
+                        }
 
-                        active = false;
+                        if (fadeOutTime >= fadeOutDuration + extraWaitTime)
+                        {
+                            resetFadeOutTimer();
+                            texture.dispose();
+                            ShaderResources.resetShader();
 
-                        return;
+                            FluxLoadingAPI.duringFadingInPhase = false;
+                            FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
+                            FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
+                            FluxLoadingAPI.duringExtraWaitPhase = false;
+                            FluxLoadingAPI.duringFadingOutPhase = false;
+                            FluxLoadingAPI.finishLoading = true;
+
+                            if (movementLocked)
+                            {
+                                FluxLoadingNetwork.requestPlayerLock(false);
+                                movementLocked = false;
+                            }
+
+                            FluxLoadingAPI.stopWatch.stop();
+                            double timeMs = FluxLoadingAPI.stopWatch.getNanoTime() / 1e6d;
+
+                            for (Runnable runnable: FluxLoadingAPI.fluxLoadingEndListeners)
+                                runnable.run();
+
+                            FluxLoading.logger.info("Finished world flux loading process. Time taken: " + timeMs + " ms. Tick count: " + FluxLoadingAPI.tickNum);
+
+                            active = false;
+
+                            return;
+                        }
+
+                        drawOverlayWaitAndFadingOutPhase(fadeOutTime);
                     }
-
-                    drawOverlayWaitAndFadingOutPhase(fadeOutTime);
+                    //</editor-fold>
                 }
-                //</editor-fold>
+
+                tick();
+
+                RenderUtils.restoreCommonGlStates();
             }
-
-            if (!FluxLoadingAPI.finishLoading) tick();
-
-            RenderUtils.restoreCommonGlStates();
         }
     }
 
