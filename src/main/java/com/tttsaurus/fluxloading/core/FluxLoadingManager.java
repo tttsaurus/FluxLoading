@@ -324,6 +324,20 @@ public final class FluxLoadingManager
             shaderProgram.setUniform("enableDissolving", false);
             shaderProgram.setUniform("enableWaving", false);
             shaderProgram.setUniform("enableDarkOverlay", FluxLoadingConfig.ENABLE_DARK_OVERLAY);
+            shaderProgram.setUniform("enable3x3Blur", false);
+            shaderProgram.setUniform("enable5x5Blur", false);
+            shaderProgram.setUniform("enableKawaseBlur", false);
+            shaderProgram.setUniform("targetBlurStrength", 1f);
+            if (FluxLoadingConfig.ENABLE_BLUR)
+            {
+                switch (FluxLoadingConfig.BLUR_ALGORITHM)
+                {
+                    case "3x3_gaussian_blur" -> { shaderProgram.setUniform("enable3x3Blur", true); }
+                    case "5x5_gaussian_blur" -> { shaderProgram.setUniform("enable5x5Blur", true); }
+                    case "kawase_blur" -> { shaderProgram.setUniform("enableKawaseBlur", true); }
+                }
+                shaderProgram.setUniform("targetBlurStrength", FluxLoadingConfig.BLUR_STRENGTH);
+            }
             shaderProgram.unuse();
 
             vertexBuffer = ByteBuffer.allocateDirect(9 * Float.BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer();
@@ -471,6 +485,11 @@ public final class FluxLoadingManager
 
         if (setPercentage)
             shaderProgram.setUniform("percentage", percentage);
+
+        ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
+        shaderProgram.setUniform("resolution",
+                (float)resolution.getScaledWidth_double(),
+                (float)resolution.getScaledHeight_double());
 
         triggerShader();
         shaderProgram.unuse();

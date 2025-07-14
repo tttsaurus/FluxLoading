@@ -24,6 +24,9 @@ public class FluxLoadingConfig
     public static boolean ENABLE_FADEIN_WAVING_EFFECT;
     public static boolean ENABLE_FADEIN_DISSOLVING_EFFECT;
     public static boolean ENABLE_DARK_OVERLAY;
+    public static boolean ENABLE_BLUR;
+    public static String BLUR_ALGORITHM;
+    public static float BLUR_STRENGTH;
 
     public static Configuration CONFIG;
 
@@ -52,6 +55,9 @@ public class FluxLoadingConfig
             ENABLE_FADEIN_WAVING_EFFECT = CONFIG.getBoolean("Fade In - Enable Waving Effect", "general.shader", false, "A fade-in option");
             ENABLE_FADEIN_DISSOLVING_EFFECT = CONFIG.getBoolean("Fade In - Enable Dissolving Effect", "general.shader", false, "A fade-in option");
             ENABLE_DARK_OVERLAY = CONFIG.getBoolean("Enable Dark Overlay", "general.shader", false, "An overlay on the screenshot");
+            ENABLE_BLUR = CONFIG.getBoolean("Enable Blur", "general.shader.blur", false, "Apply blur on the screenshot");
+            BLUR_ALGORITHM = CONFIG.getString("Blur Algorithm", "general.shader.blur", "kawase_blur", "Valid values: 3x3_gaussian_blur, 5x5_gaussian_blur, kawase_blur");
+            BLUR_STRENGTH = CONFIG.getFloat("Blur Strength", "general.shader.blur", 1f, 0.5f, 2f, "Different blur algorithms produce very different visual results");
 
             ENABLE_IGI_INTEGRATION = CONFIG.getBoolean("Enable In-Game Info Reborn Integration", "integrating.igi", false, "Whether to enable the whole integration module");
             REGISTER_FLUXLOADING_MVVM = CONFIG.getBoolean("Register FluxLoading MVVM", "integrating.igi", true, "Whether to register FluxLoading MVVM as a default MVVM to use");
