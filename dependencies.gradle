@@ -41,4 +41,6 @@ dependencies {
 
     compileOnly rfg.deobf("curse.maven:nothirium-624960:6219433")
     compileOnly rfg.deobf("curse.maven:ingame-info-reborn-1171541:6762687")
+
+    devOnlyNonPublishable rfg.deobf(project.files("libs/OpenTerrainGenerator-1.12.2-v9.5-R2.jar"))
 }

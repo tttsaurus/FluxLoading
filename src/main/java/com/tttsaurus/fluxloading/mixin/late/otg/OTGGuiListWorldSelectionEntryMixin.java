@@ -1,5 +1,7 @@
-package com.tttsaurus.fluxloading.mixin.early;
+package com.tttsaurus.fluxloading.mixin.late.otg;
 
+import com.pg85.otg.forge.gui.mainmenu.OTGGuiListWorldSelectionEntry;
+import com.pg85.otg.forge.gui.mainmenu.OTGGuiWorldSelection;
 import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.FluxLoadingAPI;
@@ -9,7 +11,6 @@ import com.tttsaurus.fluxloading.core.function.Action_1Param;
 import com.tttsaurus.fluxloading.core.function.Func;
 import com.tttsaurus.fluxloading.core.util.AccessorUnreflector;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiWorldSelection;
 import net.minecraft.world.storage.WorldSummary;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -21,9 +22,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
-@SuppressWarnings("all")
-@Mixin(FMLClientHandler.class)
-public class FMLClientHandlerMixin
+@Mixin(OTGGuiListWorldSelectionEntry.class)
+public class OTGGuiListWorldSelectionEntryMixin
 {
     @Unique
     private static Action_1Param<Boolean> fluxloading$duringFadingInPhaseSetter;
@@ -45,18 +45,18 @@ public class FMLClientHandlerMixin
     private static Action_1Param<StopWatch> fluxloading$stopWatchSetter;
 
     @Inject(method = "tryLoadExistingWorld", at = @At("HEAD"), remap = false)
-    public void tryLoadExistingWorld(GuiWorldSelection selectWorldGUI, WorldSummary comparator, CallbackInfo ci)
+    private void tryLoadExistingWorld(FMLClientHandler clientHandler, OTGGuiWorldSelection selectWorldGUI, WorldSummary comparator, CallbackInfo ci)
     {
         // join world
         if (!FMLCommonHandler.instance().getSide().isClient()) return;
 
         String folderName = comparator.getFileName();
 
-        FluxLoading.logger.info("Join world entry point: Forge");
+        FluxLoading.logger.info("Join world entry point: OTG");
         FluxLoading.logger.info("Prepare to join world: " + folderName);
 
         if (fluxloading$duringFadingInPhaseSetter == null)
-            fluxloading$duringFadingInPhaseSetter = (Action_1Param<Boolean>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "duringFadingInPhase");
+            fluxloading$duringFadingInPhaseSetter = (Action_1Param<Boolean>) AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "duringFadingInPhase");
         if (fluxloading$duringDefaultWorldLoadingPhaseSetter == null)
             fluxloading$duringDefaultWorldLoadingPhaseSetter = (Action_1Param<Boolean>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "duringDefaultWorldLoadingPhase");
         if (fluxloading$duringExtraChunkLoadingPhaseSetter == null)

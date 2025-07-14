@@ -1,0 +1,12 @@
+{
+  "package": "com.tttsaurus.fluxloading.mixin.late.otg",
+  "refmap": "mixins.fluxloading.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [],
+  "client": [
+    "OTGGuiListWorldSelectionEntryMixin"
+  ],
+  "server": []
+}

@@ -206,6 +206,20 @@ public final class FluxLoadingManager
     public static void setDebug(boolean flag) { debug = flag; }
     //</editor-fold>
 
+    public static void prepareStates()
+    {
+        setStartCalcTargetChunkNum(false);
+        resetTargetChunkNumCalculated();
+        resetTargetChunkNum();
+        resetChunkLoadedNum();
+        resetMovementLocked();
+        resetFadeOutTimer();
+        resetFadeInTimer();
+        resetFinishFadingIn();
+        setFinishChunkLoading(false);
+        setCountingChunkLoaded(true);
+    }
+
     public static void calcTargetChunkNum()
     {
         Minecraft.getMinecraft().addScheduledTask(() ->

@@ -1,7 +1,6 @@
 package com.tttsaurus.fluxloading;
 
 import com.tttsaurus.fluxloading.proxy.CommonProxy;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -23,8 +22,6 @@ public class FluxLoading
             clientSide = "com.tttsaurus.fluxloading.proxy.ClientProxy",
             serverSide = "com.tttsaurus.fluxloading.proxy.ServerProxy")
     public static CommonProxy proxy;
-
-    public static final boolean IS_INGAMEINFO_REBORN_LOADED = Loader.isModLoaded("ingameinfo");
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)

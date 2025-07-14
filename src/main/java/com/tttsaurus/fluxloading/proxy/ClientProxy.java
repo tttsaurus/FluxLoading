@@ -1,10 +1,10 @@
 package com.tttsaurus.fluxloading.proxy;
 
-import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +29,7 @@ public class ClientProxy extends CommonProxy
         FluxLoadingManager.setFadeInDuration(FluxLoadingConfig.FADE_IN_DURATION);
         FluxLoadingManager.setDebug(FluxLoadingConfig.DEBUG);
 
-        if (FluxLoading.IS_INGAMEINFO_REBORN_LOADED && FluxLoadingConfig.ENABLE_IGI_INTEGRATION)
+        if (Loader.isModLoaded("ingameinfo") && FluxLoadingConfig.ENABLE_IGI_INTEGRATION)
         {
             try
             {

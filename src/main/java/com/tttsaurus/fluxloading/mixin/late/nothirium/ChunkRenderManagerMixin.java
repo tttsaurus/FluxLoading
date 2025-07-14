@@ -27,7 +27,8 @@ public class ChunkRenderManagerMixin
                 {
                     Minecraft.getMinecraft().addScheduledTask(() ->
                     {
-                        FluxLoading.logger.info("Chunk Loading Stage - Not going to wait chunks to load");
+                        FluxLoading.logger.info("Chunk loading stage entry point: Nothirium");
+                        FluxLoading.logger.info("Chunk loading stage: Not going to wait chunks to load");
                     });
 
                     FluxLoadingManager.setCountingChunkLoaded(false);
@@ -45,7 +46,8 @@ public class ChunkRenderManagerMixin
                 {
                     Minecraft.getMinecraft().addScheduledTask(() ->
                     {
-                        FluxLoading.logger.info("Chunk Loading Stage - Waiting chunks to load");
+                        FluxLoading.logger.info("Chunk loading stage entry point: Nothirium");
+                        FluxLoading.logger.info("Chunk loading stage: Waiting chunks to load");
                     });
 
                     FluxLoadingManager.setStartCalcTargetChunkNum(true);
