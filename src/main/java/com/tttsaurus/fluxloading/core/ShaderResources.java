@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-public class ShaderResources
+public final class ShaderResources
 {
     private static ShaderProgram shaderProgram = null;
     private static FloatBuffer vertexBuffer;
