@@ -3,10 +3,11 @@ package com.tttsaurus.fluxloading;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
-import com.falsepattern.gasstation.IEarlyMixinLoader;
+import com.gtnewhorizon.gtnhmixins.IEarlyMixinLoader;
 
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
@@ -40,11 +41,12 @@ public class FluxLoadingCoremod implements IFMLLoadingPlugin, IEarlyMixinLoader 
     }
 
     @Override
-    public List<String> getMixinConfigs() {
-        List<String> list = new ArrayList<>();
+    public String getMixinConfig() {
+        return "mixins.fluxloading.json";
+    }
 
-        list.add("mixins.fluxloading.json");
-
-        return list;
+    @Override
+    public List<String> getMixins(Set<String> loadedCoreMods) {
+        return new ArrayList<>();
     }
 }

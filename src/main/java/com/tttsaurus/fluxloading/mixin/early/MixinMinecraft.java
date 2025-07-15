@@ -1,6 +1,5 @@
 package com.tttsaurus.fluxloading.mixin.early;
 
-import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -13,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.FluxLoading;
+import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.WorldLoadingScreenOverhaul;
 import com.tttsaurus.fluxloading.render.GlResourceManager;
 
