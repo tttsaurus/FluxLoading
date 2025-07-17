@@ -7,6 +7,66 @@ FluxLoading is a mod that enhances immersion by capturing a screenshot of the lo
 
 ![ezgif-1359521c68cdd9](https://github.com/user-attachments/assets/1e45e221-90c3-4090-af9c-b2daaa46632c)
 
+## Guide on Making Addons
+- Whether the loading screen is handled by FluxLoading
+  ```java
+  FluxLoadingAPI.isActive();
+  ```
+- FluxLoading Timeline
+  ```
+  // FadingInPhase is guaranteed to finish 
+  // before DefaultWorldLoadingPhase finishes
+  +-------------------+
+  |  FadingInPhase    |
+  |  (parallel start) |
+  +-------------------+
+   ||
+   || (parallel)
+   ||
+  +----------------------------+
+  |  DefaultWorldLoadingPhase  |
+  |  (parallel start)          |
+  +----------------------------+
+   |
+   | (The player is now present in the world, but remains locked)
+   |
+   v
+  // ExtraChunkLoadingPhase may not be triggered
+  // if chunks loaded fast enough
+  +--------------------------+
+  |  ExtraChunkLoadingPhase  |
+  +--------------------------+
+   |
+   v
+  +------------------+
+  |  ExtraWaitPhase  |
+  +------------------+
+   |
+   v
+  +------------------+
+  |  FadingOutPhase  |
+  +------------------+
+   |
+   v
+  +-----------------+
+  |  FinishLoading  |
+  +-----------------+
+  ```
+  ```java
+  FluxLoadingAPI.isDuringFadingInPhase();
+  FluxLoadingAPI.isDuringDefaultWorldLoadingPhase();
+  FluxLoadingAPI.isDuringExtraChunkLoadingPhase();
+  FluxLoadingAPI.isDuringExtraWaitPhase();
+  FluxLoadingAPI.isDuringFadingOutPhase();
+  FluxLoadingAPI.isFinishLoading();
+  ```
+- Register Listeners
+  ```java
+  FluxLoadingAPI.addFluxLoadingTickListener(Runnable listener);
+  FluxLoadingAPI.addFluxLoadingStartListener(Runnable listener);
+  FluxLoadingAPI.addFluxLoadingEndListener(Runnable listener);
+  ```
+
 ## Dependency
 - mixinbooter 10.0+
 
