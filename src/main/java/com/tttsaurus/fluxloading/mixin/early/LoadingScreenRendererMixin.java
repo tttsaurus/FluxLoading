@@ -4,11 +4,13 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.core.FluxLoadingAPI;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
+import com.tttsaurus.fluxloading.core.accessor.TessellatorAccessor;
 import com.tttsaurus.fluxloading.core.render.RenderUtils;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.shader.Framebuffer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,10 +27,28 @@ public class LoadingScreenRendererMixin
             method = "setLoadingProgress",
             at = @At(
                     value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/Tessellator;getBuffer()Lnet/minecraft/client/renderer/BufferBuilder;"
+            ))
+    public BufferBuilder getBuffer(Tessellator instance, Operation<BufferBuilder> original)
+    {
+        if (FluxLoadingAPI.isActive())
+        {
+            if (fluxloading$proxyBufferBuilder == null)
+                fluxloading$proxyBufferBuilder = new BufferBuilder(64);
+            return fluxloading$proxyBufferBuilder;
+        }
+
+        return original.call(instance);
+    }
+
+    @WrapOperation(
+            method = "setLoadingProgress",
+            at = @At(
+                    value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/Tessellator;draw()V",
                     ordinal = 0
             ))
-    public void draw(Tessellator instance, Operation<Void> original)
+    public void draw0(Tessellator instance, Operation<Void> original)
     {
         if (FluxLoadingAPI.isActive())
         {
@@ -46,18 +66,21 @@ public class LoadingScreenRendererMixin
             method = "setLoadingProgress",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/Tessellator;getBuffer()Lnet/minecraft/client/renderer/BufferBuilder;"
+                    target = "Lnet/minecraft/client/renderer/Tessellator;draw()V",
+                    ordinal = 1
             ))
-    public BufferBuilder getBuffer(Tessellator instance, Operation<BufferBuilder> original)
+    public void draw1(Tessellator instance, Operation<Void> original)
     {
         if (FluxLoadingAPI.isActive())
         {
-            if (fluxloading$proxyBufferBuilder == null)
-                fluxloading$proxyBufferBuilder = new BufferBuilder(25);
-            return fluxloading$proxyBufferBuilder;
+            Tessellator tessellator = Tessellator.getInstance();
+            WorldVertexBufferUploader vboUploader = TessellatorAccessor.getVboUploader(tessellator);
+            fluxloading$proxyBufferBuilder.finishDrawing();
+            vboUploader.draw(fluxloading$proxyBufferBuilder);
+            fluxloading$proxyBufferBuilder.reset();
         }
-
-        return original.call(instance);
+        else
+            original.call(instance);
     }
 
     @WrapOperation(
