@@ -474,7 +474,7 @@ public final class FluxLoadingManager
                                     (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + (chunkLoadingPercentage ? -10 : 0),
                                     1, Color.WHITE.getRGB(), true);
 
-                            if (chunkLoadingPercentage)
+                            if (chunkLoadingPercentage && targetChunkNum != 0)
                             {
                                 String text = String.format("%d/%d, %.1f", chunkLoadedNum, targetChunkNum, ((float) chunkLoadedNum / (float) targetChunkNum) * 100f) + "%";
                                 width = RenderUtils.fontRenderer.getStringWidth(text);
