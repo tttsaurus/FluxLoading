@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.shader.Framebuffer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -81,71 +80,6 @@ public class LoadingScreenRendererMixin
         }
         else
             original.call(instance);
-    }
-
-    @WrapOperation(
-            method = "setLoadingProgress",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/shader/Framebuffer;framebufferClear()V"
-            ))
-    public void framebufferClear(Framebuffer instance, Operation<Void> original)
-    {
-        if (FluxLoadingAPI.isActive()) return;
-
-        original.call(instance);
-    }
-
-    @WrapOperation(
-            method = "setLoadingProgress",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/GlStateManager;clear(I)V"
-            ))
-    public void clear(int mask, Operation<Void> original)
-    {
-        if (FluxLoadingAPI.isActive()) return;
-
-        original.call(mask);
-    }
-
-    @WrapOperation(
-            method = "setLoadingProgress",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/shader/Framebuffer;framebufferRender(II)V"
-            ))
-    public void framebufferRender(Framebuffer instance, int width, int height, Operation<Void> original)
-    {
-        if (FluxLoadingAPI.isActive()) return;
-
-        original.call(instance, width, height);
-    }
-
-    @WrapOperation(
-            method = "setLoadingProgress",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/shader/Framebuffer;bindFramebuffer(Z)V"
-            ))
-    public void bindFramebuffer(Framebuffer instance, boolean p_147610_1_, Operation<Void> original)
-    {
-        if (FluxLoadingAPI.isActive()) return;
-
-        original.call(instance, p_147610_1_);
-    }
-
-    @WrapOperation(
-            method = "setLoadingProgress",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/shader/Framebuffer;unbindFramebuffer()V"
-            ))
-    public void unbindFramebuffer(Framebuffer instance, Operation<Void> original)
-    {
-        if (FluxLoadingAPI.isActive()) return;
-
-        original.call(instance);
     }
 
     @WrapOperation(
