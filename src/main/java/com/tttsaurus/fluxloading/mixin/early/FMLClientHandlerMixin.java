@@ -52,8 +52,8 @@ public class FMLClientHandlerMixin
 
         String folderName = comparator.getFileName();
 
-        FluxLoading.logger.info("Join world entry point: Forge");
-        FluxLoading.logger.info("Prepare to join world: " + folderName);
+        FluxLoading.LOGGER.info("Join world entry point: Forge");
+        FluxLoading.LOGGER.info("Prepare to join world: " + folderName);
 
         if (fluxloading$duringFadingInPhaseSetter == null)
             fluxloading$duringFadingInPhaseSetter = (Action_1Param<Boolean>)AccessorUnreflector.getDeclaredFieldSetter(FluxLoadingAPI.class, "duringFadingInPhase");
@@ -86,9 +86,9 @@ public class FMLClientHandlerMixin
         FluxLoadingManager.tryReadFromLocal(folderName);
 
         if (FluxLoadingManager.isTextureAvailable())
-            FluxLoading.logger.info("Screenshot found. Start flux loading process.");
+            FluxLoading.LOGGER.info("Screenshot found. Start flux loading process.");
         else
-            FluxLoading.logger.info("No screenshot found. Abort flux loading process.");
+            FluxLoading.LOGGER.info("No screenshot found. Abort flux loading process.");
 
         if (FluxLoadingManager.isTextureAvailable())
         {

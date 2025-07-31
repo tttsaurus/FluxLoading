@@ -254,13 +254,13 @@ public final class FluxLoadingManager
                         visibleChunks.add(chunk);
             }
 
-            FluxLoading.logger.info("Chunk count from ChunkProviderClient: " + loadedChunks.size());
-            FluxLoading.logger.info("Visible chunks from player's perspective: " + visibleChunks.size());
+            FluxLoading.LOGGER.info("Chunk count from ChunkProviderClient: " + loadedChunks.size());
+            FluxLoading.LOGGER.info("Visible chunks from player's perspective: " + visibleChunks.size());
 
             frustumRays = FrustumChunkRayCastHelper.getRaysFromFrustum(camPos, ClippingHelperImpl.getInstance(), 10, 10);
             targetChunkNum = FrustumChunkRayCastHelper.getChunkRayCastNum(frustumRays, visibleChunks, chunkRayCastTestRayDis);
 
-            FluxLoading.logger.info("Visible chunks after frustum ray casting: " + targetChunkNum);
+            FluxLoading.LOGGER.info("Visible chunks after frustum ray casting: " + targetChunkNum);
 
             targetChunkNumCalculated = true;
         });
@@ -533,7 +533,7 @@ public final class FluxLoadingManager
                             for (Runnable runnable: FluxLoadingAPI.fluxLoadingEndListeners)
                                 runnable.run();
 
-                            FluxLoading.logger.info("Finished world flux loading process. Time taken: " + timeMs + " ms. Tick count: " + FluxLoadingAPI.tickNum);
+                            FluxLoading.LOGGER.info("Finished world flux loading process. Time taken: " + timeMs + " ms. Tick count: " + FluxLoadingAPI.tickNum);
 
                             active = false;
 

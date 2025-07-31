@@ -16,8 +16,8 @@ public class RenderSectionManagerMixin
     {
         if (FluxLoadingManager.isCountingChunkLoaded())
         {
-            FluxLoading.logger.info("Chunk loading stage entry point: Celeritas");
-            FluxLoading.logger.info("Chunk loading stage: Celeritas finished chunk loading");
+            FluxLoading.LOGGER.info("Chunk loading stage entry point: Celeritas");
+            FluxLoading.LOGGER.info("Chunk loading stage: Celeritas finished chunk loading");
 
             FluxLoadingManager.setCountingChunkLoaded(false);
             FluxLoadingManager.setFinishChunkLoading(true);

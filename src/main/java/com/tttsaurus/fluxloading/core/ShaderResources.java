@@ -48,7 +48,7 @@ public final class ShaderResources
             shaderProgram = new ShaderProgram(vertex, frag);
             shaderProgram.setup();
 
-            FluxLoading.logger.info(shaderProgram.getSetupDebugReport());
+            FluxLoading.LOGGER.info(shaderProgram.getSetupDebugReport());
 
             shaderProgram.use();
             shaderProgram.setUniform("screenTexture", 1);

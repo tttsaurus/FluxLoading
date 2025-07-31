@@ -29,8 +29,8 @@ public class ChunkRenderWorkerMixin
                 {
                     Minecraft.getMinecraft().addScheduledTask(() ->
                     {
-                        FluxLoading.logger.info("Chunk loading stage entry point: Vanilla");
-                        FluxLoading.logger.info("Chunk loading stage: Not going to wait chunks to load");
+                        FluxLoading.LOGGER.info("Chunk loading stage entry point: Vanilla");
+                        FluxLoading.LOGGER.info("Chunk loading stage: Not going to wait chunks to load");
                     });
 
                     FluxLoadingManager.setCountingChunkLoaded(false);
@@ -48,8 +48,8 @@ public class ChunkRenderWorkerMixin
                 {
                     Minecraft.getMinecraft().addScheduledTask(() ->
                     {
-                        FluxLoading.logger.info("Chunk loading stage entry point: Vanilla");
-                        FluxLoading.logger.info("Chunk loading stage: Waiting chunks to load");
+                        FluxLoading.LOGGER.info("Chunk loading stage entry point: Vanilla");
+                        FluxLoading.LOGGER.info("Chunk loading stage: Waiting chunks to load");
                     });
 
                     FluxLoadingManager.setStartCalcTargetChunkNum(true);

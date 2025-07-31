@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Mod(
@@ -16,7 +17,7 @@ import org.apache.logging.log4j.Logger;
         dependencies = "required-after:mixinbooter@[10.0,);after:ingameinfo")
 public class FluxLoading
 {
-    public static Logger logger;
+    public static final Logger LOGGER = LogManager.getLogger(Tags.MODNAME);
 
     @SidedProxy(
             clientSide = "com.tttsaurus.fluxloading.proxy.ClientProxy",
@@ -26,13 +27,12 @@ public class FluxLoading
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        logger = event.getModLog();
-        proxy.preInit(event, logger);
+        proxy.preInit(event, LOGGER);
     }
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
-        proxy.init(event, logger);
-        logger.info("Flux Loading initialized.");
+        proxy.init(event, LOGGER);
+        LOGGER.info("Flux Loading initialized.");
     }
 }

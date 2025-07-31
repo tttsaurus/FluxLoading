@@ -21,9 +21,10 @@ public abstract class MinecraftMixin
     @Inject(method = "shutdown", at = @At("HEAD"))
     public void beforeShutdown(CallbackInfo ci)
     {
-        FluxLoading.logger.info("Start disposing OpenGL resources");
-        GlResourceManager.disposeAll(FluxLoading.logger);
-        FluxLoading.logger.info("OpenGL resources disposed");
+        if (FluxLoading.LOGGER == null) return;
+        FluxLoading.LOGGER.info("Start disposing OpenGL resources");
+        GlResourceManager.disposeAll(FluxLoading.LOGGER);
+        FluxLoading.LOGGER.info("OpenGL resources disposed");
     }
 
     @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At("HEAD"))
