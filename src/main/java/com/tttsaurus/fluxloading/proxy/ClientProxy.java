@@ -43,7 +43,5 @@ public class ClientProxy extends CommonProxy
     public void init(FMLInitializationEvent event, Logger logger)
     {
         super.init(event, logger);
-
-        MinecraftForge.EVENT_BUS.register(FluxLoadingManager.class);
     }
 }
