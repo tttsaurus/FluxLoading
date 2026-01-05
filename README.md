@@ -7,65 +7,56 @@ FluxLoading is a mod that enhances immersion by capturing a screenshot of the lo
 
 ![ezgif-1359521c68cdd9](https://github.com/user-attachments/assets/1e45e221-90c3-4090-af9c-b2daaa46632c)
 
-## Guide on Making Addons
-- Whether the loading screen is handled by FluxLoading
-  ```java
-  FluxLoadingAPI.isActive();
-  ```
-- FluxLoading Timeline
-  ```
-  // FadingInPhase is guaranteed to finish 
-  // before DefaultWorldLoadingPhase finishes
-  +-------------------+
-  |  FadingInPhase    |
-  |  (parallel start) |
-  +-------------------+
-   ||
-   || (parallel)
-   ||
-  +----------------------------+
-  |  DefaultWorldLoadingPhase  |
-  |  (parallel start)          |
-  +----------------------------+
-   |
-   | (The player is now present in the world, but remains locked)
-   |
-   v
-  // ExtraChunkLoadingPhase may not be triggered
-  // if chunks loaded fast enough
-  +--------------------------+
-  |  ExtraChunkLoadingPhase  |
-  +--------------------------+
-   |
-   v
-  +------------------+
-  |  ExtraWaitPhase  |
-  +------------------+
-   |
-   v
-  +------------------+
-  |  FadingOutPhase  |
-  +------------------+
-   |
-   v
-  +-----------------+
-  |  FinishLoading  |
-  +-----------------+
-  ```
-  ```java
-  FluxLoadingAPI.isDuringFadingInPhase();
-  FluxLoadingAPI.isDuringDefaultWorldLoadingPhase();
-  FluxLoadingAPI.isDuringExtraChunkLoadingPhase();
-  FluxLoadingAPI.isDuringExtraWaitPhase();
-  FluxLoadingAPI.isDuringFadingOutPhase();
-  FluxLoadingAPI.isFinishLoading();
-  ```
-- Register Listeners
-  ```java
-  FluxLoadingAPI.addFluxLoadingTickListener(Runnable listener);
-  FluxLoadingAPI.addFluxLoadingStartListener(Runnable listener);
-  FluxLoadingAPI.addFluxLoadingEndListener(Runnable listener);
-  ```
+## Core Design
+
+FluxLoading is built around three separated subsystems:
+
+- Finite State Machine: loading phase control
+- Timeline: time-based animation and transition sequencing (fade-in / wait / fade-out)
+- Chunk Gate: decision logic that determines whether extra chunk loading is required before releasing control
+
+## Loading Phases
+```mermaid
+graph TD
+    A[FADING_IN]
+    A --> B[DEFAULT_WORLD_LOADING]
+    B --> C[EXTRA_CHUNK_LOADING]
+    C --> D[EXTRA_WAIT]
+    D --> E[FADING_OUT]
+    E --> F[FINISHED]
+```
+
+> **Note**:
+> <br> Chunk loading _may_ be waited (`EXTRA_CHUNK_LOADING`) to smoothen the fade-out effect (the decision is made by the Chunk Gate)
+
+## Addon & Integration Guidelines
+
+**Detecting FluxLoading**
+
+```java
+if (FluxLoadingAPI.isActive())
+{
+    // FluxLoading is currently controlling the loading screen
+}
+```
+
+**Observing Phases**
+```java
+FluxLoadingPhase phase = FluxLoadingAPI.getPhase();
+```
+
+**Lifecycle Hooks**
+```java
+FluxLoadingAPI.addFluxLoadingStartListener(() -> { ... });
+FluxLoadingAPI.addFluxLoadingTickListener(() -> { ... });
+FluxLoadingAPI.addFluxLoadingEndListener(() -> { ... });
+```
+
+## Player Lock
+During loading (`EXTRA_CHUNK_LOADING` or `EXTRA_WAIT` to be exact):
+- Player input is locally locked
+- Position is locked both client-side and server-side
+- Server-side enforcement is supported via packets
 
 ## Dependency
 - mixinbooter 10.0+
