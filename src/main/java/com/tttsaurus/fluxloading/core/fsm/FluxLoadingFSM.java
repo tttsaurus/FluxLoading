@@ -1,6 +1,5 @@
 package com.tttsaurus.fluxloading.core.fsm;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public final class FluxLoadingFSM
@@ -28,7 +27,7 @@ public final class FluxLoadingFSM
         return new IllegalStateException("Invalid FSM event \"" + event + "\" in phase " + phase + " (" + reason + ").");
     }
 
-    private void transitionTo(@Nonnull FluxLoadingPhase next)
+    private void transitionTo(FluxLoadingPhase next)
     {
         if (phase == next) return;
 

@@ -64,10 +64,7 @@ public final class FluxLoadingTimeline
 
     public void startFadeOutSequence()
     {
-        if (fadeOutSequenceStarted)
-        {
-            return;
-        }
+        if (fadeOutSequenceStarted) return;
 
         fadeOutSequenceStarted = true;
 
