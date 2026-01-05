@@ -1,4 +1,4 @@
-package com.tttsaurus.fluxloading.core.chunk;
+package com.tttsaurus.fluxloading.core.chunk.gate;
 
 import com.tttsaurus.fluxloading.FluxLoading;
 import com.tttsaurus.fluxloading.core.accessor.ChunkProviderClientAccessor;

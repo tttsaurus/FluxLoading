@@ -1,4 +1,4 @@
-package com.tttsaurus.fluxloading.core.chunk;
+package com.tttsaurus.fluxloading.core.chunk.gate;
 
 public enum FluxLoadingChunkSource
 {

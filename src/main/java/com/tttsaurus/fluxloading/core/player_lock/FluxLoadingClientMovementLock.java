@@ -1,4 +1,4 @@
-package com.tttsaurus.fluxloading.core.player_freeze;
+package com.tttsaurus.fluxloading.core.player_lock;
 
 import com.tttsaurus.fluxloading.core.network.FluxLoadingNetwork;
 import net.minecraft.client.Minecraft;

@@ -1,13 +1,13 @@
 package com.tttsaurus.fluxloading.core;
 
 import com.tttsaurus.fluxloading.FluxLoading;
-import com.tttsaurus.fluxloading.core.chunk.FluxLoadingChunkGate;
-import com.tttsaurus.fluxloading.core.chunk.FluxLoadingChunkSource;
+import com.tttsaurus.fluxloading.core.chunk.gate.FluxLoadingChunkGate;
+import com.tttsaurus.fluxloading.core.chunk.gate.FluxLoadingChunkSource;
 import com.tttsaurus.fluxloading.core.fsm.FluxLoadingFSM;
 import com.tttsaurus.fluxloading.core.fsm.FluxLoadingPhase;
 import com.tttsaurus.fluxloading.core.network.FluxLoadingNetwork;
-import com.tttsaurus.fluxloading.core.player_freeze.FluxLoadingClientMovementLock;
-import com.tttsaurus.fluxloading.core.player_freeze.FluxLoadingServerMovementLock;
+import com.tttsaurus.fluxloading.core.player_lock.FluxLoadingClientMovementLock;
+import com.tttsaurus.fluxloading.core.player_lock.FluxLoadingServerMovementLock;
 import com.tttsaurus.fluxloading.core.render.RenderUtils;
 import com.tttsaurus.fluxloading.core.render.Texture2D;
 import com.tttsaurus.fluxloading.core.timing.FluxLoadingTimeline;

@@ -1,4 +1,4 @@
-package com.tttsaurus.fluxloading.core.player_freeze;
+package com.tttsaurus.fluxloading.core.player_lock;
 
 import net.minecraft.util.math.Vec3d;
 

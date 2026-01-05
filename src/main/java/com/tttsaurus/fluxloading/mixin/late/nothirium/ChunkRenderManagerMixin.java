@@ -3,7 +3,7 @@ package com.tttsaurus.fluxloading.mixin.late.nothirium;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.tttsaurus.fluxloading.core.FluxLoadingAPI;
-import com.tttsaurus.fluxloading.core.chunk.FluxLoadingChunkSource;
+import com.tttsaurus.fluxloading.core.chunk.gate.FluxLoadingChunkSource;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import meldexun.nothirium.api.renderer.chunk.IChunkRenderer;
 import meldexun.nothirium.mc.renderer.ChunkRenderManager;

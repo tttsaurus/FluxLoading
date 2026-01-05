@@ -1,7 +1,7 @@
 package com.tttsaurus.fluxloading.mixin.early;
 
 import com.tttsaurus.fluxloading.core.FluxLoadingAPI;
-import com.tttsaurus.fluxloading.core.chunk.FluxLoadingChunkSource;
+import com.tttsaurus.fluxloading.core.chunk.gate.FluxLoadingChunkSource;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
 import net.minecraft.client.renderer.chunk.ChunkRenderWorker;
