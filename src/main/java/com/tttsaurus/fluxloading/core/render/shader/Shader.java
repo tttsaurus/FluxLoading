@@ -12,9 +12,7 @@ public class Shader
     public enum ShaderType
     {
         VERTEX(GL20.GL_VERTEX_SHADER),
-        FRAGMENT(GL20.GL_FRAGMENT_SHADER),
-        TESS_CONTROL(GL40.GL_TESS_CONTROL_SHADER),
-        TESS_EVALUATION(GL40.GL_TESS_EVALUATION_SHADER);
+        FRAGMENT(GL20.GL_FRAGMENT_SHADER);
 
         public final int glValue;
         ShaderType(int glValue)

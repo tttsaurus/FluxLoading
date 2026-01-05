@@ -4,7 +4,6 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.fluxloading.FluxLoading;
-import com.tttsaurus.fluxloading.core.FluxLoadingAPI;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
 import com.tttsaurus.fluxloading.core.render.GlResourceManager;
 import net.minecraft.client.Minecraft;
@@ -22,6 +21,7 @@ public abstract class MinecraftMixin
     public void beforeShutdown(CallbackInfo ci)
     {
         if (FluxLoading.LOGGER == null) return;
+
         FluxLoading.LOGGER.info("Start disposing OpenGL resources");
         GlResourceManager.disposeAll(FluxLoading.LOGGER);
         FluxLoading.LOGGER.info("OpenGL resources disposed");
@@ -33,8 +33,8 @@ public abstract class MinecraftMixin
         WorldClient world = Minecraft.getMinecraft().world;
         if (world != null)
         {
-            // leave world
-            FluxLoadingManager.setActive(false);
+            // leaving current world => abort flux loading if active
+            FluxLoadingManager.abortFluxLoading();
 
             // try save screenshot
             FluxLoadingManager.trySaveToLocal();
@@ -49,7 +49,7 @@ public abstract class MinecraftMixin
             ))
     public void displayGuiScreen(Minecraft instance, GuiScreen i, Operation<Void> original)
     {
-        // when pause game
+        // when pausing the game
         FluxLoadingManager.prepareScreenshot();
 
         original.call(instance, i);
@@ -65,14 +65,7 @@ public abstract class MinecraftMixin
     @WrapMethod(method = "setIngameFocus")
     public void setIngameFocus(Operation<Void> original)
     {
-        if (FluxLoadingAPI.isActive())
-        {
-            if (FluxLoadingAPI.isFinishLoading())
-                original.call();
-            else if (FluxLoadingAPI.isDuringFadingOutPhase())
-                original.call();
-        }
-        else
+        if (FluxLoadingManager.shouldAllowSetIngameFocus())
             original.call();
     }
 }

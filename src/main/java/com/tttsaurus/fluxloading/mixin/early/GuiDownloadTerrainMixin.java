@@ -21,10 +21,7 @@ public class GuiDownloadTerrainMixin
     public void drawBackground(GuiDownloadTerrain instance, int i, Operation<Void> original)
     {
         if (FluxLoadingAPI.isActive())
-        {
-            FluxLoadingManager.drawOverlayDefaultWorldLoadingAndFadingInPhase();
-            FluxLoadingManager.tick();
-        }
+            FluxLoadingManager.renderAndTick();
         else
             original.call(instance, i);
     }

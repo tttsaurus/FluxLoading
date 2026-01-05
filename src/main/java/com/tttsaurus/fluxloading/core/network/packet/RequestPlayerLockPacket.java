@@ -45,9 +45,9 @@ public class RequestPlayerLockPacket implements IMessage
 
             EntityPlayerMP player = ctx.getServerHandler().player;
             if (message.lock)
-                FluxLoadingManager.serverLockPos.put(player.getUniqueID(), new Vec3d(player.posX, player.posY, player.posZ));
+                FluxLoadingManager.SERVER_LOCK.lockPlayer(player.getUniqueID(), new Vec3d(player.posX, player.posY, player.posZ));
             else
-                FluxLoadingManager.serverLockPos.remove(player.getUniqueID());
+                FluxLoadingManager.SERVER_LOCK.unlockPlayer(player.getUniqueID());
 
             return null;
         }

@@ -2,6 +2,9 @@ package com.tttsaurus.fluxloading.proxy;
 
 import com.tttsaurus.fluxloading.FluxLoadingConfig;
 import com.tttsaurus.fluxloading.core.FluxLoadingManager;
+import com.tttsaurus.fluxloading.core.listener.FluxLoadingClientTickListener;
+import com.tttsaurus.fluxloading.core.listener.FluxLoadingRenderListener;
+import com.tttsaurus.fluxloading.core.listener.FluxLoadingScreenshotListener;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Loader;
@@ -19,15 +22,9 @@ public class ClientProxy extends CommonProxy
         FluxLoadingConfig.CONFIG = new Configuration(event.getSuggestedConfigurationFile());
         FluxLoadingConfig.loadConfig();
 
-        FluxLoadingManager.setDisableVanillaTexts(FluxLoadingConfig.DISABLE_ALL_VANILLA_LOADING_TEXTS);
         FluxLoadingManager.setChunkLoadingTitle(FluxLoadingConfig.CHUNK_LOADING_INDICATOR);
         FluxLoadingManager.setChunkLoadingPercentage(FluxLoadingConfig.CHUNK_LOADING_PERCENTAGE);
         FluxLoadingManager.setChunkRayCastTestRayDis(FluxLoadingConfig.CHUNK_ESTIMATION_RAY_DISTANCE);
-        FluxLoadingManager.setWaitChunksToLoad(FluxLoadingConfig.WAIT_CHUNKS_TO_LOAD);
-        FluxLoadingManager.setExtraWaitTime(FluxLoadingConfig.EXTRA_WAIT_TIME);
-        FluxLoadingManager.setFadeOutDuration(FluxLoadingConfig.FADE_OUT_DURATION);
-        FluxLoadingManager.setFadeInDuration(FluxLoadingConfig.FADE_IN_DURATION);
-        FluxLoadingManager.setDebug(FluxLoadingConfig.DEBUG);
 
         if (Loader.isModLoaded("ingameinfo") && FluxLoadingConfig.ENABLE_IGI_INTEGRATION)
         {
@@ -43,5 +40,10 @@ public class ClientProxy extends CommonProxy
     public void init(FMLInitializationEvent event, Logger logger)
     {
         super.init(event, logger);
+
+        // client event listeners
+        MinecraftForge.EVENT_BUS.register(FluxLoadingClientTickListener.class);
+        MinecraftForge.EVENT_BUS.register(FluxLoadingRenderListener.class);
+        MinecraftForge.EVENT_BUS.register(FluxLoadingScreenshotListener.class);
     }
 }

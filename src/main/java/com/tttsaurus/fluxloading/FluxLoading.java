@@ -29,6 +29,7 @@ public class FluxLoading
     {
         proxy.preInit(event, LOGGER);
     }
+
     @EventHandler
     public void init(FMLInitializationEvent event)
     {

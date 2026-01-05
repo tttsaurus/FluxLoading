@@ -1,667 +1,353 @@
 package com.tttsaurus.fluxloading.core;
 
 import com.tttsaurus.fluxloading.FluxLoading;
-import com.tttsaurus.fluxloading.core.animation.SmoothDamp;
-import com.tttsaurus.fluxloading.core.accessor.ChunkProviderClientAccessor;
+import com.tttsaurus.fluxloading.core.chunk.FluxLoadingChunkGate;
+import com.tttsaurus.fluxloading.core.chunk.FluxLoadingChunkSource;
+import com.tttsaurus.fluxloading.core.fsm.FluxLoadingFSM;
+import com.tttsaurus.fluxloading.core.fsm.FluxLoadingPhase;
 import com.tttsaurus.fluxloading.core.network.FluxLoadingNetwork;
-import com.tttsaurus.fluxloading.core.raycast.FrustumChunkRayCastHelper;
-import com.tttsaurus.fluxloading.core.raycast.Ray;
-import com.tttsaurus.fluxloading.core.render.CommonBuffers;
+import com.tttsaurus.fluxloading.core.player_freeze.FluxLoadingClientMovementLock;
+import com.tttsaurus.fluxloading.core.player_freeze.FluxLoadingServerMovementLock;
 import com.tttsaurus.fluxloading.core.render.RenderUtils;
 import com.tttsaurus.fluxloading.core.render.Texture2D;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import com.tttsaurus.fluxloading.core.timing.FluxLoadingTimeline;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.multiplayer.ChunkProviderClient;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.culling.ClippingHelper;
-import net.minecraft.client.renderer.culling.ClippingHelperImpl;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.ScreenShotHelper;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import org.apache.commons.lang3.time.StopWatch;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import java.awt.*;
+
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.*;
-import java.util.List;
 
-@SuppressWarnings("all")
 public final class FluxLoadingManager
 {
+    private FluxLoadingManager() { }
+
+    static final FluxLoadingFSM FSM = new FluxLoadingFSM();
+    private static final FluxLoadingOverlayRenderer OVERLAY = new FluxLoadingOverlayRenderer();
+    private static final FluxLoadingTimeline TIMELINE = new FluxLoadingTimeline();
+    private static final FluxLoadingChunkGate CHUNKS = new FluxLoadingChunkGate();
+    private static final FluxLoadingClientMovementLock CLIENT_LOCK = new FluxLoadingClientMovementLock();
+    public static final FluxLoadingServerMovementLock SERVER_LOCK = new FluxLoadingServerMovementLock();
+
     private static boolean active = false;
 
-    // render
     private static boolean screenshotToggle = false;
-    private static boolean forceLoadingTitle = false;
-    private static boolean disableVanillaTexts = false;
-    private static Texture2D texture = null;
     private static BufferedImage screenshot = null;
 
-    // movement lock
-    private static boolean movementLocked = false;
-    private static boolean lockPosFetched = false;
-    private static double lockX, lockY, lockZ;
+    private static Texture2D texture = null;
 
-    // extra chunk loading
-    private static boolean waitChunksToLoad = true;
-    private static boolean finishChunkLoading = false;
-    private static boolean countingChunkLoaded = false;
-    private static int chunkLoadedNum = 0;
-    private static int targetChunkNum = 0;
-    private static boolean startCalcTargetChunkNum = false;
-    private static boolean targetChunkNumCalculated = false;
-    private static boolean chunkLoadingTitle = false;
-    private static boolean chunkLoadingPercentage = false;
-    private static int chunkRayCastTestRayDis = 512;
+    private static boolean forceLoadingTitle = false;
+    private static boolean disableVanillaTexts = false;
 
-    // fade-out animation
-    private static double extraWaitTime = 0.5d;
-    private static double fadeOutDuration = 1.0d;
-    private static StopWatch fadeOutStopWatch = null;
-    private static SmoothDamp fadeOutSmoothDamp = null;
-    private static double prevFadeOutTime = 0d;
-
-    // fade-in animation
-    private static boolean finishFadingIn = false;
-    private static double fadeInDuration = 1.0d;
-    private static StopWatch fadeInStopWatch = null;
-    private static SmoothDamp fadeInSmoothDamp = null;
-    private static double prevFadeInTime = 0d;
-
-    // debug
-    private static boolean debug = false;
-    private static List<Ray> frustumRays = null;
-
-    //<editor-fold desc="getters & setters">
-    protected static boolean isActive() { return active; }
-
-    public static void setActive(boolean flag) { active = flag; }
-
-    public static void prepareScreenshot() { screenshotToggle = true; }
-
-    public static boolean isForceLoadingTitle() { return forceLoadingTitle; }
-
-    public static void setForceLoadingTitle(boolean flag) { forceLoadingTitle = flag; }
-
-    public static boolean isDisableVanillaTexts() { return disableVanillaTexts; }
-
-    public static void setDisableVanillaTexts(boolean flag) { disableVanillaTexts = flag; }
-
-    public static void setChunkLoadingTitle(boolean flag) { chunkLoadingTitle = flag; }
-
-    public static void setChunkLoadingPercentage(boolean flag) { chunkLoadingPercentage = flag; }
-
-    public static boolean isTextureAvailable() { return texture != null; }
-
-    public static void updateTexture(Texture2D tex)
+    /**
+     * Only be accessed by {@link FluxLoadingAPI#isActive()}.
+     */
+    static boolean isActive()
     {
-        if (texture != null) texture.dispose();
-        texture = tex;
+        return active;
     }
 
-    public static boolean isMovementLocked() { return movementLocked; }
-
-    public static void resetMovementLocked()
+    public static FluxLoadingPhase getPhase()
     {
-        movementLocked = false;
-        lockPosFetched = false;
-        lockX = 0;
-        lockY = 0;
-        lockZ = 0;
+        return FSM.getPhase();
     }
 
-    public static boolean isWaitChunksToLoad() { return waitChunksToLoad; }
-
-    public static void setWaitChunksToLoad(boolean flag) { waitChunksToLoad = flag; }
-
-    public static void setFinishChunkLoading(boolean flag) { finishChunkLoading = flag; }
-
-    public static boolean isCountingChunkLoaded() { return countingChunkLoaded; }
-
-    public static void setCountingChunkLoaded(boolean flag) { countingChunkLoaded = flag; }
-
-    public static int getChunkLoadedNum() { return chunkLoadedNum; }
-
-    public static void incrChunkLoadedNum() { chunkLoadedNum++; }
-
-    public static void resetChunkLoadedNum() { chunkLoadedNum = 0; }
-
-    public static boolean isStartCalcTargetChunkNum() { return startCalcTargetChunkNum; }
-
-    public static void setStartCalcTargetChunkNum(boolean flag) { startCalcTargetChunkNum = flag; }
-
-    public static boolean isTargetChunkNumCalculated() { return targetChunkNumCalculated; }
-
-    public static void resetTargetChunkNumCalculated() { targetChunkNumCalculated = false; }
-
-    public static int getTargetChunkNum() { return targetChunkNum; }
-
-    public static void resetTargetChunkNum() { targetChunkNum = 0; }
-
-    public static void setChunkRayCastTestRayDis(int dis) { chunkRayCastTestRayDis = dis; }
-
-    public static void setExtraWaitTime(double time) { extraWaitTime = time; }
-
-    public static void setFadeOutDuration(double time) { fadeOutDuration = time; }
-
-    public static void startFadeOutTimer()
+    public static boolean isDisableVanillaTexts()
     {
-        fadeOutStopWatch = new StopWatch();
-        fadeOutStopWatch.start();
-        fadeOutSmoothDamp = new SmoothDamp(0, 1, (float)fadeOutDuration);
-        prevFadeOutTime = 0d;
+        return disableVanillaTexts;
     }
 
-    public static void resetFadeOutTimer()
+    public static boolean isMovementLocked()
     {
-        if (fadeOutStopWatch != null)
+        return CLIENT_LOCK.isLocked();
+    }
+
+    public static boolean shouldAllowSetIngameFocus()
+    {
+        // MinecraftMixin#setIngameFocus wants to allow focus during fading out OR after finished
+        return !active || FSM.isDuring(FluxLoadingPhase.FADING_OUT) || FSM.isDuring(FluxLoadingPhase.FINISHED);
+    }
+
+    public static boolean shouldBlockKeyboardTick()
+    {
+        return CLIENT_LOCK.isLocked();
+    }
+
+    public static boolean isForceLoadingTitle()
+    {
+        return forceLoadingTitle;
+    }
+
+    public static void consumeForceLoadingTitle()
+    {
+        forceLoadingTitle = false;
+    }
+
+    // entry point
+
+    public static void prepareScreenshot()
+    {
+        screenshotToggle = true;
+    }
+
+    public static void beginFluxLoading(
+            String folderName,
+            boolean instantlyPoppedUpLoadingTitle,
+            boolean disableVanillaTextsFlag,
+            boolean waitChunksToLoad,
+            double fadeInDurationSeconds,
+            double extraWaitSeconds,
+            double fadeOutDurationSeconds)
+    {
+        tryReadFromLocal(folderName);
+
+        if (texture == null)
         {
-            fadeOutStopWatch.stop();
-            fadeOutStopWatch = null;
+            active = false;
+            FluxLoading.LOGGER.info("No screenshot found. Abort flux loading process.");
+            return;
+        }
+
+        FluxLoading.LOGGER.info("Screenshot found. Start flux loading process.");
+
+        disableVanillaTexts = disableVanillaTextsFlag;
+        forceLoadingTitle = instantlyPoppedUpLoadingTitle;
+
+        active = true;
+
+        FSM.start();
+        CHUNKS.reset(waitChunksToLoad);
+        CLIENT_LOCK.reset();
+
+        TIMELINE.reset();
+        TIMELINE.startFadeIn(fadeInDurationSeconds);
+        TIMELINE.configureFadeOut(extraWaitSeconds, fadeOutDurationSeconds);
+
+        FluxLoadingAPI.tickNum = 0;
+
+        for (Runnable r : FluxLoadingAPI.fluxLoadingStartListeners) r.run();
+
+        FluxLoadingAPI.stopWatch = new org.apache.commons.lang3.time.StopWatch();
+        FluxLoadingAPI.stopWatch.start();
+    }
+
+    public static void abortFluxLoading()
+    {
+        if (!active) return;
+
+        finishAndCleanup();
+    }
+
+    public static void onChunkCompileTaskProcessed(FluxLoadingChunkSource source)
+    {
+        if (!active) return;
+
+        // only meaningful after fading-in ends and we are in DEFAULT_WORLD_LOADING
+        if (FSM.isDuring(FluxLoadingPhase.FADING_IN)) return;
+        if (!FSM.isDuring(FluxLoadingPhase.DEFAULT_WORLD_LOADING) && !FSM.isDuring(FluxLoadingPhase.EXTRA_CHUNK_LOADING)) return;
+
+        FluxLoadingChunkGate.Decision decision = CHUNKS.onChunkCompiled(source);
+
+        if (decision == FluxLoadingChunkGate.Decision.DECIDE_WAIT_CHUNKS)
+        {
+            FSM.markDefaultWorldLoadingFinished();
+            FSM.decideExtraChunkLoading(true);
+            return;
+        }
+
+        if (decision == FluxLoadingChunkGate.Decision.DECIDE_SKIP_WAIT)
+        {
+            FSM.markDefaultWorldLoadingFinished();
+            FSM.decideExtraChunkLoading(false);
+            TIMELINE.startFadeOutSequence();
+            return;
+        }
+
+        if (decision == FluxLoadingChunkGate.Decision.EXTRA_CHUNK_LOADING_FINISHED)
+        {
+            FSM.markExtraChunkLoadingFinished();
+            TIMELINE.startFadeOutSequence();
         }
     }
 
-    public static double getFadeInDuration() { return fadeInDuration; }
-
-    public static void setFadeInDuration(double duration) { fadeInDuration = duration; }
-
-    public static void resetFinishFadingIn() { finishFadingIn = false; }
-
-    public static void startFadeInTimer()
+    public static void renderAndTick()
     {
-        fadeInStopWatch = new StopWatch();
-        fadeInStopWatch.start();
-        fadeInSmoothDamp = new SmoothDamp(1, 0, (float)fadeOutDuration);
-        prevFadeInTime = 0d;
+        if (!active) return;
+
+        RenderUtils.storeCommonGlStates();
+
+        CLIENT_LOCK.ensureLocked();
+
+        FluxLoadingTimeline.UpdateResult timeline = TIMELINE.update();
+
+        if (FSM.isDuring(FluxLoadingPhase.FADING_IN) && timeline.fadeInFinished)
+        {
+            FSM.markFadingInFinished();
+        }
+
+        if (FSM.isDuring(FluxLoadingPhase.EXTRA_WAIT) && timeline.extraWaitFinished)
+        {
+            FSM.markExtraWaitFinished();
+
+            Minecraft.getMinecraft().setIngameFocus();
+            ShaderResources.setShaderFadingState(false);
+        }
+
+        if (FSM.isDuring(FluxLoadingPhase.FADING_OUT) && timeline.fadeOutFinished)
+        {
+            FSM.markFadingOutFinished();
+        }
+
+        OVERLAY.render(texture, timeline.setPercentage, timeline.percentage);
+
+        if (FSM.isDuring(FluxLoadingPhase.EXTRA_CHUNK_LOADING))
+        {
+            renderChunkLoadingTextIfEnabled();
+        }
+
+        tickInternal();
+
+        if (FSM.isDuring(FluxLoadingPhase.FINISHED))
+        {
+            finishAndCleanup();
+        }
+
+        RenderUtils.restoreCommonGlStates();
     }
 
-    public static void resetFadeInTimer()
+    private static void tickInternal()
     {
-        if (fadeInStopWatch != null)
+        for (Runnable r : FluxLoadingAPI.fluxLoadingTickListeners) r.run();
+
+        FluxLoadingAPI.tickNum++;
+    }
+
+    private static void renderChunkLoadingTextIfEnabled()
+    {
+        if (!CHUNKS.isChunkLoadingTitleEnabled()) return;
+        if (!CHUNKS.isTargetCalculated()) return;
+
+        ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
+        String i18nText = net.minecraft.client.resources.I18n.format("fluxloading.loading_wait");
+        float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
+
+        int yOffset = CHUNKS.isChunkLoadingPercentageEnabled() ? -10 : 0;
+
+        RenderUtils.renderText(i18nText,
+                (resolution.getScaledWidth() - width) / 2f,
+                (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2f + yOffset,
+                1,
+                Color.WHITE.getRGB(),
+                true);
+
+        if (CHUNKS.isChunkLoadingPercentageEnabled() && CHUNKS.getTargetChunkNum() != 0)
         {
-            fadeInStopWatch.stop();
-            fadeInStopWatch = null;
+            String text = String.format("%d/%d, %.1f",
+                    CHUNKS.getChunkLoadedNum(),
+                    CHUNKS.getTargetChunkNum(),
+                    ((float)CHUNKS.getChunkLoadedNum() / (float)CHUNKS.getTargetChunkNum()) * 100f) + "%";
+
+            width = RenderUtils.fontRenderer.getStringWidth(text);
+
+            RenderUtils.renderText(text,
+                    (resolution.getScaledWidth() - width) / 2f,
+                    (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2f + 10,
+                    1,
+                    Color.WHITE.getRGB(),
+                    true);
         }
     }
 
-    public static void setDebug(boolean flag) { debug = flag; }
-    //</editor-fold>
-
-    public static void prepareStates()
+    private static void finishAndCleanup()
     {
-        setStartCalcTargetChunkNum(false);
-        resetTargetChunkNumCalculated();
-        resetTargetChunkNum();
-        resetChunkLoadedNum();
-        resetMovementLocked();
-        resetFadeOutTimer();
-        resetFadeInTimer();
-        resetFinishFadingIn();
-        setFinishChunkLoading(false);
-        setCountingChunkLoaded(true);
-    }
+        if (!active) return;
 
-    public static void calcTargetChunkNum()
-    {
-        Minecraft.getMinecraft().addScheduledTask(() ->
+        active = false;
+
+        if (texture != null)
         {
-            ChunkProviderClient chunkProvider = Minecraft.getMinecraft().world.getChunkProvider();
-            Long2ObjectMap<Chunk> loadedChunks = ChunkProviderClientAccessor.getLoadedChunks(chunkProvider);
+            texture.dispose();
+            texture = null;
+        }
 
-            Vec3d camPos = RenderUtils.getCameraPos();
+        ShaderResources.resetShader();
 
-            ClippingHelper frustumHelper = ClippingHelperImpl.getInstance();
-            Frustum viewFrustum = new Frustum(frustumHelper);
-            viewFrustum.setPosition(camPos.x, camPos.y, camPos.z);
+        if (CLIENT_LOCK.isLocked())
+        {
+            FluxLoadingNetwork.requestPlayerLock(false);
+            CLIENT_LOCK.reset();
+        }
 
-            List<Chunk> visibleChunks = new ArrayList<>();
-            for (Chunk chunk : loadedChunks.values())
-            {
-                int chunkX = chunk.x;
-                int chunkZ = chunk.z;
+        if (FluxLoadingAPI.stopWatch != null)
+        {
+            FluxLoadingAPI.stopWatch.stop();
 
-                double minX = chunkX * 16;
-                double minY = 0;
-                double minZ = chunkZ * 16;
+            double timeMs = FluxLoadingAPI.stopWatch.getNanoTime() / 1e6d;
+            FluxLoading.LOGGER.info("Finished world flux loading process. Time taken: " + timeMs + " ms. Tick count: " + FluxLoadingAPI.tickNum);
+        }
 
-                double maxX = minX + 16;
-                double maxY = 256;
-                double maxZ = minZ + 16;
-
-                AxisAlignedBB box = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
-
-                if (viewFrustum.isBoundingBoxInFrustum(box))
-                    if (!chunk.isEmpty())
-                        visibleChunks.add(chunk);
-            }
-
-            FluxLoading.LOGGER.info("Chunk count from ChunkProviderClient: " + loadedChunks.size());
-            FluxLoading.LOGGER.info("Visible chunks from player's perspective: " + visibleChunks.size());
-
-            frustumRays = FrustumChunkRayCastHelper.getRaysFromFrustum(camPos, ClippingHelperImpl.getInstance(), 10, 10);
-            targetChunkNum = FrustumChunkRayCastHelper.getChunkRayCastNum(frustumRays, visibleChunks, chunkRayCastTestRayDis);
-
-            FluxLoading.LOGGER.info("Visible chunks after frustum ray casting: " + targetChunkNum);
-
-            targetChunkNumCalculated = true;
-        });
+        for (Runnable r : FluxLoadingAPI.fluxLoadingEndListeners) r.run();
     }
 
-    //<editor-fold desc="save & read">
     public static void trySaveToLocal()
     {
-        IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
+        net.minecraft.server.integrated.IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
         if (server != null)
         {
             File worldSaveDir = new File("saves/" + server.getFolderName());
             if (screenshot != null)
-                RenderUtils.createPng(
-                        worldSaveDir,
-                        "last_screenshot",
-                        screenshot);
+            {
+                RenderUtils.createPng(worldSaveDir, "last_screenshot", screenshot);
+            }
         }
     }
 
     public static void tryReadFromLocal(String folderName)
     {
-        File screenshot = new File("saves/" + folderName + "/last_screenshot.png");
-        if (screenshot.exists())
+        File file = new File("saves/" + folderName + "/last_screenshot.png");
+        if (file.exists())
         {
-            Texture2D texture = RenderUtils.readPng(screenshot);
-            if (texture != null) updateTexture(texture);
-        }
-    }
-    //</editor-fold>
-
-    //<editor-fold desc="draw overlay">
-    public static void drawOverlayDefaultWorldLoadingAndFadingInPhase()
-    {
-        if (!FluxLoadingAPI.duringFadingInPhase && !finishFadingIn)
-        {
-            FluxLoadingAPI.duringFadingInPhase = true;
-            startFadeInTimer();
-        }
-        if (!FluxLoadingAPI.duringDefaultWorldLoadingPhase)
-            FluxLoadingAPI.duringDefaultWorldLoadingPhase = true;
-
-        boolean set = false;
-        float percentage = 0f;
-        if (!finishFadingIn)
-        {
-            double fadeInTime = fadeInStopWatch.getNanoTime() / 1E9d;
-            if (fadeInTime >= fadeInDuration)
+            Texture2D tex = RenderUtils.readPng(file);
+            if (tex != null)
             {
-                finishFadingIn = true;
-                FluxLoadingAPI.duringFadingInPhase = false;
-                resetFadeInTimer();
-                percentage = 0f;
-                set = true;
-            }
-            else
-            {
-                double delta = fadeInTime - prevFadeInTime;
-                percentage = fadeInSmoothDamp.evaluate((float)delta);
-                prevFadeInTime = fadeInTime;
-                set = true;
-            }
-        }
-
-        drawOverlay(set, percentage);
-    }
-
-    private static void drawOverlayFadingInPhase()
-    {
-        boolean set = false;
-        float percentage = 0f;
-        if (!finishFadingIn)
-        {
-            double fadeInTime = fadeInStopWatch.getNanoTime() / 1E9d;
-            if (fadeInTime >= fadeInDuration)
-            {
-                finishFadingIn = true;
-                FluxLoadingAPI.duringFadingInPhase = false;
-                resetFadeInTimer();
-                percentage = 0f;
-                set = true;
-            }
-            else
-            {
-                double delta = fadeInTime - prevFadeInTime;
-                percentage = fadeInSmoothDamp.evaluate((float)delta);
-                prevFadeInTime = fadeInTime;
-                set = true;
-            }
-        }
-
-        drawOverlay(set, percentage);
-    }
-
-    private static void drawOverlayChunkLoadingPhase()
-    {
-        drawOverlay(false, 0f);
-    }
-
-    private static void drawOverlayWaitAndFadingOutPhase(double fadeOutTime)
-    {
-        boolean set = false;
-        float percentage = 0f;
-        if (fadeOutTime >= extraWaitTime)
-        {
-            double nowFadeOutTime = fadeOutTime - extraWaitTime;
-            double delta = nowFadeOutTime - prevFadeOutTime;
-            percentage = fadeOutSmoothDamp.evaluate((float)delta);
-            prevFadeOutTime = nowFadeOutTime;
-            set = true;
-        }
-
-        drawOverlay(set, percentage);
-    }
-
-    private static void drawOverlay(boolean setPercentage, float percentage)
-    {
-        boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
-        boolean depthTest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
-
-        GlStateManager.enableBlend();
-        GlStateManager.disableDepth();
-
-        GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE, CommonBuffers.INT_BUFFER_16);
-        int texUnit = CommonBuffers.INT_BUFFER_16.get(0);
-
-        GlStateManager.setActiveTexture(GL13.GL_TEXTURE1);
-        GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D, CommonBuffers.INT_BUFFER_16);
-        int texUnit1TextureID = CommonBuffers.INT_BUFFER_16.get(0);
-
-        GlStateManager.bindTexture(texture.getGlTextureID());
-
-        GlStateManager.setActiveTexture(texUnit);
-
-        ShaderResources.getShaderProgram().use();
-
-        if (setPercentage)
-            ShaderResources.getShaderProgram().setUniform("percentage", percentage);
-
-        ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
-        ShaderResources.getShaderProgram().setUniform("resolution",
-                (float)resolution.getScaledWidth_double(),
-                (float)resolution.getScaledHeight_double());
-
-        ShaderResources.triggerShader();
-        ShaderResources.getShaderProgram().unuse();
-
-        GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE, CommonBuffers.INT_BUFFER_16);
-        texUnit = CommonBuffers.INT_BUFFER_16.get(0);
-
-        GlStateManager.setActiveTexture(GL13.GL_TEXTURE1);
-        GlStateManager.bindTexture(texUnit1TextureID);
-
-        GlStateManager.setActiveTexture(texUnit);
-
-        if (depthTest)
-            GlStateManager.enableDepth();
-        else
-            GlStateManager.disableDepth();
-        if (blend)
-            GlStateManager.enableBlend();
-        else
-            GlStateManager.disableBlend();
-    }
-    //</editor-fold>
-
-    public static void tick()
-    {
-        for (Runnable runnable: FluxLoadingAPI.fluxLoadingTickListeners)
-            runnable.run();
-        FluxLoadingAPI.tickNum++;
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onRenderGameOverlay(RenderGameOverlayEvent.Post event)
-    {
-        if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) return;
-
-        if (active)
-        {
-            if (!FluxLoadingAPI.finishLoading)
-            {
-                RenderUtils.storeCommonGlStates();
-
-                if (!movementLocked)
-                    movementLocked = true;
-
-                if (FluxLoadingAPI.duringDefaultWorldLoadingPhase)
-                    FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
-
-                // usually finishFadingIn == true here
-                if (!finishFadingIn)
-                    drawOverlayFadingInPhase();
-                else
-                {
-                    //<editor-fold desc="extra chunk loading phase">
-                    if (!finishChunkLoading)
-                    {
-                        if (!FluxLoadingAPI.duringExtraChunkLoadingPhase)
-                            FluxLoadingAPI.duringExtraChunkLoadingPhase = true;
-
-                        drawOverlayChunkLoadingPhase();
-
-                        if (chunkLoadingTitle && targetChunkNumCalculated)
-                        {
-                            ScaledResolution resolution = new ScaledResolution(Minecraft.getMinecraft());
-                            String i18nText = I18n.format("fluxloading.loading_wait");
-                            float width = RenderUtils.fontRenderer.getStringWidth(i18nText);
-                            RenderUtils.renderText(i18nText,
-                                    (resolution.getScaledWidth() - width) / 2,
-                                    (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + (chunkLoadingPercentage ? -10 : 0),
-                                    1, Color.WHITE.getRGB(), true);
-
-                            if (chunkLoadingPercentage && targetChunkNum != 0)
-                            {
-                                String text = String.format("%d/%d, %.1f", chunkLoadedNum, targetChunkNum, ((float) chunkLoadedNum / (float) targetChunkNum) * 100f) + "%";
-                                width = RenderUtils.fontRenderer.getStringWidth(text);
-                                RenderUtils.renderText(text,
-                                        (resolution.getScaledWidth() - width) / 2,
-                                        (resolution.getScaledHeight() - RenderUtils.fontRenderer.FONT_HEIGHT) / 2 + 10,
-                                        1, Color.WHITE.getRGB(), true);
-                            }
-                        }
-                    }
-                    //</editor-fold>
-
-                    //<editor-fold desc="extra wait phase + fading out phase">
-                    if (fadeOutStopWatch != null)
-                    {
-                        double fadeOutTime = fadeOutStopWatch.getNanoTime() / 1E9d;
-
-                        if (!FluxLoadingAPI.duringExtraWaitPhase)
-                        {
-                            FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
-                            FluxLoadingAPI.duringExtraWaitPhase = true;
-                        }
-
-                        if (fadeOutTime >= extraWaitTime && !FluxLoadingAPI.duringFadingOutPhase)
-                        {
-                            FluxLoadingAPI.duringExtraWaitPhase = false;
-                            FluxLoadingAPI.duringFadingOutPhase = true;
-
-                            Minecraft.getMinecraft().setIngameFocus();
-
-                            ShaderResources.setShaderFadingState(false);
-                        }
-
-                        if (fadeOutTime >= fadeOutDuration + extraWaitTime)
-                        {
-                            resetFadeOutTimer();
-                            texture.dispose();
-                            ShaderResources.resetShader();
-
-                            FluxLoadingAPI.duringFadingInPhase = false;
-                            FluxLoadingAPI.duringDefaultWorldLoadingPhase = false;
-                            FluxLoadingAPI.duringExtraChunkLoadingPhase = false;
-                            FluxLoadingAPI.duringExtraWaitPhase = false;
-                            FluxLoadingAPI.duringFadingOutPhase = false;
-                            FluxLoadingAPI.finishLoading = true;
-
-                            if (movementLocked)
-                            {
-                                FluxLoadingNetwork.requestPlayerLock(false);
-                                movementLocked = false;
-                            }
-
-                            FluxLoadingAPI.stopWatch.stop();
-                            double timeMs = FluxLoadingAPI.stopWatch.getNanoTime() / 1e6d;
-
-                            for (Runnable runnable: FluxLoadingAPI.fluxLoadingEndListeners)
-                                runnable.run();
-
-                            FluxLoading.LOGGER.info("Finished world flux loading process. Time taken: " + timeMs + " ms. Tick count: " + FluxLoadingAPI.tickNum);
-
-                            active = false;
-
-                            return;
-                        }
-
-                        drawOverlayWaitAndFadingOutPhase(fadeOutTime);
-                    }
-                    //</editor-fold>
-                }
-
-                tick();
-
-                RenderUtils.restoreCommonGlStates();
+                updateTexture(tex);
             }
         }
     }
 
-    @SubscribeEvent
-    public static void onRenderWorldLast(RenderWorldLastEvent event)
+    private static void updateTexture(Texture2D tex)
     {
-        if (screenshotToggle)
-        {
-            screenshotToggle = false;
-            Minecraft minecraft = Minecraft.getMinecraft();
-            screenshot = ScreenShotHelper.createScreenshot(minecraft.displayWidth, minecraft.displayHeight, minecraft.getFramebuffer());
-        }
-
-        if (debug && frustumRays != null)
-        {
-            RenderUtils.storeCommonGlStates();
-
-            for (Ray ray: frustumRays)
-            {
-                GlStateManager.pushMatrix();
-
-                Vec3d camPos = RenderUtils.getWorldOffset();
-
-                GlStateManager.translate(
-                        (float)(-camPos.x + ray.pos.x),
-                        (float)(-camPos.y + ray.pos.y),
-                        (float)(-camPos.z + ray.pos.z));
-
-                GlStateManager.disableCull();
-                GlStateManager.enableDepth();
-                GlStateManager.disableTexture2D();
-                GlStateManager.disableLighting();
-                GlStateManager.disableBlend();
-
-                GlStateManager.glLineWidth(3.0F);
-
-                Tessellator tessellator = Tessellator.getInstance();
-                BufferBuilder buffer = tessellator.getBuffer();
-                buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
-                buffer.pos(0, 0, 0).endVertex();
-                buffer.pos(ray.dir.x * 5, ray.dir.y * 5, ray.dir.z * 5).endVertex();
-                tessellator.draw();
-
-                GlStateManager.popMatrix();
-            }
-
-            RenderUtils.restoreCommonGlStates();
-        }
+        if (texture != null) texture.dispose();
+        texture = tex;
     }
 
-    // client side lock
-    @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event)
+    public static void captureScreenshotIfRequested()
     {
-        if (event.phase == TickEvent.Phase.END && Minecraft.getMinecraft().player != null)
-        {
-            if (movementLocked)
-            {
-                EntityPlayerSP player = Minecraft.getMinecraft().player;
+        if (!screenshotToggle) return;
 
-                if (!lockPosFetched)
-                {
-                    lockPosFetched = true;
-                    lockX = player.posX;
-                    lockY = player.posY;
-                    lockZ = player.posZ;
-                    FluxLoadingNetwork.requestPlayerLock(true);
-                }
+        screenshotToggle = false;
 
-                player.movementInput.moveForward = 0;
-                player.movementInput.moveStrafe = 0;
-                player.movementInput.forwardKeyDown = false;
-                player.movementInput.backKeyDown = false;
-                player.movementInput.leftKeyDown = false;
-                player.movementInput.rightKeyDown = false;
-                player.movementInput.jump = false;
-                player.movementInput.sneak = false;
-                player.motionX = 0;
-                player.motionY = 0;
-                player.motionZ = 0;
-                player.setPosition(lockX, lockY, lockZ);
-            }
-        }
+        Minecraft mc = Minecraft.getMinecraft();
+        screenshot = net.minecraft.util.ScreenShotHelper.createScreenshot(mc.displayWidth, mc.displayHeight, mc.getFramebuffer());
     }
 
-    // server side lock
-    public static final Map<UUID, Vec3d> serverLockPos = new HashMap<>();
-
-    @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent event)
+    public static void applyClientTickLock()
     {
-        if (event.phase == TickEvent.Phase.END)
-        {
-            if (!serverLockPos.isEmpty())
-            {
-                MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        CLIENT_LOCK.applyClientTickLock();
+    }
 
-                List<UUID> outdated = new ArrayList<>();
-                for (Map.Entry<UUID, Vec3d> entry: serverLockPos.entrySet())
-                {
-                    UUID uuid = entry.getKey();
-                    EntityPlayerMP player = server.getPlayerList().getPlayerByUUID(uuid);
-                    if (player == null)
-                    {
-                        outdated.add(uuid);
-                        continue;
-                    }
-                    Vec3d pos = entry.getValue();
-                    player.connection.setPlayerLocation(pos.x, pos.y, pos.z, player.rotationYaw, player.rotationPitch);
-                }
-                for (UUID uuid: outdated)
-                    serverLockPos.remove(uuid);
-            }
-        }
+    public static void setChunkLoadingTitle(boolean enabled)
+    {
+        CHUNKS.setChunkLoadingTitleEnabled(enabled);
+    }
+
+    public static void setChunkLoadingPercentage(boolean enabled)
+    {
+        CHUNKS.setChunkLoadingPercentageEnabled(enabled);
+    }
+
+    public static void setChunkRayCastTestRayDis(int dis)
+    {
+        CHUNKS.setChunkRayCastTestRayDis(dis);
     }
 }

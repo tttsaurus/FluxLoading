@@ -13,7 +13,6 @@ public class FluxLoadingConfig
     public static boolean CHUNK_LOADING_INDICATOR;
     public static boolean CHUNK_LOADING_PERCENTAGE;
     public static int CHUNK_ESTIMATION_RAY_DISTANCE;
-    public static boolean DEBUG;
 
     public static boolean ENABLE_IGI_INTEGRATION;
     public static boolean REGISTER_FLUXLOADING_MVVM;
@@ -35,8 +34,6 @@ public class FluxLoadingConfig
         try
         {
             CONFIG.load();
-
-            DEBUG = CONFIG.getBoolean("Debug", "general.debug", false, "Display player frustum rays while estimating visible chunk number");
 
             EXTRA_WAIT_TIME = CONFIG.getFloat("Extra Wait Time", "general.timing", 0.5f, 0.1f, 10f, "Extra wait time after waiting chunks to load\nIt's the final delay before the fade-out animation");
             FADE_OUT_DURATION = CONFIG.getFloat("Fade Out Duration", "general.timing", 1.0f, 0.5f, 10f, "The actual fade-out time may feel shorter than this due to the exponentially decaying fade-out function");

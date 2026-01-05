@@ -13,7 +13,7 @@ public class WailaTickHandlerMixin
     @WrapMethod(method = "renderOverlay", remap = false)
     private static void renderOverlay(TickEvent.RenderTickEvent event, Operation<Void> original)
     {
-        if (FluxLoadingAPI.isActive() && !FluxLoadingAPI.isFinishLoading()) return;
+        if (FluxLoadingAPI.isActive()) return;
 
         original.call(event);
     }

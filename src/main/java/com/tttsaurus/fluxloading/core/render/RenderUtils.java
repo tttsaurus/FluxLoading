@@ -157,6 +157,7 @@ public final class RenderUtils
         }
         catch (IOException ignored) { }
     }
+
     @SuppressWarnings("all")
     public static void createPng(File directory, String fileName, BufferedImage image)
     {
@@ -171,6 +172,7 @@ public final class RenderUtils
         }
         catch (IOException ignored) { }
     }
+
     @Nullable
     public static Texture2D readPng(File png)
     {

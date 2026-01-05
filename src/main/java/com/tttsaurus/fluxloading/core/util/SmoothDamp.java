@@ -1,4 +1,4 @@
-package com.tttsaurus.fluxloading.core.animation;
+package com.tttsaurus.fluxloading.core.util;
 
 import net.minecraft.util.math.MathHelper;
 

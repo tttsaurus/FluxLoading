@@ -51,8 +51,7 @@ public class LoadingScreenRendererMixin
     {
         if (FluxLoadingAPI.isActive())
         {
-            FluxLoadingManager.drawOverlayDefaultWorldLoadingAndFadingInPhase();
-            FluxLoadingManager.tick();
+            FluxLoadingManager.renderAndTick();
 
             fluxloading$proxyBufferBuilder.finishDrawing();
             fluxloading$proxyBufferBuilder.reset();
@@ -98,7 +97,8 @@ public class LoadingScreenRendererMixin
         if (FluxLoadingAPI.isActive())
         {
             if (FluxLoadingManager.isForceLoadingTitle() && text != null && !text.isEmpty())
-                FluxLoadingManager.setForceLoadingTitle(false);
+                FluxLoadingManager.consumeForceLoadingTitle();
+
             if (FluxLoadingManager.isForceLoadingTitle())
             {
                 String i18nText = I18n.format("menu.loadingLevel");

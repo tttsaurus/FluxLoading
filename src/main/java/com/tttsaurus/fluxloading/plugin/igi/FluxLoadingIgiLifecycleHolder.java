@@ -1,6 +1,7 @@
 package com.tttsaurus.fluxloading.plugin.igi;
 
 import com.tttsaurus.fluxloading.core.FluxLoadingAPI;
+import com.tttsaurus.fluxloading.core.fsm.FluxLoadingPhase;
 import com.tttsaurus.ingameinfo.common.core.gui.GuiLifecycleHolder;
 import com.tttsaurus.ingameinfo.common.core.input.IgiKeyboard;
 import com.tttsaurus.ingameinfo.common.core.input.IgiMouse;
@@ -19,7 +20,7 @@ public final class FluxLoadingIgiLifecycleHolder extends GuiLifecycleHolder
     public void update()
     {
         if (getLifecycleProvider() == null) return;
-        if (FluxLoadingAPI.isDuringFadingOutPhase() || FluxLoadingAPI.isFinishLoading()) return;
+        if (!FluxLoadingAPI.isActive() || FluxLoadingAPI.getPhase() == FluxLoadingPhase.FADING_OUT) return;
 
         getLifecycleProvider().update(inputGen.generate());
     }

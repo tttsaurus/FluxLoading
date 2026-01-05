@@ -1,4 +1,4 @@
-package com.tttsaurus.fluxloading.core.raycast;
+package com.tttsaurus.fluxloading.core.chunk.raycast;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.culling.ClippingHelper;
@@ -13,6 +13,27 @@ import java.util.*;
 
 public final class FrustumChunkRayCastHelper
 {
+    public static final class Ray
+    {
+        public final Vec3d pos;
+        public final Vec3d dir;
+
+        public Ray(Vec3d pos, Vec3d dir)
+        {
+            this.pos = pos;
+            this.dir = dir;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Ray{" +
+                    "pos=" + pos +
+                    ", dir=" + dir +
+                    '}';
+        }
+    }
+
     public static List<Ray> getRaysFromFrustum(Vec3d camPos, ClippingHelper clippingHelper, int horizontalCount, int verticalCount)
     {
         List<Ray> rays = new ArrayList<>();
