@@ -12,6 +12,6 @@ public final class FluxLoadingRenderListener
     {
         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) return;
 
-        FluxLoadingManager.renderAndTick();
+        FluxLoadingManager.renderAndTick(true);
     }
 }

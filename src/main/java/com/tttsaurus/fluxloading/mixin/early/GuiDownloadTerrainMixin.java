@@ -21,7 +21,7 @@ public class GuiDownloadTerrainMixin
     public void drawBackground(GuiDownloadTerrain instance, int i, Operation<Void> original)
     {
         if (FluxLoadingAPI.isActive())
-            FluxLoadingManager.renderAndTick();
+            FluxLoadingManager.renderAndTick(false);
         else
             original.call(instance, i);
     }

@@ -21,7 +21,7 @@ public class GuiScreenWorkingMixin
     public void drawDefaultBackground(GuiScreenWorking instance, Operation<Void> original)
     {
         if (FluxLoadingAPI.isActive())
-            FluxLoadingManager.renderAndTick();
+            FluxLoadingManager.renderAndTick(false);
         else
             original.call(instance);
     }

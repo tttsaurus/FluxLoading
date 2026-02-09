@@ -117,6 +117,8 @@ public final class FluxLoadingManager
 
         FSM.start();
         CHUNKS.reset(waitChunksToLoad);
+
+        FluxLoadingNetwork.requestPlayerLock(false);
         CLIENT_LOCK.reset();
 
         TIMELINE.reset();
@@ -170,13 +172,16 @@ public final class FluxLoadingManager
         }
     }
 
-    public static void renderAndTick()
+    public static void renderAndTick(boolean playerInWorld)
     {
         if (!active) return;
 
         RenderUtils.storeCommonGlStates();
 
-        CLIENT_LOCK.ensureLocked();
+        if (playerInWorld)
+        {
+            CLIENT_LOCK.ensureLocked();
+        }
 
         FluxLoadingTimeline.UpdateResult timeline = TIMELINE.update();
 

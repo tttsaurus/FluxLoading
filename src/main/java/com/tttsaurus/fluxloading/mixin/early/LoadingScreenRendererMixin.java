@@ -51,7 +51,7 @@ public class LoadingScreenRendererMixin
     {
         if (FluxLoadingAPI.isActive())
         {
-            FluxLoadingManager.renderAndTick();
+            FluxLoadingManager.renderAndTick(false);
 
             fluxloading$proxyBufferBuilder.finishDrawing();
             fluxloading$proxyBufferBuilder.reset();

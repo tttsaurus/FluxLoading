@@ -49,7 +49,7 @@ public class OTGGuiListWorldSelectionEntryMixin
 
             for (int i = 0; i < frameCount; i++)
             {
-                FluxLoadingManager.renderAndTick();
+                FluxLoadingManager.renderAndTick(false);
 
                 try
                 {

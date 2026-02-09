@@ -168,9 +168,15 @@ public final class RenderUtils
 
         try
         {
-            ImageIO.write(image, "PNG", pngFile);
+            if (!ImageIO.write(image, "PNG", pngFile))
+            {
+                throw new RuntimeException("Failed to write PNG at " + pngFile.getAbsolutePath());
+            }
         }
-        catch (IOException ignored) { }
+        catch (Throwable e)
+        {
+            throw new RuntimeException("Failed to write PNG at " + pngFile.getAbsolutePath(), e);
+        }
     }
 
     @Nullable
@@ -181,7 +187,7 @@ public final class RenderUtils
         {
             return createTexture2D(ImageIO.read(png));
         }
-        catch (IOException ignored) { return null; }
+        catch (Throwable ignored) { return null; }
     }
     //</editor-fold>
 
