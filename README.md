@@ -61,6 +61,12 @@ During loading (`EXTRA_CHUNK_LOADING` or `EXTRA_WAIT` to be exact):
 ## Dependency
 - mixinbooter 10.0+
 
+## Build Locally
+Download and add the following libs to `./libs`:
+- `celeritas-common-2.3.0-dev.3.jar`
+- `Hwyla-1.8.26-B41_1.12.2.jar`
+- `OpenTerrainGenerator-1.12.2-v9.5-R2.jar`
+
 ## Compatibility
 - [Nothirium](https://www.curseforge.com/minecraft/mc-mods/nothirium)
 - [Loading Progress Bar](https://www.curseforge.com/minecraft/mc-mods/loading-progress-bar)
